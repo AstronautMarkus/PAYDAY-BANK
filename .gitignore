@@ -219,7 +219,9 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-bank_api
-accounts.dat
-customer_profiles.dat
-bank_users.sqlite3
+# core: compiled COBOL binary and its generated data files
+core/bin/
+core/data/*.dat
+
+# client: SQLite login database lives in the Flask instance/ folder,
+# already covered by the "instance/" rule above.

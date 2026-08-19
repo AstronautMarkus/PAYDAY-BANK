@@ -378,14 +378,14 @@
 <body>
   <div class="shell">
     <header class="topbar">
-      <a class="brand" href="{{ url_for('dashboard') if current_user else url_for('login') }}">
+      <a class="brand" href="{{ url_for('banking.dashboard') if current_user else url_for('auth.login') }}">
         <span class="brand-mark">B</span><span class="brand-name">Banco Legado</span>
       </a>
       {% if current_user %}
       <nav class="nav">
-        <a href="{{ url_for('dashboard') }}">Mi dashboard</a>
-        <form action="{{ url_for('logout') }}" method="post"><button class="link-button" type="submit">Cerrar
-            sesion</button></form>
+        <a href="{{ url_for('banking.dashboard') }}">Mi dashboard</a>
+        <form action="{{ url_for('auth.logout') }}" method="post"><button class="link-button" type="submit">Cerrar
+            sesión</button></form>
       </nav>
       {% endif %}
     </header>

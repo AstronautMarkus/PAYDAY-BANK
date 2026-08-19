@@ -28,14 +28,14 @@
   <div class="action-grid">
     <article class="card action-card">
       <h3>Depositar fondos</h3>
-      <form action="{{ url_for('deposit') }}" method="post">
+      <form action="{{ url_for('banking.deposit') }}" method="post">
         <input name="amount" inputmode="decimal" placeholder="Importe, por ejemplo 250.00" required>
         <button class="button" type="submit">Confirmar depósito</button>
       </form>
     </article>
     <article class="card action-card">
       <h3>Retirar fondos</h3>
-      <form action="{{ url_for('withdraw') }}" method="post">
+      <form action="{{ url_for('banking.withdraw') }}" method="post">
         <input name="amount" inputmode="decimal" placeholder="Importe, por ejemplo 50.00" required>
         <button class="button" type="submit">Confirmar retiro</button>
       </form>

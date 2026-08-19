@@ -3,8 +3,8 @@
 *> It is invoked as a subprocess by the web frontend (Flask).
 *>
 *> Usage:
-*>   bank_api REGISTER <cuenta> <nombre> <documento> <email> <telefono>
-*>       <domicilio> <ocupacion> <empresa>
+*>   bank_api REGISTER <cuenta> <nombre> <documento> <email> <teléfono>
+*>       <domicilio> <ocupación> <empresa>
 *>   bank_api BALANCE  <account>
 *>   bank_api DEPOSIT  <account> <amount>
 *>   bank_api WITHDRAW <account> <amount>
@@ -66,7 +66,7 @@ MAIN-PARAGRAPH.
     ACCEPT WS-ARGC FROM ARGUMENT-NUMBER
 
     IF WS-ARGC < 1
-        DISPLAY "ERR|Operacion no especificada"
+        DISPLAY "ERR|Operación no especificada"
         STOP RUN
     END-IF
 
@@ -96,7 +96,7 @@ MAIN-PARAGRAPH.
         WHEN "DEPOSIT"   PERFORM DO-DEPOSIT
         WHEN "WITHDRAW"  PERFORM DO-WITHDRAW
         WHEN "LIST"      PERFORM DO-LIST
-        WHEN OTHER       DISPLAY "ERR|Operacion invalida"
+        WHEN OTHER       DISPLAY "ERR|Operación inválida"
     END-EVALUATE
 
     CLOSE ACCOUNT-FILE CUSTOMER-FILE
@@ -148,7 +148,7 @@ DO-REGISTER.
             IF WS-FILE-STATUS = "00"
                 DISPLAY "OK|Cuenta y perfil registrados"
             ELSE
-                DISPLAY "ERR|La cuenta se registro, pero el perfil no pudo guardarse"
+                DISPLAY "ERR|La cuenta se registró, pero el perfil no pudo guardarse"
             END-IF
         ELSE
             DISPLAY "ERR|La cuenta ya existe o no se pudo registrar"
