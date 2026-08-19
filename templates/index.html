@@ -88,8 +88,39 @@
       align-items: center;
     }
 
+    .profile-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      align-items: end;
+    }
+
+    .profile-form .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 0;
+    }
+
+    .profile-form .field-wide,
+    .profile-form button {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: #1e4265;
+      font-weight: bold;
+    }
+
+    .field-help {
+      color: #5e7182;
+      font-size: 10px;
+    }
+
     /* Entradas de texto estilo Vista/Win7 */
     input {
+      box-sizing: border-box;
+      width: 100%;
       padding: 0.35rem 0.5rem;
       font-size: 12px;
       border: 1px solid #7a9cb9;
@@ -185,7 +216,7 @@
       text-align: left;
       font-weight: bold;
       border-right: 1px solid #a6c0d7;
-      border-bottom: 1px solid #8baecce;
+      border-bottom: 1px solid #8baecc;
       text-shadow: 0 1px 0 #fff;
     }
 
@@ -207,6 +238,50 @@
     tr:hover td {
       background-color: #edf6fd;
     }
+
+    .contact-line,
+    .work-line {
+      display: block;
+      line-height: 1.4;
+    }
+
+    .secondary {
+      color: #5e7182;
+      font-size: 10px;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+
+      .aero-window {
+        padding: 1rem;
+      }
+
+      h1 {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .profile-form {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-form .field-wide,
+      .profile-form button {
+        grid-column: auto;
+      }
+
+      .datagrid-wrapper {
+        overflow-x: auto;
+      }
+
+      table {
+        min-width: 620px;
+      }
+    }
   </style>
 </head>
 
@@ -224,11 +299,43 @@
     {% endwith %}
 
     <fieldset>
-      <legend>Registrar Cuenta</legend>
-      <form action="{{ url_for('register') }}" method="post">
-        <input name="account" placeholder="Cuenta (6 dígitos)" maxlength="6" required>
-        <input name="name" placeholder="Titular" maxlength="30" required>
-        <button type="submit">Registrar</button>
+      <legend>Alta de cliente corporativo</legend>
+      <form class="profile-form" action="{{ url_for('register') }}" method="post">
+        <div class="field">
+          <label for="account">Numero de cuenta</label>
+          <input id="account" name="account" placeholder="Hasta 6 digitos" maxlength="6" inputmode="numeric" required>
+          <span class="field-help">Identificador de la cuenta bancaria.</span>
+        </div>
+        <div class="field">
+          <label for="name">Nombre completo</label>
+          <input id="name" name="name" placeholder="Persona titular" maxlength="30" required>
+          <span class="field-help">Tal como aparece en el documento.</span>
+        </div>
+        <div class="field">
+          <label for="document">Documento de identidad</label>
+          <input id="document" name="document" placeholder="DNI, NIE o pasaporte" maxlength="20" required>
+        </div>
+        <div class="field">
+          <label for="email">Correo corporativo</label>
+          <input id="email" name="email" type="email" placeholder="nombre@empresa.com" maxlength="60" required>
+        </div>
+        <div class="field">
+          <label for="phone">Telefono de contacto</label>
+          <input id="phone" name="phone" type="tel" placeholder="+34 600 000 000" maxlength="20" required>
+        </div>
+        <div class="field">
+          <label for="occupation">Cargo u ocupacion</label>
+          <input id="occupation" name="occupation" placeholder="Directora financiera" maxlength="40" required>
+        </div>
+        <div class="field field-wide">
+          <label for="address">Domicilio fiscal</label>
+          <input id="address" name="address" placeholder="Calle, numero, ciudad y codigo postal" maxlength="80" required>
+        </div>
+        <div class="field field-wide">
+          <label for="employer">Empresa o actividad economica</label>
+          <input id="employer" name="employer" placeholder="Empresa, sociedad o actividad profesional" maxlength="50" required>
+        </div>
+        <button type="submit">Registrar perfil y cuenta</button>
       </form>
     </fieldset>
 
@@ -258,6 +365,9 @@
             <tr>
               <th>Cuenta</th>
               <th>Titular</th>
+              <th>Identificacion</th>
+              <th>Contacto</th>
+              <th>Actividad</th>
               <th>Saldo</th>
             </tr>
           </thead>
@@ -266,11 +376,28 @@
             <tr>
               <td>{{ acc.account }}</td>
               <td>{{ acc.name }}</td>
+              <td>{{ acc.document or "Perfil pendiente" }}</td>
+              <td>
+                {% if acc.email or acc.phone %}
+                <span class="contact-line">{{ acc.email }}</span>
+                <span class="contact-line secondary">{{ acc.phone }}</span>
+                {% else %}
+                <span class="secondary">Sin datos</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if acc.occupation or acc.employer %}
+                <span class="work-line">{{ acc.occupation }}</span>
+                <span class="work-line secondary">{{ acc.employer }}</span>
+                {% else %}
+                <span class="secondary">Sin datos</span>
+                {% endif %}
+              </td>
               <td>${{ acc.balance }}</td>
             </tr>
             {% else %}
             <tr>
-              <td colspan="3" style="text-align: center; color: #666;">No hay registros en la base de datos COBOL.</td>
+              <td colspan="6" style="text-align: center; color: #666;">No hay registros en la base de datos COBOL.</td>
             </tr>
             {% endfor %}
           </tbody>

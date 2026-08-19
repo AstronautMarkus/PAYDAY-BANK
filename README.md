@@ -58,7 +58,7 @@ pip install -r requirements.txt
 3. Compile the COBOL backend:
 
 ```bash
-cobc -x bank_api.cbl -o bank_api
+cobc -x -free bank_api.cbl -o bank_api
 ```
 
 This generates the executable `bank_api` in the project root.
@@ -89,7 +89,8 @@ The Flask app exposes routes for:
 When a form is submitted, `app.py` validates the input and invokes the COBOL binary with command-line arguments such as:
 
 ```bash
-./bank_api REGISTER 123456 Juan
+./bank_api REGISTER 123456 Juan DNI-12345 juan@empresa.com \
+	"+34 600 000 000" "Calle Mayor 10, Madrid" Director "Empresa SL"
 ./bank_api DEPOSIT 123456 150.00
 ./bank_api WITHDRAW 123456 50.00
 ./bank_api LIST
@@ -101,7 +102,7 @@ The COBOL program reads and writes to `accounts.dat` and prints results to stdou
 
 The backend recognizes these operations:
 
-- `REGISTER <account> <name>`
+- `REGISTER <account> <name> <document> <email> <phone> <address> <occupation> <employer>`
 - `BALANCE <account>`
 - `DEPOSIT <account> <amount>`
 - `WITHDRAW <account> <amount>`
@@ -111,13 +112,14 @@ It emits responses in this form:
 
 - `OK|message`
 - `ERR|message`
-- `ROW|account|owner|balance`
+- `ROW|account|owner|balance|document|email|phone|address|occupation|employer`
 - `END` for the end of the list output
 
 ## Notes
 
 - Account numbers are limited to 6 digits.
 - Amounts are expected to be numeric and may include up to two decimal places.
+- Customer profiles are stored in the indexed `customer_profiles.dat` file, keyed by account number. Existing balances remain in `accounts.dat`, so older accounts can still be listed while showing a pending profile.
 - The project is intentionally lightweight and is better suited for learning and demonstration than for large-scale production banking systems.
 - The COBOL layer contains the real business logic and persistence, while the Python app acts as the front-end interface.
 
