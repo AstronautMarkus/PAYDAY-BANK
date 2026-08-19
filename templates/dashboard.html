@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Banco Legado{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+  <div>
+    <p class="eyebrow">Panel de cliente</p>
+    <h1>Buenos días, {{ current_user.name.split(' ')[0] }}.</h1>
+  </div>
+  <div><span class="eyebrow">Cuenta activa</span>
+    <div class="account-number">{{ account.account }}</div>
+  </div>
+</section>
+<section class="dashboard-grid">
+  <article class="balance-card">
+    <div class="label">Saldo disponible</div>
+    <div class="balance">${{ account.balance }}</div>
+  </article>
+  <article class="card profile-card">
+    <h2>Perfil bancario</h2>
+    <div class="profile-row"><span>Documento</span><strong>{{ account.document }}</strong></div>
+    <div class="profile-row"><span>Correo</span><strong>{{ account.email }}</strong></div>
+    <div class="profile-row"><span>Empresa</span><strong>{{ account.employer }}</strong></div>
+  </article>
+</section>
+<section class="actions">
+  <p class="eyebrow">Operativa diaria</p>
+  <h2>Gestiona tus fondos</h2>
+  <div class="action-grid">
+    <article class="card action-card">
+      <h3>Depositar fondos</h3>
+      <form action="{{ url_for('deposit') }}" method="post">
+        <input name="amount" inputmode="decimal" placeholder="Importe, por ejemplo 250.00" required>
+        <button class="button" type="submit">Confirmar depósito</button>
+      </form>
+    </article>
+    <article class="card action-card">
+      <h3>Retirar fondos</h3>
+      <form action="{{ url_for('withdraw') }}" method="post">
+        <input name="amount" inputmode="decimal" placeholder="Importe, por ejemplo 50.00" required>
+        <button class="button" type="submit">Confirmar retiro</button>
+      </form>
+    </article>
+  </div>
+</section>
+{% endblock %}

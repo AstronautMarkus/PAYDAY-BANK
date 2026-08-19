@@ -15,7 +15,9 @@ This is a simple demo of integrating a legacy COBOL system with a web UI without
 
 ## Features
 
-- Register a new account
+- Register a new account with a complete customer profile
+- Create a password-protected customer login
+- Generate account numbers automatically with a Luhn check digit
 - List all registered accounts
 - Check the balance of a specific account
 - Deposit money into an account
@@ -28,8 +30,14 @@ This is a simple demo of integrating a legacy COBOL system with a web UI without
 - `app.py` - Flask server and request handling
 - `bank_api.cbl` - COBOL implementation of banking operations
 - `requirements.txt` - Python dependencies
-- `templates/index.html` - frontend interface
+- `templates/base.html` - shared layout and navigation
+- `templates/login.html` - customer login
+- `templates/register.html` - customer onboarding
+- `templates/dashboard.html` - authenticated banking dashboard
+- `templates/index.html` - legacy interface kept for reference
 - `accounts.dat` - generated database file after the COBOL program runs
+- `customer_profiles.dat` - indexed customer profile data
+- `bank_users.sqlite3` - hashed login credentials and account associations
 - `bank_api` - compiled COBOL binary generated during setup
 
 ## Prerequisites
@@ -81,10 +89,13 @@ http://127.0.0.1:5000
 
 The Flask app exposes routes for:
 
-- `GET /` - shows the bank dashboard and current account list
-- `POST /register` - creates a new account
-- `POST /deposit` - adds funds to an existing account
-- `POST /withdraw` - removes funds from an existing account
+- `GET /` - redirects to login or the authenticated dashboard
+- `GET, POST /login` - authenticates a customer
+- `GET, POST /register` - creates the profile, password and automatically generated account
+- `POST /logout` - closes the current session
+- `GET /dashboard` - shows the authenticated customer's account
+- `POST /deposit` - adds funds to the authenticated customer's account
+- `POST /withdraw` - removes funds from the authenticated customer's account
 
 When a form is submitted, `app.py` validates the input and invokes the COBOL binary with command-line arguments such as:
 
@@ -96,7 +107,7 @@ When a form is submitted, `app.py` validates the input and invokes the COBOL bin
 ./bank_api LIST
 ```
 
-The COBOL program reads and writes to `accounts.dat` and prints results to stdout, which the Python layer parses and displays as flash messages in the web UI.
+The COBOL program reads and writes to `accounts.dat` and `customer_profiles.dat`, then prints results to stdout, which the Python layer parses and displays in the web UI. Flask stores only password hashes and the association between the login and the COBOL account in `bank_users.sqlite3`.
 
 ## COBOL program contract
 
@@ -120,6 +131,8 @@ It emits responses in this form:
 - Account numbers are limited to 6 digits.
 - Amounts are expected to be numeric and may include up to two decimal places.
 - Customer profiles are stored in the indexed `customer_profiles.dat` file, keyed by account number. Existing balances remain in `accounts.dat`, so older accounts can still be listed while showing a pending profile.
+- New account numbers use the `42` entity prefix, a three-digit value chosen with a cryptographically secure random source, and a Luhn check digit. Each candidate is checked against the COBOL index before registration.
+- Set `BANK_SECRET_KEY` in a real deployment instead of using the development fallback in `app.py`.
 - The project is intentionally lightweight and is better suited for learning and demonstration than for large-scale production banking systems.
 - The COBOL layer contains the real business logic and persistence, while the Python app acts as the front-end interface.
 
