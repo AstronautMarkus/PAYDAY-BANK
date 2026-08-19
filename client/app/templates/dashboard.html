@@ -29,14 +29,18 @@
     <article class="card action-card">
       <h3>Depositar fondos</h3>
       <form action="{{ url_for('banking.deposit') }}" method="post">
-        <input name="amount" inputmode="numeric" pattern="[0-9]+" placeholder="Importe en pesos, por ejemplo 250000" required>
+        <input type="text" inputmode="numeric" data-clp-amount data-clp-target="deposit-amount"
+          placeholder="Importe en pesos, por ejemplo $250.000" required>
+        <input type="hidden" id="deposit-amount" name="amount">
         <button class="button" type="submit">Confirmar depósito</button>
       </form>
     </article>
     <article class="card action-card">
       <h3>Retirar fondos</h3>
       <form action="{{ url_for('banking.withdraw') }}" method="post">
-        <input name="amount" inputmode="numeric" pattern="[0-9]+" placeholder="Importe en pesos, por ejemplo 50000" required>
+        <input type="text" inputmode="numeric" data-clp-amount data-clp-target="withdraw-amount"
+          placeholder="Importe en pesos, por ejemplo $50.000" required>
+        <input type="hidden" id="withdraw-amount" name="amount">
         <button class="button" type="submit">Confirmar retiro</button>
       </form>
     </article>
