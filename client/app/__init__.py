@@ -11,6 +11,7 @@ from flask import Flask
 
 from .config import Config
 from .extensions import db
+from .formatting import format_clp
 
 
 def create_app() -> Flask:
@@ -22,6 +23,7 @@ def create_app() -> Flask:
     )
 
     db.init_app(app)
+    app.jinja_env.filters["clp"] = format_clp
 
     from .blueprints.auth import bp as auth_bp
     from .blueprints.banking import bp as banking_bp

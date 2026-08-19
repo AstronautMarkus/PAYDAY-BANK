@@ -3,11 +3,14 @@ import re
 from flask import flash, g, redirect, render_template, request, url_for
 
 from app.blueprints.auth import login_required
+from app.formatting import format_clp
 from app.mainframe import call_cobol, flash_result, list_accounts
 
 from . import bp
 
-AMOUNT_RE = re.compile(r"^\d+(\.\d{1,2})?$")
+# CLP amounts are whole pesos: a positive integer, no leading zero, no
+# decimal point, sized to fit the core's PIC 9(12) COMP-3 balance field.
+AMOUNT_RE = re.compile(r"^[1-9]\d{0,11}$")
 
 
 @bp.route("/")
@@ -23,7 +26,7 @@ def dashboard():
         {
             "account": g.user.account,
             "name": g.user.name,
-            "balance": "000000000.00",
+            "balance": "0",
             "document": g.user.document,
             "email": g.user.email,
             "phone": g.user.phone,
@@ -52,8 +55,8 @@ def move_money(operation: str):
     amount = request.form.get("amount", "").strip()
 
     if not AMOUNT_RE.match(amount):
-        flash("Monto inválido.", "error")
+        flash("Monto inválido. Ingresa un número entero de pesos, sin decimales.", "error")
     else:
         line = call_cobol(operation, account, amount)
-        flash_result(line, prefix="Nuevo saldo: ")
+        flash_result(line, prefix="Nuevo saldo: $", formatter=format_clp)
     return redirect(url_for("banking.dashboard"))

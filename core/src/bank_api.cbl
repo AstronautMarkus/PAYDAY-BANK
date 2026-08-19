@@ -38,7 +38,10 @@ FD  ACCOUNT-FILE.
 01  ACCOUNT-RECORD.
     05 FD-ACCOUNT-NUMBER    PIC 9(6).
     05 FD-OWNER-NAME        PIC X(30).
-    05 FD-BALANCE           PIC 9(9)V99.
+    *> CLP (peso chileno) no tiene submúltiplo decimal de uso corriente:
+    *> el saldo se guarda como pesos enteros, empaquetado en COMP-3 para
+    *> ahorrar espacio y acelerar la aritmética de montos.
+    05 FD-BALANCE           PIC 9(12) COMP-3.
 
 FD  CUSTOMER-FILE.
 01  CUSTOMER-RECORD.
@@ -57,8 +60,10 @@ WORKING-STORAGE SECTION.
 01  WS-OPERATION            PIC X(10).
 01  WS-ARG-ACCOUNT          PIC X(10).
 01  WS-ARG-VALUE            PIC X(80).
-01  WS-BALANCE-OUT          PIC 9(9)V99.
-01  WS-AMOUNT               PIC 9(9)V99.
+01  WS-AMOUNT               PIC 9(12) COMP-3.
+*> Edited picture used only to print a balance without leading zeros
+*> (Z suppresses leading zeros; the final 9 always keeps one digit).
+01  WS-BALANCE-DISPLAY      PIC Z(11)9.
 01  WS-END-OF-FILE          PIC X VALUE "N".
 
 PROCEDURE DIVISION.
@@ -168,9 +173,9 @@ DO-BALANCE.
             INVALID KEY
                 DISPLAY "ERR|Cuenta no encontrada"
             NOT INVALID KEY
-                MOVE FD-BALANCE TO WS-BALANCE-OUT
+                MOVE FD-BALANCE TO WS-BALANCE-DISPLAY
                 DISPLAY "OK|" FUNCTION TRIM(FD-OWNER-NAME)
-                    "|" WS-BALANCE-OUT
+                    "|" FUNCTION TRIM(WS-BALANCE-DISPLAY)
         END-READ
     END-IF.
 
@@ -194,8 +199,8 @@ DO-DEPOSIT.
             NOT INVALID KEY
                 ADD WS-AMOUNT TO FD-BALANCE
                 REWRITE ACCOUNT-RECORD
-                MOVE FD-BALANCE TO WS-BALANCE-OUT
-                DISPLAY "OK|" WS-BALANCE-OUT
+                MOVE FD-BALANCE TO WS-BALANCE-DISPLAY
+                DISPLAY "OK|" FUNCTION TRIM(WS-BALANCE-DISPLAY)
         END-READ
     END-IF.
 
@@ -222,8 +227,8 @@ DO-WITHDRAW.
                 ELSE
                     SUBTRACT WS-AMOUNT FROM FD-BALANCE
                     REWRITE ACCOUNT-RECORD
-                    MOVE FD-BALANCE TO WS-BALANCE-OUT
-                    DISPLAY "OK|" WS-BALANCE-OUT
+                    MOVE FD-BALANCE TO WS-BALANCE-DISPLAY
+                    DISPLAY "OK|" FUNCTION TRIM(WS-BALANCE-DISPLAY)
                 END-IF
         END-READ
     END-IF.
@@ -241,15 +246,15 @@ DO-LIST.
             AT END
                 MOVE "Y" TO WS-END-OF-FILE
             NOT AT END
-                MOVE FD-BALANCE TO WS-BALANCE-OUT
+                MOVE FD-BALANCE TO WS-BALANCE-DISPLAY
                 MOVE FD-ACCOUNT-NUMBER TO PF-ACCOUNT-NUMBER
                 READ CUSTOMER-FILE
                     INVALID KEY
                         DISPLAY "ROW|" FD-ACCOUNT-NUMBER "|"
-                            FUNCTION TRIM(FD-OWNER-NAME) "|" WS-BALANCE-OUT
+                            FUNCTION TRIM(FD-OWNER-NAME) "|" FUNCTION TRIM(WS-BALANCE-DISPLAY)
                     NOT INVALID KEY
                         DISPLAY "ROW|" FD-ACCOUNT-NUMBER "|"
-                            FUNCTION TRIM(FD-OWNER-NAME) "|" WS-BALANCE-OUT "|"
+                            FUNCTION TRIM(FD-OWNER-NAME) "|" FUNCTION TRIM(WS-BALANCE-DISPLAY) "|"
                             FUNCTION TRIM(PF-DOCUMENT) "|"
                             FUNCTION TRIM(PF-EMAIL) "|"
                             FUNCTION TRIM(PF-PHONE) "|"

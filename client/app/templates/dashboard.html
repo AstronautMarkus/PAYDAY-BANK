@@ -13,7 +13,7 @@
 <section class="dashboard-grid">
   <article class="balance-card">
     <div class="label">Saldo disponible</div>
-    <div class="balance">${{ account.balance }}</div>
+    <div class="balance">${{ account.balance | clp }}</div>
   </article>
   <article class="card profile-card">
     <h2>Perfil bancario</h2>
@@ -29,14 +29,14 @@
     <article class="card action-card">
       <h3>Depositar fondos</h3>
       <form action="{{ url_for('banking.deposit') }}" method="post">
-        <input name="amount" inputmode="decimal" placeholder="Importe, por ejemplo 250.00" required>
+        <input name="amount" inputmode="numeric" pattern="[0-9]+" placeholder="Importe en pesos, por ejemplo 250000" required>
         <button class="button" type="submit">Confirmar depósito</button>
       </form>
     </article>
     <article class="card action-card">
       <h3>Retirar fondos</h3>
       <form action="{{ url_for('banking.withdraw') }}" method="post">
-        <input name="amount" inputmode="decimal" placeholder="Importe, por ejemplo 50.00" required>
+        <input name="amount" inputmode="numeric" pattern="[0-9]+" placeholder="Importe en pesos, por ejemplo 50000" required>
         <button class="button" type="submit">Confirmar retiro</button>
       </form>
     </article>

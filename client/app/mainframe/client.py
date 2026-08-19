@@ -52,14 +52,19 @@ def generate_account() -> str:
     raise RuntimeError("No hay números de cuenta disponibles")
 
 
-def flash_result(lines: list[str], prefix: str = "") -> None:
-    """Turn a call_cobol() response into a Spanish flash message."""
+def flash_result(lines: list[str], prefix: str = "", formatter=None) -> None:
+    """Turn a call_cobol() response into a Spanish flash message.
+
+    `formatter`, if given, is applied to the OK payload before it is shown
+    (e.g. to render a raw peso amount with thousands separators).
+    """
     if not lines:
         flash("El backend COBOL no respondió.", "error")
         return
     status, _, rest = lines[0].partition("|")
     if status == "OK":
-        flash(f"{prefix}{rest}" if prefix else rest or "Operación exitosa.", "ok")
+        text = formatter(rest) if formatter and rest else rest
+        flash(f"{prefix}{text}" if prefix else text or "Operación exitosa.", "ok")
     else:
         flash(rest or "Error desconocido.", "error")
 

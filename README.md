@@ -107,15 +107,15 @@ When a form is submitted, the relevant blueprint route validates the input and c
 ```bash
 core/bin/bank_api REGISTER 123456 Juan DNI-12345 juan@empresa.com \
 	"+34 600 000 000" "Calle Mayor 10, Madrid" Director "Empresa SL"
-core/bin/bank_api DEPOSIT 123456 150.00
-core/bin/bank_api WITHDRAW 123456 50.00
+core/bin/bank_api DEPOSIT 123456 150000
+core/bin/bank_api WITHDRAW 123456 50000
 core/bin/bank_api LIST
 ```
 
 ## Notes
 
 - Account numbers are limited to 6 digits.
-- Amounts are expected to be numeric and may include up to two decimal places.
+- Balances are Chilean pesos (CLP): whole numbers with no decimal places, matching everyday CLP usage. `core/src/bank_api.cbl` stores `FD-BALANCE` as `PIC 9(12) COMP-3` (packed decimal, up to 999,999,999,999 pesos) and prints it through an edited `PIC Z(11)9` field so output has no leading zeros. `client`'s `AMOUNT_RE` (in `app/blueprints/banking/routes.py`) only accepts a positive integer with no leading zero or decimal point, and the dashboard renders balances through the `clp` Jinja filter (`app/formatting.py`), which adds "." as the thousands separator (e.g. `1234567` -> `$1.234.567`).
 - Customer profiles are stored in `core/data/customer_profiles.dat`, keyed by account number. Existing balances remain in `core/data/accounts.dat`, so older accounts can still be listed while showing a pending profile.
 - New account numbers use the `42` entity prefix, a three-digit value chosen with a cryptographically secure random source, and a Luhn check digit. Each candidate is checked against the COBOL index before registration (`app/mainframe/client.py`).
 - Set `BANK_SECRET_KEY` in a real deployment instead of using the development fallback in `app/config.py`.
