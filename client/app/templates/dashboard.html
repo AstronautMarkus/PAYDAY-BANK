@@ -1,49 +1,691 @@
 {% extends "base.html" %}
-{% block title %}Dashboard | Banco Legado{% endblock %}
+{% block title %}Posición global | Banco Legado{% endblock %}
+{% block body_class %}chrome-off{% endblock %}
+
+{% block extra_head %}
+<style>
+  :root {
+    --brick: #7a0c0c;
+    --brick-dark: #4c0606;
+    --red: #b3121f;
+    --red-bright: #d6202c;
+    --red-light: #e8535c;
+    --gold: #e0b23c;
+    --gold-dark: #a67c1f;
+    --steel: #dcdcd6;
+    --paper: #f1efe9;
+    --ink: #2b2620;
+    --muted: #6b675f;
+
+    --aero-1: #fbfcfd;
+    --aero-2: #e7ebee;
+    --aero-3: #d2d9de;
+    --aero-4: #b7c1c7;
+    --aero-border: #b9c2c8;
+    --aero-ink: #3a434b;
+    --aero-muted: #78838b;
+    --aero-accent: #5b83a3;
+    --aero-accent-dark: #3f5f7a;
+  }
+
+  body.chrome-off {
+    background: #55524c;
+    font-family: Verdana, Geneva, Arial, sans-serif;
+    color: var(--ink);
+  }
+
+  .bank-app {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100%;
+  }
+
+  /* ---------- top strip ---------- */
+  .bank-topstrip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 18px;
+    min-height: 56px;
+    background: linear-gradient(180deg, #8f1418 0%, #6e0e10 48%, #4c0808 100%);
+    border-bottom: 2px solid var(--gold-dark);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .4);
+  }
+
+  .bank-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .bank-logo .mark {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 33% 28%, #ffe28a 0%, var(--gold) 38%, var(--gold-dark) 100%);
+    border: 1px solid #6e4f0f;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .5), inset 0 1px 1px rgba(255, 255, 255, .6);
+    color: #4c0808;
+    font-weight: bold;
+    font-size: 16px;
+    font-family: Georgia, serif;
+  }
+
+  .bank-logo .word {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 18px;
+    letter-spacing: .3px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
+  }
+
+  .bank-topstrip nav {
+    display: flex;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .bank-topstrip nav a {
+    color: #f4d9d9;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 3px;
+  }
+
+  .bank-topstrip nav a:hover {
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+  }
+
+  .bank-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bank-user .who {
+    text-align: right;
+    line-height: 1.3;
+  }
+
+  .bank-user .who strong {
+    display: block;
+    color: #fff;
+    font-size: 12px;
+  }
+
+  .bank-user .who span {
+    color: #f0c9c9;
+    font-size: 10px;
+  }
+
+  .btn-3d {
+    border: 1px solid var(--gold-dark);
+    border-radius: 3px;
+    padding: 7px 12px;
+    background: linear-gradient(180deg, #fbe6a4 0%, var(--gold) 45%, var(--gold-dark) 100%);
+    color: #4c2f04;
+    font: bold 11px Verdana, Arial, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 2px 3px rgba(0, 0, 0, .35);
+  }
+
+  .btn-3d:hover {
+    background: linear-gradient(180deg, #fff0bd 0%, #ecc257 45%, #b98a24 100%);
+  }
+
+  .btn-3d:active {
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, .4);
+  }
+
+  /* ---------- body: sidebar + main ---------- */
+  .bank-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .bank-sidebar {
+    width: 218px;
+    flex: 0 0 218px;
+    background: linear-gradient(180deg, #8a1216 0%, #6e0e10 100%);
+    border-right: 3px solid var(--gold-dark);
+    padding: 14px 0 24px;
+    overflow-y: auto;
+  }
+
+  .side-title {
+    color: #f2c9c9;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 16px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, .15);
+    margin-bottom: 4px;
+  }
+
+  .side-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .side-menu>li>a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 14px 9px 18px;
+    color: #fbe9e9;
+    text-decoration: none;
+    font-size: 12px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    border-bottom: 1px solid rgba(0, 0, 0, .25);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .05) 0%, rgba(0, 0, 0, 0) 40%);
+  }
+
+  .side-menu>li>a .ico {
+    display: inline-block;
+    width: 14px;
+    text-align: center;
+    color: var(--gold);
+    font-size: 11px;
+  }
+
+  .side-menu>li>a:hover {
+    background: linear-gradient(180deg, #a5191d 0%, #841012 100%);
+    color: #fff;
+  }
+
+  .side-menu>li.active>a {
+    background: linear-gradient(180deg, #cf2530 0%, #a8171d 55%, #8c1216 100%);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .45);
+    border-left: 4px solid var(--gold);
+    padding-left: 14px;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  .side-sub {
+    list-style: none;
+    margin: 0;
+    padding: 2px 0 6px;
+    background: rgba(0, 0, 0, .18);
+  }
+
+  .side-sub li a {
+    display: block;
+    padding: 6px 14px 6px 40px;
+    font-size: 11px;
+    color: #e8c6c6;
+    text-decoration: none;
+  }
+
+  .side-sub li a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+
+  .side-foot {
+    margin: 16px 14px 0;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, .22);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 4px;
+    font-size: 10px;
+    color: #eecccc;
+    line-height: 1.5;
+  }
+
+  /* ---------- main content ---------- */
+  .bank-main {
+    flex: 1;
+    min-width: 0;
+    padding: 16px 20px 40px;
+    background: linear-gradient(180deg, #eef1f3 0%, #e4e8eb 100%);
+    overflow-y: auto;
+  }
+
+  .crumb {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 2px 12px;
+    border-bottom: 1px solid var(--aero-4);
+    margin-bottom: 16px;
+    font-size: 11px;
+    color: var(--aero-muted);
+  }
+
+  .crumb .sq {
+    color: var(--aero-accent);
+    font-size: 9px;
+  }
+
+  .crumb strong {
+    color: var(--aero-ink);
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .panel {
+    background: #fff;
+    border: 1px solid var(--aero-border);
+    border-radius: 4px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .08);
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 14px;
+    background: linear-gradient(180deg, var(--aero-1) 0%, var(--aero-2) 45%, var(--aero-3) 100%);
+    border-bottom: 1px solid var(--aero-border);
+    border-radius: 4px 4px 0 0;
+    color: var(--aero-ink);
+  }
+
+  .panel-head h2 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .panel-head .tag {
+    font-size: 10px;
+    color: var(--aero-muted);
+    background: rgba(0, 0, 0, .06);
+    padding: 3px 8px;
+    border-radius: 8px;
+  }
+
+  .panel-body {
+    padding: 14px;
+  }
+
+  /* accounts table */
+  table.acct {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  table.acct th {
+    background: var(--aero-2);
+    color: var(--aero-muted);
+    text-align: left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--aero-border);
+  }
+
+  table.acct td {
+    padding: 10px 10px;
+    border-bottom: 1px solid #ecebe6;
+  }
+
+  table.acct tr:nth-child(even) td {
+    background: #fbf8f2;
+  }
+
+  table.acct .bal {
+    text-align: right;
+    font-size: 13px;
+    color: #1c5c2f;
+    font-weight: bold;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: #dff1e4;
+    color: #1c5c2f;
+    font-size: 10px;
+    font-weight: bold;
+  }
+
+  /* quick ops */
+  .op-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .op-box {
+    border: 1px solid var(--aero-border);
+    border-radius: 4px;
+    padding: 12px;
+    background: linear-gradient(180deg, #ffffff 0%, var(--aero-2) 100%);
+  }
+
+  .op-box h3 {
+    margin: 0 0 10px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--aero-ink);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .op-box input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1px solid var(--aero-border);
+    border-radius: 3px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    margin-bottom: 9px;
+  }
+
+  .op-box input[type="text"]:focus {
+    outline: none;
+    border-color: var(--aero-accent);
+    box-shadow: 0 0 0 2px rgba(91, 131, 163, .18);
+  }
+
+  .op-submit {
+    width: 100%;
+    border: 1px solid var(--aero-accent-dark);
+    border-radius: 3px;
+    padding: 8px;
+    background: linear-gradient(180deg, #eef4f8 0%, #c3d3dc 50%, #93aab8 100%);
+    color: var(--aero-accent-dark);
+    font: bold 11px Verdana, Arial, sans-serif;
+    letter-spacing: .3px;
+    cursor: pointer;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 1px 2px rgba(0, 0, 0, .2);
+  }
+
+  .op-submit:hover {
+    background: linear-gradient(180deg, #ffffff 0%, #d3e0e7 50%, #a4bbc8 100%);
+  }
+
+  /* profile mini table */
+  .kv {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .kv td {
+    padding: 7px 4px;
+    border-bottom: 1px solid #ecebe6;
+  }
+
+  .kv td:first-child {
+    color: var(--muted);
+    width: 40%;
+  }
+
+  .kv td:last-child {
+    font-weight: bold;
+    color: var(--ink);
+  }
+
+  /* quick access tiles */
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    padding: 12px 6px;
+    border: 1px solid var(--aero-border);
+    border-radius: 5px;
+    background: linear-gradient(180deg, #ffffff 0%, var(--aero-2) 100%);
+    color: var(--aero-ink);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+  }
+
+  .tile:hover {
+    background: linear-gradient(180deg, #ffffff 0%, #dde6ea 100%);
+    border-color: var(--aero-accent);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .12);
+  }
+
+  .tile .tico {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 33% 28%, #eef4f8 0%, var(--aero-accent) 55%, var(--aero-accent-dark) 100%);
+    color: #fff;
+    font-size: 13px;
+    border: 1px solid var(--aero-accent-dark);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, .5);
+  }
+
+  .tile span.label {
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.25;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1.4fr .9fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  @media (max-width: 980px) {
+    .bank-sidebar {
+      display: none;
+    }
+
+    .op-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .two-col {
+      grid-template-columns: 1fr;
+    }
+
+    .tile-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="dashboard-head">
-  <div>
-    <p class="eyebrow">Panel de cliente</p>
-    <h1>Buenos días, {{ current_user.name.split(' ')[0] }}.</h1>
-  </div>
-  <div><span class="eyebrow">Cuenta activa</span>
-    <div class="account-number">{{ account.account }}</div>
-  </div>
-</section>
-<section class="dashboard-grid">
-  <article class="balance-card">
-    <div class="label">Saldo disponible</div>
-    <div class="balance">${{ account.balance | clp }}</div>
-  </article>
-  <article class="card profile-card">
-    <h2>Perfil bancario</h2>
-    <div class="profile-row"><span>Documento</span><strong>{{ account.document }}</strong></div>
-    <div class="profile-row"><span>Correo</span><strong>{{ account.email }}</strong></div>
-    <div class="profile-row"><span>Empresa</span><strong>{{ account.employer }}</strong></div>
-  </article>
-</section>
-<section class="actions">
-  <p class="eyebrow">Operativa diaria</p>
-  <h2>Gestiona tus fondos</h2>
-  <div class="action-grid">
-    <article class="card action-card">
-      <h3>Depositar fondos</h3>
-      <form action="{{ url_for('banking.deposit') }}" method="post">
-        <input type="text" inputmode="numeric" data-clp-amount data-clp-target="deposit-amount"
-          placeholder="Importe en pesos, por ejemplo $250.000" required>
-        <input type="hidden" id="deposit-amount" name="amount">
-        <button class="button" type="submit">Confirmar depósito</button>
+<div class="bank-app">
+  <div class="bank-topstrip">
+    <a class="bank-logo" href="{{ url_for('banking.dashboard') }}">
+      <span class="mark">B</span>
+      <span class="word">Banco Legado</span>
+    </a>
+    <nav>
+      <a href="#">Buscador</a>
+      <a href="#">Simuladores</a>
+      <a href="#">Oficinas</a>
+      <a href="#">Ayuda</a>
+    </nav>
+    <div class="bank-user">
+      <div class="who">
+        <strong>{{ current_user.name }}</strong>
+        <span>Cuenta {{ account.account }}</span>
+      </div>
+      <form action="{{ url_for('auth.logout') }}" method="post" style="margin:0;">
+        <button class="btn-3d" type="submit">Cerrar sesión</button>
       </form>
-    </article>
-    <article class="card action-card">
-      <h3>Retirar fondos</h3>
-      <form action="{{ url_for('banking.withdraw') }}" method="post">
-        <input type="text" inputmode="numeric" data-clp-amount data-clp-target="withdraw-amount"
-          placeholder="Importe en pesos, por ejemplo $50.000" required>
-        <input type="hidden" id="withdraw-amount" name="amount">
-        <button class="button" type="submit">Confirmar retiro</button>
-      </form>
-    </article>
+    </div>
   </div>
-</section>
+
+  <div class="bank-body">
+    <aside class="bank-sidebar">
+      <div class="side-title">Menú principal</div>
+      <ul class="side-menu">
+        <li class="active">
+          <a href="{{ url_for('banking.dashboard') }}"><span class="ico">&#9632;</span> Posición global</a>
+        </li>
+        <li>
+          <a href="#"><span class="ico">&#9632;</span> Cuentas</a>
+          <ul class="side-sub">
+            <li><a href="#">Detalle de cuenta</a></li>
+            <li><a href="#">Movimientos</a></li>
+            <li><a href="#">Extractos</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#"><span class="ico">&#9632;</span> Transferencias</a>
+          <ul class="side-sub">
+            <li><a href="#">Transferencia nacional</a></li>
+            <li><a href="#">Transferencia internacional</a></li>
+            <li><a href="#">Entre mis cuentas</a></li>
+            <li><a href="#">Beneficiarios habituales</a></li>
+          </ul>
+        </li>
+        <li><a href="#"><span class="ico">&#9632;</span> Recibos y domiciliaciones</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Mi negocio</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Pagos y donaciones</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Tarjetas</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Préstamos y créditos</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Seguros</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Depósitos</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Fondos de inversión</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Planes de pensiones</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Bolsa y mercados</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Supernet Móvil</a></li>
+        <li><a href="#"><span class="ico">&#9632;</span> Buzón de contratos</a></li>
+      </ul>
+      <div class="side-foot">
+        Línea 24h: 600&nbsp;123&nbsp;456<br>
+        Banca telefónica y online.
+      </div>
+    </aside>
+
+    <div class="bank-main">
+      <div class="crumb"><span class="sq">&#9632;</span> Posición global <strong>&nbsp;·&nbsp;Resumen de tu banca
+          online</strong></div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Mis cuentas</h2>
+          <span class="tag">Actualizado hoy</span>
+        </div>
+        <div class="panel-body">
+          <table class="acct">
+            <thead>
+              <tr>
+                <th>Alias</th>
+                <th>Nº de cuenta</th>
+                <th>Titular</th>
+                <th>Estado</th>
+                <th style="text-align:right;">Saldo disponible</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cuenta corriente</td>
+                <td>{{ account.account }}</td>
+                <td>{{ current_user.name }}</td>
+                <td><span class="pill">Activa</span></td>
+                <td class="bal">${{ account.balance | clp }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="two-col">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Operativa habitual</h2>
+          </div>
+          <div class="panel-body">
+            <div class="op-grid">
+              <div class="op-box">
+                <h3>&#9658; Depositar fondos</h3>
+                <form action="{{ url_for('banking.deposit') }}" method="post">
+                  <input type="text" inputmode="numeric" data-clp-amount data-clp-target="deposit-amount"
+                    placeholder="Importe en pesos, por ejemplo $250.000" required>
+                  <input type="hidden" id="deposit-amount" name="amount">
+                  <button class="op-submit" type="submit">Confirmar depósito</button>
+                </form>
+              </div>
+              <div class="op-box">
+                <h3>&#9658; Retirar fondos</h3>
+                <form action="{{ url_for('banking.withdraw') }}" method="post">
+                  <input type="text" inputmode="numeric" data-clp-amount data-clp-target="withdraw-amount"
+                    placeholder="Importe en pesos, por ejemplo $50.000" required>
+                  <input type="hidden" id="withdraw-amount" name="amount">
+                  <button class="op-submit" type="submit">Confirmar retiro</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Datos personales</h2>
+          </div>
+          <div class="panel-body">
+            <table class="kv">
+              <tr>
+                <td>Documento</td>
+                <td>{{ account.document }}</td>
+              </tr>
+              <tr>
+                <td>Correo</td>
+                <td>{{ account.email }}</td>
+              </tr>
+              <tr>
+                <td>Empresa</td>
+                <td>{{ account.employer }}</td>
+              </tr>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Accesos directos</h2>
+        </div>
+        <div class="panel-body">
+          <div class="tile-grid">
+            <a class="tile" href="#"><span class="tico">&#9670;</span><span class="label">Tarjetas</span></a>
+            <a class="tile" href="#"><span class="tico">&#8364;</span><span class="label">Préstamos y
+                créditos</span></a>
+            <a class="tile" href="#"><span class="tico">&#9825;</span><span class="label">Seguros</span></a>
+            <a class="tile" href="#"><span class="tico">&#9737;</span><span class="label">Depósitos</span></a>
+            <a class="tile" href="#"><span class="tico">&#9650;</span><span class="label">Fondos de
+                inversión</span></a>
+            <a class="tile" href="#"><span class="tico">&#9878;</span><span class="label">Planes de
+                pensiones</span></a>
+            <a class="tile" href="#"><span class="tico">&#9776;</span><span class="label">Bolsa y
+                mercados</span></a>
+            <a class="tile" href="#"><span class="tico">&#9993;</span><span class="label">Buzón de
+                contratos</span></a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
 {% endblock %}
