@@ -1,9 +1,9 @@
-"""Frontend web (Flask) para el banco legado.
+"""Legacy bank frontend web app (Flask).
 
-Toda la logica de negocio y los datos viven en COBOL (bank_api.cbl,
-compilado como el binario `bank_api`). Esta app solo renderiza HTML
-y traduce peticiones HTTP en llamadas al binario via subprocess,
-parseando la linea de salida que el programa COBOL imprime.
+All business logic and data live in COBOL (bank_api.cbl, compiled as the
+`bank_api` binary). This app only renders HTML and translates HTTP requests
+into calls to the binary via subprocess, parsing the output line printed by
+the COBOL program.
 """
 import re
 import subprocess
@@ -22,7 +22,7 @@ AMOUNT_RE = re.compile(r"^\d+(\.\d{1,2})?$")
 
 
 def call_cobol(*args: str) -> list[str]:
-    """Ejecuta el binario COBOL y devuelve sus lineas de stdout."""
+    """Run the COBOL binary and return its stdout lines."""
     result = subprocess.run(
         [str(BANK_API), *args],
         cwd=BASE_DIR,
@@ -103,7 +103,7 @@ def report(lines: list[str], prefix: str = "") -> None:
 if __name__ == "__main__":
     if not BANK_API.exists():
         raise SystemExit(
-            "No se encontro el binario 'bank_api'. Compila primero con:\n"
+            "bank_api not found. Compile it first with:\n"
             "  cobc -x bank_api.cbl -o bank_api"
         )
-    app.run(debug=True)
+    app.run(debug=True, port=5005)
