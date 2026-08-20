@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Banco Legado{% endblock %}</title>
+  <title>{% block title %}PAYDAY BANK{% endblock %}</title>
   <style>
     :root {
       --ink: #172b3a;
@@ -12,8 +12,8 @@
       --paper: #f6f7f3;
       --panel: #ffffff;
       --line: #d7e0e3;
-      --teal: #087f8c;
-      --teal-dark: #075763;
+      --teal: #b3121f;
+      --teal-dark: #7a0c0c;
       --gold: #c99532;
       --error: #a33a36;
       --success: #28734d;
@@ -38,13 +38,13 @@
     }
 
     ::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #3bb0bb 0%, var(--teal) 50%, var(--teal-dark) 100%);
+      background: linear-gradient(180deg, #e8535c 0%, var(--teal) 50%, var(--teal-dark) 100%);
       border: 2px solid var(--paper);
       border-radius: 6px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(180deg, #4cc4cf 0%, #0a97a5 50%, var(--teal-dark) 100%);
+      background: linear-gradient(180deg, #f06a72 0%, #b3121f 50%, var(--teal-dark) 100%);
     }
 
     body {
@@ -217,7 +217,7 @@
 
     input:focus {
       border-color: var(--teal);
-      box-shadow: 0 0 0 3px rgba(8, 127, 140, .13);
+      box-shadow: 0 0 0 3px rgba(179, 18, 31, .13);
     }
 
     .hint {
@@ -301,7 +301,7 @@
     }
 
     .balance-card .label {
-      color: #bde3e2;
+      color: #f0c9c9;
       font-size: 12px;
     }
 
@@ -441,7 +441,7 @@
   <div class="shell">
     <header class="topbar">
       <a class="brand" href="{{ url_for('banking.dashboard') if current_user else url_for('auth.login') }}">
-        <span class="brand-mark">B</span><span class="brand-name">Banco Legado</span>
+        <span class="brand-mark">P</span><span class="brand-name">PAYDAY BANK</span>
       </a>
       {% if current_user %}
       <nav class="nav">
