@@ -1,0 +1,88 @@
+*> Data-access module for CUSTOMER-FILE (customer_profiles.dat). Same
+*> function-code pattern as account_repository.cbl, without START /
+*> READNEXT since the original program never scans this file
+*> sequentially -- it is always looked up by account number.
+*>
+*> LK-REPO-FUNCTION selects the operation: OPEN | CLOSE | READ | WRITE
+IDENTIFICATION DIVISION.
+PROGRAM-ID. CUSTOMER-REPOSITORY.
+
+ENVIRONMENT DIVISION.
+INPUT-OUTPUT SECTION.
+FILE-CONTROL.
+    SELECT CUSTOMER-FILE ASSIGN TO "customer_profiles.dat"
+        ORGANIZATION IS INDEXED
+        ACCESS MODE IS DYNAMIC
+        RECORD KEY IS PF-ACCOUNT-NUMBER
+        FILE STATUS IS WS-FILE-STATUS.
+
+DATA DIVISION.
+FILE SECTION.
+FD  CUSTOMER-FILE.
+COPY "customer-record.cpy".
+
+WORKING-STORAGE SECTION.
+01  WS-FILE-STATUS          PIC XX.
+
+LINKAGE SECTION.
+01  LK-REPO-FUNCTION        PIC X(10).
+COPY "customer-record.cpy"
+    REPLACING ==CUSTOMER-RECORD==   BY ==LK-CUSTOMER-RECORD==
+              ==PF-ACCOUNT-NUMBER== BY ==LK-ACCOUNT-NUMBER==
+              ==PF-DOCUMENT==       BY ==LK-DOCUMENT==
+              ==PF-EMAIL==          BY ==LK-EMAIL==
+              ==PF-PHONE==          BY ==LK-PHONE==
+              ==PF-ADDRESS==        BY ==LK-ADDRESS==
+              ==PF-OCCUPATION==     BY ==LK-OCCUPATION==
+              ==PF-EMPLOYER==       BY ==LK-EMPLOYER==.
+01  LK-REPO-FOUND           PIC X.
+
+PROCEDURE DIVISION USING BY REFERENCE LK-REPO-FUNCTION
+                          BY REFERENCE LK-CUSTOMER-RECORD
+                          BY REFERENCE LK-REPO-FOUND.
+MAIN-CUSTOMER-REPOSITORY.
+    MOVE "N" TO LK-REPO-FOUND
+    EVALUATE LK-REPO-FUNCTION
+        WHEN "OPEN"   PERFORM OPEN-CUSTOMER-FILE
+        WHEN "CLOSE"  PERFORM CLOSE-CUSTOMER-FILE
+        WHEN "READ"   PERFORM READ-CUSTOMER-BY-KEY
+        WHEN "WRITE"  PERFORM WRITE-CUSTOMER
+        WHEN OTHER    CONTINUE
+    END-EVALUATE
+    GOBACK.
+
+OPEN-CUSTOMER-FILE.
+    *> Auto-creates customer_profiles.dat if it does not exist yet
+    *> (file status "35"), same behavior as the original monolithic
+    *> MAIN-PARAGRAPH.
+    OPEN I-O CUSTOMER-FILE
+    IF WS-FILE-STATUS = "35"
+        CLOSE CUSTOMER-FILE
+        OPEN OUTPUT CUSTOMER-FILE
+        CLOSE CUSTOMER-FILE
+        OPEN I-O CUSTOMER-FILE
+    END-IF.
+
+CLOSE-CUSTOMER-FILE.
+    CLOSE CUSTOMER-FILE.
+
+READ-CUSTOMER-BY-KEY.
+    MOVE LK-ACCOUNT-NUMBER TO PF-ACCOUNT-NUMBER
+    READ CUSTOMER-FILE
+        INVALID KEY
+            MOVE "N" TO LK-REPO-FOUND
+        NOT INVALID KEY
+            MOVE CUSTOMER-RECORD TO LK-CUSTOMER-RECORD
+            MOVE "Y" TO LK-REPO-FOUND
+    END-READ.
+
+WRITE-CUSTOMER.
+    MOVE LK-CUSTOMER-RECORD TO CUSTOMER-RECORD
+    WRITE CUSTOMER-RECORD
+    IF WS-FILE-STATUS = "00"
+        MOVE "Y" TO LK-REPO-FOUND
+    ELSE
+        MOVE "N" TO LK-REPO-FOUND
+    END-IF.
+
+END PROGRAM CUSTOMER-REPOSITORY.

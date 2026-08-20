@@ -1,16 +1,16 @@
-# Legacy Bank
+# PAYDAY BANK Project
 
-This repository contains a small banking application that mixes a modern Python web frontend with a legacy COBOL backend. The project is organized in two explicit layers:
+PAYDAY BANK is a prototype banking application that demonstrates how to integrate a legacy COBOL system with a modern web UI. It consists of two main components:
 
 - **`core/`** — the COBOL "mainframe": all business logic and persistence (account numbers, balances, customer profiles) live here, compiled to a native binary.
 - **`client/`** — the Flask web client: a thin presentation layer, organized into blueprints, that talks to the core over subprocess calls and keeps its own login database.
 
-This is a demo of integrating a legacy COBOL system with a modern web UI without rewriting the core business logic.
+This is a funny or educational project, not a production-ready banking system. It is intended to illustrate how COBOL can be integrated into a modern web application stack.
 
 ## Repository structure
 
 ```
-cobol-bank/
+PAYDAY-BANK/
 ├── core/                       # COBOL "mainframe"
 │   ├── src/bank_api.cbl        # banking logic over two indexed files
 │   ├── bin/bank_api            # compiled binary (generated, gitignored)
