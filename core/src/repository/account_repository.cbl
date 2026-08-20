@@ -37,7 +37,9 @@ COPY "account-record.cpy"
     REPLACING ==ACCOUNT-RECORD==    BY ==LK-ACCOUNT-RECORD==
               ==FD-ACCOUNT-NUMBER== BY ==LK-ACCOUNT-NUMBER==
               ==FD-OWNER-NAME==     BY ==LK-OWNER-NAME==
-              ==FD-BALANCE==        BY ==LK-BALANCE==.
+              ==FD-BALANCE==        BY ==LK-BALANCE==
+              ==FD-CUSTOMER-ID==    BY ==LK-CUSTOMER-ID==
+              ==FD-ACCOUNT-TYPE==   BY ==LK-ACCOUNT-TYPE==.
 01  LK-REPO-FOUND           PIC X.
 01  LK-REPO-EOF             PIC X.
 

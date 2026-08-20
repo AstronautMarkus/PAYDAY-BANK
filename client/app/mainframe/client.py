@@ -1,13 +1,13 @@
 """Thin subprocess client around the compiled bank_api binary.
 
-The COBOL core owns every banking decision (account numbers, balances,
-profiles). This module only knows how to invoke it and parse its
-line-oriented stdout contract:
+The COBOL core owns every banking decision (customer/account IDs,
+balances, profiles, ownership). This module only knows how to invoke it
+and parse its line-oriented stdout contract:
 
     OK|...      successful operation
     ERR|message failed operation
-    ROW|account|name|balance|profile-data  (LIST only)
-    END          marks the end of the LIST output
+    ROW|...     one row per item (ACCOUNTS only, in this client)
+    END          marks the end of a ROW listing
 """
 import secrets
 import subprocess
@@ -52,6 +52,24 @@ def generate_account() -> str:
     raise RuntimeError("No hay números de cuenta disponibles")
 
 
+def customer_exists(customer_id: str) -> bool:
+    lines = call_cobol("CUSTEXISTS", customer_id)
+    return bool(lines and lines[0].startswith("OK|"))
+
+
+def generate_customer_id() -> str:
+    """Same Luhn-checked generation scheme as generate_account(), with a
+    distinct "77" entity prefix so customer IDs and account numbers are
+    visually distinguishable even though they live in separate keyspaces.
+    """
+    for _ in range(50):
+        body = f"77{secrets.randbelow(1000):03d}"
+        candidate = body + account_digit(body)
+        if not customer_exists(candidate):
+            return candidate
+    raise RuntimeError("No hay números de cliente disponibles")
+
+
 def flash_result(lines: list[str], prefix: str = "", formatter=None) -> None:
     """Turn a call_cobol() response into a Spanish flash message.
 
@@ -69,23 +87,15 @@ def flash_result(lines: list[str], prefix: str = "", formatter=None) -> None:
         flash(rest or "Error desconocido.", "error")
 
 
-def list_accounts() -> list[dict[str, str]]:
+def list_customer_accounts(customer_id: str) -> list[dict[str, str]]:
+    """List every account owned by one customer (dashboard "my accounts").
+
+    Profile fields (name, document, etc.) aren't part of this response --
+    the caller already has them from the logged-in User row.
+    """
     accounts = []
-    for line in call_cobol("LIST"):
+    for line in call_cobol("ACCOUNTS", customer_id):
         parts = line.split("|")
-        if parts[0] == "ROW" and len(parts) in (4, 10):
-            profile = parts[4:] if len(parts) == 10 else ["", "", "", "", "", ""]
-            accounts.append(
-                {
-                    "account": parts[1],
-                    "name": parts[2],
-                    "balance": parts[3],
-                    "document": profile[0],
-                    "email": profile[1],
-                    "phone": profile[2],
-                    "address": profile[3],
-                    "occupation": profile[4],
-                    "employer": profile[5],
-                }
-            )
+        if parts[0] == "ROW" and len(parts) == 4:
+            accounts.append({"account": parts[1], "type": parts[2], "balance": parts[3]})
     return accounts

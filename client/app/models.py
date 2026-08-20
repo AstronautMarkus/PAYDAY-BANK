@@ -1,6 +1,9 @@
 """Client-side persistence: login credentials and the profile snapshot used
 to prefill the dashboard. The COBOL core remains the source of truth for
-account balances and profile data; this table only owns authentication.
+accounts (balances, types) and the customer profile; this table only owns
+authentication plus the link to the customer's COBOL identity
+(customer_id) -- a customer may own several COBOL accounts, so no
+account number lives here anymore.
 """
 from datetime import datetime, timezone
 
@@ -21,7 +24,7 @@ class User(db.Model):
     address: Mapped[str] = mapped_column(db.String(80))
     occupation: Mapped[str] = mapped_column(db.String(40))
     employer: Mapped[str] = mapped_column(db.String(50))
-    account: Mapped[str] = mapped_column(db.String(10), unique=True)
+    customer_id: Mapped[str] = mapped_column(db.String(10), unique=True)
     password_hash: Mapped[str] = mapped_column(db.String(255))
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)

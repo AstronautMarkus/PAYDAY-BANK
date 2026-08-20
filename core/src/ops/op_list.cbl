@@ -1,6 +1,9 @@
 *> LIST
-*> Streams one ROW| line per account (short form, or long form with
-*> the customer profile when one exists), followed by END.
+*> Bank-wide admin/debug dump: streams one ROW| line per account (short
+*> form, or long form with the owning customer's profile when found),
+*> followed by END. Not used by the Flask client (which lists accounts
+*> scoped to one customer via ACCOUNTS instead) -- kept for CLI
+*> inspection of the whole accounts.dat/customer_profiles.dat state.
 IDENTIFICATION DIVISION.
 PROGRAM-ID. OP-LIST.
 
@@ -10,10 +13,12 @@ COPY "account-record.cpy"
     REPLACING ==ACCOUNT-RECORD==    BY ==WS-ACCOUNT-RECORD==
               ==FD-ACCOUNT-NUMBER== BY ==WS-ACCOUNT-NUMBER==
               ==FD-OWNER-NAME==     BY ==WS-OWNER-NAME==
-              ==FD-BALANCE==        BY ==WS-BALANCE==.
+              ==FD-BALANCE==        BY ==WS-BALANCE==
+              ==FD-CUSTOMER-ID==    BY ==WS-ACCOUNT-CUSTOMER-ID==
+              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==.
 COPY "customer-record.cpy"
     REPLACING ==CUSTOMER-RECORD==   BY ==WS-CUSTOMER-RECORD==
-              ==PF-ACCOUNT-NUMBER== BY ==WS-CUST-ACCOUNT-NUMBER==
+              ==PF-CUSTOMER-ID==    BY ==WS-CUST-CUSTOMER-ID==
               ==PF-DOCUMENT==       BY ==WS-CUST-DOCUMENT==
               ==PF-EMAIL==          BY ==WS-CUST-EMAIL==
               ==PF-PHONE==          BY ==WS-CUST-PHONE==
@@ -47,17 +52,19 @@ MAIN-OP-LIST.
             MOVE "Y" TO WS-END-OF-FILE
         ELSE
             MOVE WS-BALANCE TO WS-BALANCE-DISPLAY
-            MOVE WS-ACCOUNT-NUMBER TO WS-CUST-ACCOUNT-NUMBER
+            MOVE WS-ACCOUNT-CUSTOMER-ID TO WS-CUST-CUSTOMER-ID
 
             MOVE "READ" TO WS-CUST-REPO-FUNCTION
             CALL "CUSTOMER-REPOSITORY" USING BY REFERENCE WS-CUST-REPO-FUNCTION
                 WS-CUSTOMER-RECORD WS-CUST-REPO-FOUND
 
             IF WS-CUST-REPO-FOUND = "N"
-                DISPLAY "ROW|" WS-ACCOUNT-NUMBER "|"
+                DISPLAY "ROW|" WS-ACCOUNT-NUMBER "|" WS-ACCOUNT-CUSTOMER-ID "|"
+                    FUNCTION TRIM(WS-ACCOUNT-TYPE) "|"
                     FUNCTION TRIM(WS-OWNER-NAME) "|" FUNCTION TRIM(WS-BALANCE-DISPLAY)
             ELSE
-                DISPLAY "ROW|" WS-ACCOUNT-NUMBER "|"
+                DISPLAY "ROW|" WS-ACCOUNT-NUMBER "|" WS-ACCOUNT-CUSTOMER-ID "|"
+                    FUNCTION TRIM(WS-ACCOUNT-TYPE) "|"
                     FUNCTION TRIM(WS-OWNER-NAME) "|" FUNCTION TRIM(WS-BALANCE-DISPLAY) "|"
                     FUNCTION TRIM(WS-CUST-DOCUMENT) "|"
                     FUNCTION TRIM(WS-CUST-EMAIL) "|"

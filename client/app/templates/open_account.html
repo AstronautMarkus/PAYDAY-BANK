@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Abrir cuenta | PAYDAY BANK{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <div>
+        <p class="eyebrow">Nueva cuenta</p>
+        <h1>Abre una cuenta adicional.</h1>
+        <p class="lead">Elige el tipo de cuenta que quieres sumar a tu perfil. El número se genera
+            automáticamente, igual que tu cuenta corriente inicial.</p>
+    </div>
+    <section class="card auth-card">
+        <p class="eyebrow">Cliente {{ current_user.customer_id }}</p>
+        <h2>Abrir cuenta</h2>
+        <form method="post" class="form-grid">
+            <label class="wide">Tipo de cuenta
+                <select name="account_type" required>
+                    {% for value, label in account_types.items() %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="button wide" type="submit">Crear cuenta</button>
+        </form>
+        <p class="form-footer"><a href="{{ url_for('banking.dashboard') }}">Volver a mi posición global</a></p>
+    </section>
+</section>
+{% endblock %}

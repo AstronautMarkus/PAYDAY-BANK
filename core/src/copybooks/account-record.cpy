@@ -12,3 +12,9 @@
            *> empaquetado en COMP-3 para ahorrar espacio y acelerar la
            *> aritmética de montos.
            05 FD-BALANCE           PIC 9(12) COMP-3.
+           *> Cliente dueño de esta cuenta (ver customer-record.cpy).
+           *> Una cuenta pertenece a exactamente un cliente; un cliente
+           *> puede tener varias cuentas (una por FD-ACCOUNT-TYPE, sin
+           *> límite impuesto aquí).
+           05 FD-CUSTOMER-ID       PIC 9(6).
+           05 FD-ACCOUNT-TYPE      PIC X(10).

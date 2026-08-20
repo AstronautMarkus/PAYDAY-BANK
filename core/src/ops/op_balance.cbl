@@ -9,7 +9,9 @@ COPY "account-record.cpy"
     REPLACING ==ACCOUNT-RECORD==    BY ==WS-ACCOUNT-RECORD==
               ==FD-ACCOUNT-NUMBER== BY ==WS-ACCOUNT-NUMBER==
               ==FD-OWNER-NAME==     BY ==WS-OWNER-NAME==
-              ==FD-BALANCE==        BY ==WS-BALANCE==.
+              ==FD-BALANCE==        BY ==WS-BALANCE==
+              ==FD-CUSTOMER-ID==    BY ==WS-ACCOUNT-CUSTOMER-ID==
+              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==.
 01  WS-ARG-INDEX        PIC 9(2).
 01  WS-ARG-ACCOUNT      PIC X(10).
 01  WS-BALANCE-DISPLAY  PIC Z(11)9.

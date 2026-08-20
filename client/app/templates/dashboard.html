@@ -545,7 +545,8 @@
     gap: 6px;
   }
 
-  .op-box input[type="text"] {
+  .op-box input[type="text"],
+  .op-box select {
     width: 100%;
     box-sizing: border-box;
     padding: 8px 10px;
@@ -557,7 +558,8 @@
     margin-bottom: 9px;
   }
 
-  .op-box input[type="text"]:focus {
+  .op-box input[type="text"]:focus,
+  .op-box select:focus {
     outline: none;
     border-color: var(--aero-accent);
     box-shadow: 0 0 0 2px rgba(91, 131, 163, .18);
@@ -727,7 +729,7 @@
     <div class="bank-user">
       <div class="who">
         <strong>{{ current_user.name }}</strong>
-        <span>Cuenta {{ account.account }}</span>
+        <span>Cliente {{ current_user.customer_id }}</span>
       </div>
       <button class="btn-3d" type="button" id="logout-trigger">Cerrar sesión</button>
     </div>
@@ -750,6 +752,7 @@
         <li>
           <a href="#"><span class="ico">&#9632;</span> Cuentas</a>
           <ul class="side-sub">
+            <li><a href="{{ url_for('banking.open_account') }}">Abrir cuenta</a></li>
             <li><a href="#">Detalle de cuenta</a></li>
             <li><a href="#">Movimientos</a></li>
             <li><a href="#">Extractos</a></li>
@@ -760,7 +763,7 @@
           <ul class="side-sub">
             <li><a href="#">Transferencia nacional</a></li>
             <li><a href="#">Transferencia internacional</a></li>
-            <li><a href="#">Entre mis cuentas</a></li>
+            <li><a href="{{ url_for('banking.transfer') }}">Entre mis cuentas</a></li>
             <li><a href="#">Beneficiarios habituales</a></li>
           </ul>
         </li>
@@ -804,13 +807,15 @@
               </tr>
             </thead>
             <tbody>
+              {% for acct in accounts %}
               <tr>
-                <td>Cuenta corriente</td>
-                <td>{{ account.account }}</td>
+                <td>{{ account_types.get(acct.type, acct.type) }}</td>
+                <td>{{ acct.account }}</td>
                 <td>{{ current_user.name }}</td>
                 <td><span class="pill">Activa</span></td>
-                <td class="bal">${{ account.balance | clp }}</td>
+                <td class="bal">${{ acct.balance | clp }}</td>
               </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
@@ -826,6 +831,12 @@
               <div class="op-box">
                 <h3>&#9658; Depositar fondos</h3>
                 <form action="{{ url_for('banking.deposit') }}" method="post">
+                  <select name="account" required>
+                    {% for acct in accounts %}
+                    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} ·
+                      {{ acct.account }}</option>
+                    {% endfor %}
+                  </select>
                   <input type="text" inputmode="numeric" data-clp-amount data-clp-target="deposit-amount"
                     placeholder="Importe en pesos, por ejemplo $250.000" required>
                   <input type="hidden" id="deposit-amount" name="amount">
@@ -835,6 +846,12 @@
               <div class="op-box">
                 <h3>&#9658; Retirar fondos</h3>
                 <form action="{{ url_for('banking.withdraw') }}" method="post">
+                  <select name="account" required>
+                    {% for acct in accounts %}
+                    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} ·
+                      {{ acct.account }}</option>
+                    {% endfor %}
+                  </select>
                   <input type="text" inputmode="numeric" data-clp-amount data-clp-target="withdraw-amount"
                     placeholder="Importe en pesos, por ejemplo $50.000" required>
                   <input type="hidden" id="withdraw-amount" name="amount">
@@ -853,15 +870,15 @@
             <table class="kv">
               <tr>
                 <td>Documento</td>
-                <td>{{ account.document }}</td>
+                <td>{{ current_user.document }}</td>
               </tr>
               <tr>
                 <td>Correo</td>
-                <td>{{ account.email }}</td>
+                <td>{{ current_user.email }}</td>
               </tr>
               <tr>
                 <td>Empresa</td>
-                <td>{{ account.employer }}</td>
+                <td>{{ current_user.employer }}</td>
               </tr>
             </table>
           </div>

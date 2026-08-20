@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Transferir | PAYDAY BANK{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <div>
+        <p class="eyebrow">Entre mis cuentas</p>
+        <h1>Mueve dinero entre tus cuentas.</h1>
+        <p class="lead">Transfiere fondos entre las cuentas que tienes abiertas en PAYDAY BANK. Por ahora solo
+            puedes transferir entre tus propias cuentas.</p>
+    </div>
+    <section class="card auth-card">
+        <p class="eyebrow">Cliente {{ current_user.customer_id }}</p>
+        <h2>Transferencia</h2>
+        {% if accounts|length < 2 %}
+        <p class="lead">Necesitas al menos dos cuentas para transferir.
+            <a href="{{ url_for('banking.open_account') }}">Abre una cuenta adicional</a>.
+        </p>
+        {% else %}
+        <form method="post" class="form-grid">
+            <label class="wide">Cuenta de origen
+                <select name="from_account" required>
+                    {% for acct in accounts %}
+                    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} ·
+                        {{ acct.account }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="wide">Cuenta de destino
+                <select name="to_account" required>
+                    {% for acct in accounts %}
+                    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} ·
+                        {{ acct.account }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="wide">Monto a transferir
+                <input type="text" inputmode="numeric" data-clp-amount data-clp-target="transfer-amount"
+                    placeholder="Importe en pesos, por ejemplo $50.000" required>
+                <input type="hidden" id="transfer-amount" name="amount">
+            </label>
+            <button class="button wide" type="submit">Confirmar transferencia</button>
+        </form>
+        {% endif %}
+        <p class="form-footer"><a href="{{ url_for('banking.dashboard') }}">Volver a mi posición global</a></p>
+    </section>
+</section>
+{% endblock %}

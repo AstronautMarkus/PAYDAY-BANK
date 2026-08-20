@@ -1,5 +1,6 @@
-"""Banking operations: dashboard, deposits, and withdrawals against the
-mainframe core."""
+"""Banking operations: dashboard, deposits, withdrawals, opening new
+accounts, and transfers between a customer's own accounts, all against
+the mainframe core."""
 from flask import Blueprint
 
 bp = Blueprint("banking", __name__)

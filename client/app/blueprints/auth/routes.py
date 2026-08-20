@@ -4,7 +4,7 @@ from flask import flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.extensions import db
-from app.mainframe import call_cobol, flash_result, generate_account
+from app.mainframe import call_cobol, flash_result, generate_account, generate_customer_id
 from app.models import User
 
 from . import bp
@@ -82,10 +82,11 @@ def register():
             flash("Ya existe un cliente con ese correo o documento.", "error")
         else:
             try:
+                customer_id = generate_customer_id()
                 account = generate_account()
                 line = call_cobol(
-                    "REGISTER", account, name, document, email, phone, address,
-                    occupation, employer,
+                    "REGISTER", customer_id, account, name, document, email, phone,
+                    address, occupation, employer,
                 )
             except (OSError, RuntimeError):
                 line = []
@@ -94,11 +95,15 @@ def register():
                     User(
                         name=name, document=document, email=email, phone=phone,
                         address=address, occupation=occupation, employer=employer,
-                        account=account, password_hash=generate_password_hash(password),
+                        customer_id=customer_id, password_hash=generate_password_hash(password),
                     )
                 )
                 db.session.commit()
-                flash("Cliente creado. Tu número de cuenta es " + account + ".", "ok")
+                flash(
+                    "Cliente creado. Tu número de cliente es " + customer_id
+                    + " y tu cuenta corriente es " + account + ".",
+                    "ok",
+                )
                 return redirect(url_for("auth.login"))
             flash_result(line)
     return render_template("register.html")

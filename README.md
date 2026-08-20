@@ -26,7 +26,7 @@ PAYDAY-BANK/
 │   │   ├── mainframe/          # subprocess client for the COBOL core
 │   │   ├── blueprints/
 │   │   │   ├── auth/           # login, logout, registration
-│   │   │   └── banking/        # dashboard, deposit, withdraw
+│   │   │   └── banking/        # dashboard, deposit, withdraw, open account, transfer
 │   │   └── templates/
 │   ├── instance/                # bank_users.sqlite3 (generated, gitignored)
 │   ├── wsgi.py                  # entrypoint
@@ -38,12 +38,14 @@ PAYDAY-BANK/
 
 ## Features
 
-- Register a new account with a complete customer profile
+- Register a new customer (with a complete profile) and their first account
 - Create a password-protected customer login
-- Generate account numbers automatically with a Luhn check digit
-- List all registered accounts
+- Open additional accounts (Corriente/checking, Ahorro/savings) for an existing customer
+- Generate customer and account numbers automatically with a Luhn check digit
+- List every account owned by the logged-in customer
 - Check the balance of a specific account
 - Deposit and withdraw money
+- Transfer money between a customer's own accounts
 - Basic validation for account numbers and monetary values
 - Persistent data storage in indexed COBOL files (`core/data/*.dat`)
 
@@ -78,46 +80,53 @@ http://127.0.0.1:5005
 
 ### Core (`core/`)
 
-`bank_api.cbl` is a non-interactive COBOL program: it receives its operation and arguments on the command line, reads/writes two indexed files (`accounts.dat`, `customer_profiles.dat`), and prints one result line to stdout per call. It recognizes:
+`bank_api.cbl` is a non-interactive COBOL program: it receives its operation and arguments on the command line, reads/writes two indexed files (`accounts.dat`, `customer_profiles.dat`), and prints one result line to stdout per call. A **customer** (identity: profile + login) is distinct from an **account** (a product with its own balance and type, `CORRIENTE` or `AHORRO`); a customer owns zero or more accounts. Every money-moving operation takes the caller's `customer-id`, and the core verifies each account's ownership before touching its balance. It recognizes:
 
-- `REGISTER <account> <name> <document> <email> <phone> <address> <occupation> <employer>`
+- `REGISTER <customer-id> <account> <name> <document> <email> <phone> <address> <occupation> <employer>` — creates the customer and their first account (type `CORRIENTE`, balance 0)
+- `CUSTEXISTS <customer-id>` — existence check, used to generate unique customer IDs
+- `OPENACCT <customer-id> <account> <name> <type>` — opens an additional account (`type` is `CORRIENTE` or `AHORRO`) for an existing customer
+- `ACCOUNTS <customer-id>` — lists every account owned by one customer
 - `BALANCE <account>`
-- `DEPOSIT <account> <amount>`
-- `WITHDRAW <account> <amount>`
-- `LIST`
+- `DEPOSIT <customer-id> <account> <amount>`
+- `WITHDRAW <customer-id> <account> <amount>`
+- `TRANSFER <customer-id> <from-account> <to-account> <amount>` — moves money between two accounts; both must belong to `customer-id` (this phase only supports transfers between a customer's own accounts)
+- `LIST` — bank-wide admin/debug dump, not used by the Flask client
 
 Responses follow this contract:
 
 - `OK|message`
 - `ERR|message`
-- `ROW|account|owner|balance|document|email|phone|address|occupation|employer`
-- `END` marks the end of `LIST` output
+- `ROW|...` (one per row; shape depends on the operation — see each `OP-*` subprogram under `core/src/ops/`)
+- `END` marks the end of a `ROW` listing (`ACCOUNTS`/`LIST` only)
 
 ### Client (`client/`)
 
 `client/app` is a Flask app built with the application-factory pattern:
 
 - `app/mainframe/client.py` is the only module that shells out to `core/bin/bank_api` (via `subprocess`, with `core/data/` as its working directory) and parses the `OK|`/`ERR|`/`ROW|`/`END` contract above.
-- `app/models.py` defines the `User` model (SQLAlchemy) — it stores only password hashes and the association between a login and a COBOL account number in `client/instance/bank_users.sqlite3`. The core remains the source of truth for balances and profile data.
+- `app/models.py` defines the `User` model (SQLAlchemy) — it stores only password hashes and the association between a login and a COBOL `customer-id` in `client/instance/bank_users.sqlite3`. A customer's accounts (numbers, types, balances) live only in COBOL; the core remains the source of truth for them and for the profile data.
 - `app/blueprints/auth` exposes `GET,POST /login`, `POST /logout`, `GET,POST /register`.
-- `app/blueprints/banking` exposes `GET /`, `GET /dashboard`, `POST /deposit`, `POST /withdraw`.
+- `app/blueprints/banking` exposes `GET /`, `GET /dashboard`, `POST /deposit`, `POST /withdraw`, `GET,POST /accounts/open`, `GET,POST /transfer`.
 
 When a form is submitted, the relevant blueprint route validates the input and calls into `app.mainframe` with arguments such as:
 
 ```bash
-core/bin/bank_api REGISTER 123456 Juan DNI-12345 juan@empresa.com \
+core/bin/bank_api REGISTER 900001 123456 Juan DNI-12345 juan@empresa.com \
 	"+34 600 000 000" "Calle Mayor 10, Madrid" Director "Empresa SL"
-core/bin/bank_api DEPOSIT 123456 150000
-core/bin/bank_api WITHDRAW 123456 50000
-core/bin/bank_api LIST
+core/bin/bank_api OPENACCT 900001 123457 Juan AHORRO
+core/bin/bank_api DEPOSIT 900001 123456 150000
+core/bin/bank_api WITHDRAW 900001 123456 50000
+core/bin/bank_api TRANSFER 900001 123456 123457 20000
+core/bin/bank_api ACCOUNTS 900001
 ```
 
 ## Notes
 
-- Account numbers are limited to 6 digits.
-- Balances are Chilean pesos (CLP): whole numbers with no decimal places, matching everyday CLP usage. `core/src/bank_api.cbl` stores `FD-BALANCE` as `PIC 9(12) COMP-3` (packed decimal, up to 999,999,999,999 pesos) and prints it through an edited `PIC Z(11)9` field so output has no leading zeros. `client`'s `AMOUNT_RE` (in `app/blueprints/banking/routes.py`) only accepts a positive integer with no leading zero or decimal point, and the dashboard renders balances through the `clp` Jinja filter (`app/formatting.py`), which adds "." as the thousands separator (e.g. `1234567` -> `$1.234.567`).
-- Customer profiles are stored in `core/data/customer_profiles.dat`, keyed by account number. Existing balances remain in `core/data/accounts.dat`, so older accounts can still be listed while showing a pending profile.
-- New account numbers use the `42` entity prefix, a three-digit value chosen with a cryptographically secure random source, and a Luhn check digit. Each candidate is checked against the COBOL index before registration (`app/mainframe/client.py`).
+- Customer IDs and account numbers are both 6 digits, generated the same way (see below) but in separate keyspaces — a customer ID is never a valid account number and vice versa.
+- Balances are Chilean pesos (CLP): whole numbers with no decimal places, matching everyday CLP usage. `core/src/copybooks/account-record.cpy` stores `FD-BALANCE` as `PIC 9(12) COMP-3` (packed decimal, up to 999,999,999,999 pesos) and each op prints it through an edited `PIC Z(11)9` field so output has no leading zeros. `client`'s `AMOUNT_RE` (in `app/blueprints/banking/routes.py`) only accepts a positive integer with no leading zero or decimal point, and the dashboard renders balances through the `clp` Jinja filter (`app/formatting.py`), which adds "." as the thousands separator (e.g. `1234567` -> `$1.234.567`).
+- Customer profiles are stored in `core/data/customer_profiles.dat`, keyed by `customer-id`. Accounts are stored in `core/data/accounts.dat`, keyed by account number, each carrying the `customer-id` of its owner and its `FD-ACCOUNT-TYPE` (`CORRIENTE` or `AHORRO`). A customer may own several accounts, including more than one of the same type.
+- New account numbers use the `42` entity prefix, and new customer IDs the `77` prefix — both a three-digit value chosen with a cryptographically secure random source plus a Luhn check digit. Each candidate is checked against the COBOL index before use (`app/mainframe/client.py`: `generate_account()`/`generate_customer_id()`).
+- Deposits, withdrawals, and transfers all require the caller's `customer-id` and the COBOL core rejects any operation on an account it doesn't own (`ERR|La cuenta no pertenece al cliente`) — this is enforced in the core itself, not just in the Flask forms, since the account number involved is client-supplied. Transfers are restricted to a customer's own accounts in this phase (no transfers to other customers).
 - Set `BANK_SECRET_KEY` in a real deployment instead of using the development fallback in `app/config.py`.
 - All identifiers, comments, and docstrings in the codebase are in English; every user-facing message (flash messages, validation errors, templates) is in Spanish, matching the target audience of the demo.
 - The project is intentionally lightweight and is better suited for learning and demonstration than for large-scale production banking systems.

@@ -1,0 +1,97 @@
+*> OPENACCT <customer-id> <account> <name> <type>
+*> Opens an additional account (balance 0) for an existing customer.
+*> <type> must be CORRIENTE or AHORRO.
+IDENTIFICATION DIVISION.
+PROGRAM-ID. OP-OPENACCT.
+
+DATA DIVISION.
+WORKING-STORAGE SECTION.
+COPY "account-record.cpy"
+    REPLACING ==ACCOUNT-RECORD==    BY ==WS-ACCOUNT-RECORD==
+              ==FD-ACCOUNT-NUMBER== BY ==WS-ACCOUNT-NUMBER==
+              ==FD-OWNER-NAME==     BY ==WS-OWNER-NAME==
+              ==FD-BALANCE==        BY ==WS-BALANCE==
+              ==FD-CUSTOMER-ID==    BY ==WS-ACCOUNT-CUSTOMER-ID==
+              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==.
+COPY "customer-record.cpy"
+    REPLACING ==CUSTOMER-RECORD==   BY ==WS-CUSTOMER-RECORD==
+              ==PF-CUSTOMER-ID==    BY ==WS-CUST-CUSTOMER-ID==
+              ==PF-DOCUMENT==       BY ==WS-CUST-DOCUMENT==
+              ==PF-EMAIL==          BY ==WS-CUST-EMAIL==
+              ==PF-PHONE==          BY ==WS-CUST-PHONE==
+              ==PF-ADDRESS==        BY ==WS-CUST-ADDRESS==
+              ==PF-OCCUPATION==     BY ==WS-CUST-OCCUPATION==
+              ==PF-EMPLOYER==       BY ==WS-CUST-EMPLOYER==.
+01  WS-ARG-INDEX          PIC 9(2).
+01  WS-ARG-CUSTOMER       PIC X(10).
+01  WS-ARG-ACCOUNT        PIC X(10).
+01  WS-ARG-NAME           PIC X(80).
+01  WS-ARG-TYPE           PIC X(80).
+01  WS-TYPE-VALID         PIC X VALUE "N".
+01  WS-ACCT-REPO-FUNCTION PIC X(10).
+01  WS-ACCT-REPO-FOUND    PIC X.
+01  WS-ACCT-REPO-EOF      PIC X.
+01  WS-CUST-REPO-FUNCTION PIC X(10).
+01  WS-CUST-REPO-FOUND    PIC X.
+
+LINKAGE SECTION.
+01  LK-ARGC  PIC 9(2).
+
+PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
+MAIN-OP-OPENACCT.
+    IF LK-ARGC < 5
+        DISPLAY "ERR|Argumentos insuficientes"
+    ELSE
+        MOVE 2 TO WS-ARG-INDEX
+        DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
+        ACCEPT WS-ARG-CUSTOMER FROM ARGUMENT-VALUE
+        MOVE 3 TO WS-ARG-INDEX
+        DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
+        ACCEPT WS-ARG-ACCOUNT FROM ARGUMENT-VALUE
+        MOVE 4 TO WS-ARG-INDEX
+        DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
+        ACCEPT WS-ARG-NAME FROM ARGUMENT-VALUE
+        MOVE 5 TO WS-ARG-INDEX
+        DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
+        ACCEPT WS-ARG-TYPE FROM ARGUMENT-VALUE
+
+        EVALUATE FUNCTION UPPER-CASE(WS-ARG-TYPE)
+            WHEN "CORRIENTE"
+            WHEN "AHORRO"
+                MOVE "Y" TO WS-TYPE-VALID
+            WHEN OTHER
+                MOVE "N" TO WS-TYPE-VALID
+        END-EVALUATE
+
+        IF WS-TYPE-VALID = "N"
+            DISPLAY "ERR|Tipo de cuenta inválido"
+        ELSE
+            MOVE FUNCTION NUMVAL(WS-ARG-CUSTOMER) TO WS-CUST-CUSTOMER-ID
+            MOVE "READ" TO WS-CUST-REPO-FUNCTION
+            CALL "CUSTOMER-REPOSITORY" USING BY REFERENCE WS-CUST-REPO-FUNCTION
+                WS-CUSTOMER-RECORD WS-CUST-REPO-FOUND
+
+            IF WS-CUST-REPO-FOUND = "N"
+                DISPLAY "ERR|Cliente no encontrado"
+            ELSE
+                MOVE FUNCTION NUMVAL(WS-ARG-ACCOUNT) TO WS-ACCOUNT-NUMBER
+                MOVE WS-CUST-CUSTOMER-ID TO WS-ACCOUNT-CUSTOMER-ID
+                MOVE WS-ARG-NAME TO WS-OWNER-NAME
+                MOVE FUNCTION UPPER-CASE(WS-ARG-TYPE) TO WS-ACCOUNT-TYPE
+                MOVE 0 TO WS-BALANCE
+
+                MOVE "WRITE" TO WS-ACCT-REPO-FUNCTION
+                CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-ACCT-REPO-FUNCTION
+                    WS-ACCOUNT-RECORD WS-ACCT-REPO-FOUND WS-ACCT-REPO-EOF
+
+                IF WS-ACCT-REPO-FOUND = "Y"
+                    DISPLAY "OK|Cuenta creada"
+                ELSE
+                    DISPLAY "ERR|La cuenta ya existe o no se pudo registrar"
+                END-IF
+            END-IF
+        END-IF
+    END-IF
+    GOBACK.
+
+END PROGRAM OP-OPENACCT.

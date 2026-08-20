@@ -3,18 +3,29 @@
 *> It is invoked as a subprocess by the web frontend (Flask).
 *>
 *> Usage:
-*>   bank_api REGISTER <cuenta> <nombre> <documento> <email> <teléfono>
-*>       <domicilio> <ocupación> <empresa>
-*>   bank_api BALANCE  <account>
-*>   bank_api DEPOSIT  <account> <amount>
-*>   bank_api WITHDRAW <account> <amount>
+*>   bank_api REGISTER   <customer-id> <account> <name> <document> <email>
+*>       <phone> <address> <occupation> <employer>
+*>   bank_api CUSTEXISTS <customer-id>
+*>   bank_api OPENACCT   <customer-id> <account> <name> <type>
+*>   bank_api ACCOUNTS   <customer-id>
+*>   bank_api BALANCE    <account>
+*>   bank_api DEPOSIT    <customer-id> <account> <amount>
+*>   bank_api WITHDRAW   <customer-id> <account> <amount>
+*>   bank_api TRANSFER   <customer-id> <from-account> <to-account> <amount>
 *>   bank_api LIST
+*>
+*> A customer is an identity (profile + login); an account is a product
+*> (balance + type, "CORRIENTE" or "AHORRO") owned by one customer. Every
+*> money-moving operation (DEPOSIT/WITHDRAW/TRANSFER) takes the caller's
+*> customer-id and the core verifies each account's ownership before
+*> touching its balance -- see OP-DEPOSIT/OP-WITHDRAW/OP-TRANSFER.
 *>
 *> Output:
 *>   OK|...      successful operation
 *>   ERR|message failed operation
-*>   ROW|account|name|balance|profile-data  (one per account, LIST only)
-*>   END          marks the end of the listing (LIST only)
+*>   ROW|...     one per row (ACCOUNTS/LIST only, shape documented in
+*>               each OP-* subprogram)
+*>   END          marks the end of the listing (ACCOUNTS/LIST only)
 *>
 *> This is only the dispatcher: it opens/closes the data files (through
 *> ACCOUNT-REPOSITORY / CUSTOMER-REPOSITORY) and routes the requested
@@ -33,13 +44,15 @@ COPY "account-record.cpy"
     REPLACING ==ACCOUNT-RECORD==    BY ==WS-ACCOUNT-RECORD==
               ==FD-ACCOUNT-NUMBER== BY ==WS-ACCOUNT-NUMBER==
               ==FD-OWNER-NAME==     BY ==WS-OWNER-NAME==
-              ==FD-BALANCE==        BY ==WS-BALANCE==.
+              ==FD-BALANCE==        BY ==WS-BALANCE==
+              ==FD-CUSTOMER-ID==    BY ==WS-ACCOUNT-CUSTOMER-ID==
+              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==.
 01  WS-ACCT-REPO-FUNCTION   PIC X(10).
 01  WS-ACCT-REPO-FOUND      PIC X.
 01  WS-ACCT-REPO-EOF        PIC X.
 COPY "customer-record.cpy"
     REPLACING ==CUSTOMER-RECORD==   BY ==WS-CUSTOMER-RECORD==
-              ==PF-ACCOUNT-NUMBER== BY ==WS-CUST-ACCOUNT-NUMBER==
+              ==PF-CUSTOMER-ID==    BY ==WS-CUST-CUSTOMER-ID==
               ==PF-DOCUMENT==       BY ==WS-CUST-DOCUMENT==
               ==PF-EMAIL==          BY ==WS-CUST-EMAIL==
               ==PF-PHONE==          BY ==WS-CUST-PHONE==
@@ -72,12 +85,20 @@ MAIN-PARAGRAPH.
     EVALUATE FUNCTION UPPER-CASE(WS-OPERATION)
         WHEN "REGISTER"
             CALL "OP-REGISTER" USING BY REFERENCE WS-ARGC
+        WHEN "CUSTEXISTS"
+            CALL "OP-CUSTEXISTS" USING BY REFERENCE WS-ARGC
+        WHEN "OPENACCT"
+            CALL "OP-OPENACCT" USING BY REFERENCE WS-ARGC
+        WHEN "ACCOUNTS"
+            CALL "OP-ACCOUNTS" USING BY REFERENCE WS-ARGC
         WHEN "BALANCE"
             CALL "OP-BALANCE" USING BY REFERENCE WS-ARGC
         WHEN "DEPOSIT"
             CALL "OP-DEPOSIT" USING BY REFERENCE WS-ARGC
         WHEN "WITHDRAW"
             CALL "OP-WITHDRAW" USING BY REFERENCE WS-ARGC
+        WHEN "TRANSFER"
+            CALL "OP-TRANSFER" USING BY REFERENCE WS-ARGC
         WHEN "LIST"
             CALL "OP-LIST"
         WHEN OTHER
