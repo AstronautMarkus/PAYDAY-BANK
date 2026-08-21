@@ -3,29 +3,42 @@ import re
 from flask import flash, g, redirect, render_template, request, url_for
 
 from app.blueprints.auth import login_required
-from app.formatting import format_clp
+from app.formatting import format_usd
 from app.mainframe import call_cobol, flash_result, generate_account, list_customer_accounts
 
 from . import bp
 
-# CLP amounts are whole pesos: a positive integer, no leading zero, no
+# USD amounts are whole dollars: a positive integer, no leading zero, no
 # decimal point, sized to fit the core's PIC 9(12) COMP-3 balance field.
 AMOUNT_RE = re.compile(r"^[1-9]\d{0,11}$")
 
 # FD-ACCOUNT-TYPE values (core/src/copybooks/account-record.cpy) -> label.
-ACCOUNT_TYPES = {"CORRIENTE": "Cuenta Corriente", "AHORRO": "Cuenta de Ahorro"}
+ACCOUNT_TYPES = {"CHECKING": "Checking Account", "SAVINGS": "Savings Account"}
 
 
 @bp.route("/")
 def index():
-    return redirect(url_for("banking.dashboard" if g.user else "auth.login"))
+    if g.user:
+        return redirect(url_for("banking.dashboard"))
+    return render_template("public.html")
 
 
 @bp.route("/dashboard")
 @login_required
 def dashboard():
     accounts = list_customer_accounts(g.user.customer_id)
-    return render_template("dashboard.html", accounts=accounts, account_types=ACCOUNT_TYPES)
+    total_balance = sum(int(item["balance"]) for item in accounts)
+    type_counts = {}
+    for item in accounts:
+        type_counts[item["type"]] = type_counts.get(item["type"], 0) + 1
+    type_summary = ", ".join(
+        f"{count} {ACCOUNT_TYPES.get(acct_type, acct_type)}{'s' if count != 1 else ''}"
+        for acct_type, count in type_counts.items()
+    )
+    return render_template(
+        "dashboard.html", accounts=accounts, account_types=ACCOUNT_TYPES,
+        total_balance=total_balance, type_summary=type_summary,
+    )
 
 
 @bp.route("/deposit", methods=["POST"])
@@ -50,12 +63,12 @@ def move_money(operation: str):
         # <select>, so this only fires on a tampered request -- the COBOL
         # core enforces the same ownership check regardless (see
         # core/src/ops/op_deposit.cbl / op_withdraw.cbl).
-        flash("Cuenta inválida.", "error")
+        flash("Invalid account.", "error")
     elif not AMOUNT_RE.match(amount):
-        flash("Monto inválido. Ingresa un número entero de pesos, sin decimales.", "error")
+        flash("Invalid amount. Enter a whole dollar amount, no decimals.", "error")
     else:
         line = call_cobol(operation, g.user.customer_id, account, amount)
-        flash_result(line, prefix="Nuevo saldo: $", formatter=format_clp)
+        flash_result(line, prefix="New balance: $", formatter=format_usd)
     return redirect(url_for("banking.dashboard"))
 
 
@@ -66,7 +79,7 @@ def open_account():
         account_type = request.form.get("account_type", "").strip().upper()
 
         if account_type not in ACCOUNT_TYPES:
-            flash("Tipo de cuenta inválido.", "error")
+            flash("Invalid account type.", "error")
         else:
             try:
                 account = generate_account()
@@ -96,14 +109,14 @@ def transfer():
         if from_account not in owned_accounts or to_account not in owned_accounts:
             # Same reasoning as move_money(): a UI-only guard, the COBOL
             # core re-checks ownership of both accounts (op_transfer.cbl).
-            flash("Cuenta inválida.", "error")
+            flash("Invalid account.", "error")
         elif from_account == to_account:
-            flash("La cuenta de origen y destino deben ser distintas.", "error")
+            flash("Source and destination accounts must be different.", "error")
         elif not AMOUNT_RE.match(amount):
-            flash("Monto inválido. Ingresa un número entero de pesos, sin decimales.", "error")
+            flash("Invalid amount. Enter a whole dollar amount, no decimals.", "error")
         else:
             line = call_cobol("TRANSFER", g.user.customer_id, from_account, to_account, amount)
-            flash_result(line, prefix="Nuevos saldos: $", formatter=format_transfer_balances)
+            flash_result(line, prefix="New balances: $", formatter=format_transfer_balances)
             if line and line[0].startswith("OK|"):
                 return redirect(url_for("banking.dashboard"))
 
@@ -114,4 +127,4 @@ def format_transfer_balances(rest: str) -> str:
     """TRANSFER's OK payload is "<from-balance>|<to-balance>" -- flash_result
     only splits the leading OK|/ERR| marker, so this formats both halves.
     """
-    return " / ".join(format_clp(part) for part in rest.split("|"))
+    return " / ".join(format_usd(part) for part in rest.split("|"))

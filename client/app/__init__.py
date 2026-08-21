@@ -9,13 +9,14 @@ via the app.mainframe client.
 from flask import Flask
 
 from .config import Config
-from .formatting import format_clp
+from .formatting import format_usd, initials
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.jinja_env.filters["clp"] = format_clp
+    app.jinja_env.filters["usd"] = format_usd
+    app.jinja_env.filters["initials"] = initials
 
     from .blueprints.auth import bp as auth_bp
     from .blueprints.banking import bp as banking_bp

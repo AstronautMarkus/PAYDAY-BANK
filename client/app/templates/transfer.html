@@ -1,47 +1,65 @@
-{% extends "base.html" %}
-{% block title %}Transferir | PAYDAY BANK{% endblock %}
-{% block content %}
-<section class="auth-layout">
-    <div>
-        <p class="eyebrow">Entre mis cuentas</p>
-        <h1>Mueve dinero entre tus cuentas.</h1>
-        <p class="lead">Transfiere fondos entre las cuentas que tienes abiertas en PAYDAY BANK. Por ahora solo
-            puedes transferir entre tus propias cuentas.</p>
+{% extends "dashboard_base.html" %}
+{% block page_title %}Transfer Money{% endblock %}
+
+{% block page_content %}
+<section class="ui-card" style="max-width: 480px; margin: 0 auto;">
+  <div class="ui-card-header">
+    <span class="ui-card-title" style="color: var(--text-main);">Customer {{ current_user.customer_id }}</span>
+    <i class="fa-solid fa-paper-plane" style="color: var(--red-primary);"></i>
+  </div>
+  {% if accounts | length < 2 %}
+  <p style="color: var(--text-muted); line-height: 1.5;">
+    You need at least two accounts to transfer funds.
+    <a href="{{ url_for('banking.open_account') }}">Open an additional account</a>.
+  </p>
+  {% else %}
+  <p style="color: var(--text-muted); line-height: 1.5; margin-bottom: 18px;">
+    Move money between your own accounts. Transfers to other customers are not
+    supported yet.
+  </p>
+  <form method="post">
+    <div class="ui-form-group">
+      <label for="from_account">From Account</label>
+      <div class="ui-input-wrapper">
+        <i class="fa-solid fa-wallet"></i>
+        <select id="from_account" name="from_account" required>
+          {% for acct in accounts %}
+          <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
-    <section class="card auth-card">
-        <p class="eyebrow">Cliente {{ current_user.customer_id }}</p>
-        <h2>Transferencia</h2>
-        {% if accounts|length < 2 %}
-        <p class="lead">Necesitas al menos dos cuentas para transferir.
-            <a href="{{ url_for('banking.open_account') }}">Abre una cuenta adicional</a>.
-        </p>
-        {% else %}
-        <form method="post" class="form-grid">
-            <label class="wide">Cuenta de origen
-                <select name="from_account" required>
-                    {% for acct in accounts %}
-                    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} ·
-                        {{ acct.account }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="wide">Cuenta de destino
-                <select name="to_account" required>
-                    {% for acct in accounts %}
-                    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} ·
-                        {{ acct.account }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="wide">Monto a transferir
-                <input type="text" inputmode="numeric" data-clp-amount data-clp-target="transfer-amount"
-                    placeholder="Importe en pesos, por ejemplo $50.000" required>
-                <input type="hidden" id="transfer-amount" name="amount">
-            </label>
-            <button class="button wide" type="submit">Confirmar transferencia</button>
-        </form>
-        {% endif %}
-        <p class="form-footer"><a href="{{ url_for('banking.dashboard') }}">Volver a mi posición global</a></p>
-    </section>
+    <div class="ui-form-group">
+      <label for="to_account">To Account</label>
+      <div class="ui-input-wrapper">
+        <i class="fa-solid fa-wallet"></i>
+        <select id="to_account" name="to_account" required>
+          {% for acct in accounts %}
+          <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="ui-form-group">
+      <label for="transfer-amount-display">Amount ($)</label>
+      <div class="ui-input-wrapper">
+        <i class="fa-solid fa-dollar-sign"></i>
+        <input type="text" inputmode="numeric" id="transfer-amount-display" data-amount
+          data-amount-target="transfer-amount" placeholder="0" required autocomplete="off">
+      </div>
+      <input type="hidden" id="transfer-amount" name="amount">
+    </div>
+    <button type="submit" class="ui-btn ui-btn-red ui-btn-block">
+      <i class="fa-solid fa-paper-plane"></i> Confirm Transfer
+    </button>
+  </form>
+  {% endif %}
+  <p style="text-align: center; margin-top: 18px; font-size: 12px;">
+    <a href="{{ url_for('banking.dashboard') }}">Back to Dashboard</a>
+  </p>
 </section>
+{% endblock %}
+
+{% block dashboard_extra_scripts %}
+<script src="{{ url_for('static', filename='js/amount-input.js') }}" defer></script>
 {% endblock %}

@@ -1,987 +1,168 @@
-{% extends "base.html" %}
-{% block title %}Posición global | PAYDAY BANK{% endblock %}
-{% block body_class %}chrome-off{% endblock %}
+{% extends "dashboard_base.html" %}
+{% block page_title %}Dashboard{% endblock %}
 
-{% block extra_head %}
+{% block dashboard_extra_head %}
 <style>
-  :root {
-    --brick: #7a0c0c;
-    --brick-dark: #4c0606;
-    --red: #b3121f;
-    --red-bright: #d6202c;
-    --red-light: #e8535c;
-    --gold: #e0b23c;
-    --gold-dark: #a67c1f;
-    --steel: #dcdcd6;
-    --paper: #f1efe9;
-    --ink: #2b2620;
-    --muted: #6b675f;
-
-    --aero-1: #fbfcfd;
-    --aero-2: #e7ebee;
-    --aero-3: #d2d9de;
-    --aero-4: #b7c1c7;
-    --aero-border: #b9c2c8;
-    --aero-ink: #3a434b;
-    --aero-muted: #78838b;
-    --aero-accent: #5b83a3;
-    --aero-accent-dark: #3f5f7a;
-  }
-
-  body.chrome-off {
-    background: #55524c;
-    font-family: Verdana, Geneva, Arial, sans-serif;
-    color: var(--ink);
-  }
-
-  .bank-app {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 100%;
-  }
-
-  /* ---------- top strip ---------- */
-  .bank-topstrip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 0 18px;
-    min-height: 56px;
-    background: linear-gradient(180deg, #8f1418 0%, #6e0e10 48%, #4c0808 100%);
-    border-bottom: 2px solid var(--gold-dark);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .4);
-  }
-
-  .bank-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #fff;
-    text-decoration: none;
-  }
-
-  .bank-logo .mark {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 33% 28%, #ffe28a 0%, var(--gold) 38%, var(--gold-dark) 100%);
-    border: 1px solid #6e4f0f;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .5), inset 0 1px 1px rgba(255, 255, 255, .6);
-    color: #4c0808;
-    font-weight: bold;
-    font-size: 16px;
-    font-family: Georgia, serif;
-  }
-
-  .bank-logo .word {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 18px;
-    letter-spacing: .3px;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
-  }
-
-  .bank-topstrip nav {
-    display: flex;
-    gap: 4px;
-    font-size: 11px;
-  }
-
-  .bank-topstrip nav a {
-    color: #f4d9d9;
-    text-decoration: none;
-    padding: 6px 10px;
-    border-radius: 3px;
-  }
-
-  .bank-topstrip nav a:hover {
-    background: rgba(255, 255, 255, .12);
-    color: #fff;
-  }
-
-  .bank-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .bank-user .who {
-    text-align: right;
-    line-height: 1.3;
-  }
-
-  .bank-user .who strong {
-    display: block;
-    color: #fff;
-    font-size: 12px;
-  }
-
-  .bank-user .who span {
-    color: #f0c9c9;
-    font-size: 10px;
-  }
-
-  .btn-3d {
-    border: 1px solid var(--gold-dark);
-    border-radius: 3px;
-    padding: 7px 12px;
-    background: linear-gradient(180deg, #fbe6a4 0%, var(--gold) 45%, var(--gold-dark) 100%);
-    color: #4c2f04;
-    font: bold 11px Verdana, Arial, sans-serif;
-    cursor: pointer;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 2px 3px rgba(0, 0, 0, .35);
-  }
-
-  .btn-3d:hover {
-    background: linear-gradient(180deg, #fff0bd 0%, #ecc257 45%, #b98a24 100%);
-  }
-
-  .btn-3d:active {
-    box-shadow: inset 0 2px 3px rgba(0, 0, 0, .4);
-  }
-
-  .btn-ghost {
-    border: 1px solid #b9aca0;
-    border-radius: 3px;
-    padding: 7px 12px;
-    background: #fff;
-    color: var(--ink);
-    font: 11px Verdana, Arial, sans-serif;
-    cursor: pointer;
-  }
-
-  .btn-ghost:hover {
-    background: #f2ede6;
-  }
-
-  .strip-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    width: 34px;
-    height: 30px;
-    border: 1px solid var(--gold-dark);
-    border-radius: 3px;
-    background: linear-gradient(180deg, #a5191d 0%, #6e0e10 100%);
-    cursor: pointer;
-    padding: 0;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, .15) inset, 0 2px 3px rgba(0, 0, 0, .35);
-  }
-
-  .hamburger span {
-    display: block;
-    height: 2px;
-    margin: 0 7px;
-    background: var(--gold);
-    border-radius: 1px;
-  }
-
-  /* ---------- modal ---------- */
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 16px;
-  }
-
-  .modal-backdrop[hidden] {
-    display: none;
-  }
-
-  .modal-box {
-    width: min(340px, 100%);
-    background: var(--paper);
-    border: 1px solid var(--gold-dark);
-    border-radius: 6px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
-    overflow: hidden;
-  }
-
-  .modal-head {
-    padding: 10px 14px;
-    background: linear-gradient(180deg, #a5191d 0%, #6e0e10 100%);
-    border-bottom: 1px solid var(--gold-dark);
-  }
-
-  .modal-head h3 {
-    margin: 0;
-    color: #fff;
-    font-size: 13px;
-    font-family: Georgia, serif;
-  }
-
-  .modal-body {
-    padding: 16px 14px;
-    font-size: 12px;
-    color: var(--ink);
-    line-height: 1.5;
-  }
-
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 10px 14px 14px;
-  }
-
-  /* ---------- body: sidebar + main ---------- */
-  .bank-body {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-  }
-
-  .bank-sidebar {
-    width: 218px;
-    flex: 0 0 218px;
-    background: linear-gradient(180deg, #8a1216 0%, #6e0e10 100%);
-    border-right: 3px solid var(--gold-dark);
-    padding: 14px 0 24px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--gold-dark) #4c0808;
-  }
-
-  .bank-sidebar::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  .bank-sidebar::-webkit-scrollbar-track {
-    background: #4c0808;
-    border-left: 1px solid rgba(0, 0, 0, .35);
-  }
-
-  .bank-sidebar::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #f0c96a 0%, var(--gold) 50%, var(--gold-dark) 100%);
-    border: 2px solid #4c0808;
-    border-radius: 6px;
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, .5);
-  }
-
-  .bank-sidebar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #fbe6a4 0%, #ecc257 50%, #b98a24 100%);
-  }
-
-  .side-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #f2c9c9;
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 4px 10px 8px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, .15);
-    margin-bottom: 4px;
-  }
-
-  .side-close {
-    display: none;
-    border: 0;
-    background: transparent;
-    color: var(--gold);
-    font-size: 15px;
-    line-height: 1;
-    cursor: pointer;
-    padding: 4px 6px;
-  }
-
-  .sidebar-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .45);
-    z-index: 55;
-  }
-
-  .bank-app.sidebar-open .sidebar-backdrop {
-    display: block;
-  }
-
-  .side-menu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .side-menu>li>a {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 14px 9px 18px;
-    color: #fbe9e9;
-    text-decoration: none;
-    font-size: 12px;
-    border-top: 1px solid rgba(255, 255, 255, .08);
-    border-bottom: 1px solid rgba(0, 0, 0, .25);
-    background: linear-gradient(180deg, rgba(255, 255, 255, .05) 0%, rgba(0, 0, 0, 0) 40%);
-  }
-
-  .side-menu>li>a .ico {
-    display: inline-block;
-    width: 14px;
-    text-align: center;
-    color: var(--gold);
-    font-size: 11px;
-  }
-
-  .side-menu>li>a:hover {
-    background: linear-gradient(180deg, #a5191d 0%, #841012 100%);
-    color: #fff;
-  }
-
-  .side-menu>li.active>a {
-    background: linear-gradient(180deg, #cf2530 0%, #a8171d 55%, #8c1216 100%);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .45);
-    border-left: 4px solid var(--gold);
-    padding-left: 14px;
-    color: #fff;
-    font-weight: bold;
-  }
-
-  .side-sub {
-    list-style: none;
-    margin: 0;
-    padding: 2px 0 6px;
-    background: rgba(0, 0, 0, .18);
-  }
-
-  .side-sub li a {
-    display: block;
-    padding: 6px 14px 6px 40px;
-    font-size: 11px;
-    color: #e8c6c6;
-    text-decoration: none;
-  }
-
-  .side-sub li a:hover {
-    color: #fff;
-    text-decoration: underline;
-  }
-
-  .side-foot {
-    margin: 16px 14px 0;
-    padding: 10px 12px;
-    background: rgba(0, 0, 0, .22);
-    border: 1px solid rgba(255, 255, 255, .12);
-    border-radius: 4px;
-    font-size: 10px;
-    color: #eecccc;
-    line-height: 1.5;
-  }
-
-  /* ---------- main content ---------- */
-  .bank-main {
-    flex: 1;
-    min-width: 0;
-    padding: 16px 20px 40px;
-    background: linear-gradient(180deg, #eef1f3 0%, #e4e8eb 100%);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--aero-accent) var(--aero-2);
-  }
-
-  .bank-main::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  .bank-main::-webkit-scrollbar-track {
-    background: var(--aero-2);
-    border-left: 1px solid var(--aero-border);
-  }
-
-  .bank-main::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #eef4f8 0%, var(--aero-accent) 55%, var(--aero-accent-dark) 100%);
-    border: 2px solid var(--aero-2);
-    border-radius: 6px;
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, .5);
-  }
-
-  .bank-main::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #ffffff 0%, #b9cddc 55%, #6f96b5 100%);
-  }
-
-  .crumb {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    padding: 8px 2px 12px;
-    border-bottom: 1px solid var(--aero-4);
-    margin-bottom: 16px;
-    font-size: 11px;
-    color: var(--aero-muted);
-  }
-
-  .crumb .sq {
-    color: var(--aero-accent);
-    font-size: 9px;
-  }
-
-  .crumb strong {
-    color: var(--aero-ink);
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .panel {
-    background: #fff;
-    border: 1px solid var(--aero-border);
-    border-radius: 4px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, .08);
-  }
-
-  .panel-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 7px 14px;
-    background: linear-gradient(180deg, var(--aero-1) 0%, var(--aero-2) 45%, var(--aero-3) 100%);
-    border-bottom: 1px solid var(--aero-border);
-    border-radius: 4px 4px 0 0;
-    color: var(--aero-ink);
-  }
-
-  .panel-head h2 {
-    margin: 0;
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .panel-head .tag {
-    font-size: 10px;
-    color: var(--aero-muted);
-    background: rgba(0, 0, 0, .06);
-    padding: 3px 8px;
-    border-radius: 8px;
-  }
-
-  .panel-body {
-    padding: 14px;
-  }
-
-  /* accounts table */
-  table.acct {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-
-  table.acct th {
-    background: var(--aero-2);
-    color: var(--aero-muted);
-    text-align: left;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .4px;
-    padding: 7px 10px;
-    border-bottom: 1px solid var(--aero-border);
-  }
-
-  table.acct td {
-    padding: 10px 10px;
-    border-bottom: 1px solid #ecebe6;
-  }
-
-  table.acct tr:nth-child(even) td {
-    background: #fbf8f2;
-  }
-
-  table.acct .bal {
-    text-align: right;
-    font-size: 13px;
-    color: #1c5c2f;
-    font-weight: bold;
-  }
-
-  .pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 8px;
-    background: #dff1e4;
-    color: #1c5c2f;
-    font-size: 10px;
-    font-weight: bold;
-  }
-
-  /* quick ops */
-  .op-grid {
+  .action-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    gap: 15px;
   }
 
-  .op-box {
-    border: 1px solid var(--aero-border);
-    border-radius: 4px;
-    padding: 12px;
-    background: linear-gradient(180deg, #ffffff 0%, var(--aero-2) 100%);
+  .stat-value {
+    font-size: 22px;
+    font-weight: 700;
   }
 
-  .op-box h3 {
-    margin: 0 0 10px;
+  .stat-caption {
     font-size: 11px;
-    font-weight: bold;
-    color: var(--aero-ink);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    color: var(--text-muted);
+    margin-top: 5px;
   }
 
-  .op-box input[type="text"],
-  .op-box select {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px 10px;
-    border: 1px solid var(--aero-border);
-    border-radius: 3px;
-    background: #fff;
-    font-family: inherit;
-    font-size: 12px;
-    margin-bottom: 9px;
-  }
-
-  .op-box input[type="text"]:focus,
-  .op-box select:focus {
-    outline: none;
-    border-color: var(--aero-accent);
-    box-shadow: 0 0 0 2px rgba(91, 131, 163, .18);
-  }
-
-  .op-submit {
-    width: 100%;
-    border: 1px solid var(--aero-accent-dark);
-    border-radius: 3px;
-    padding: 8px;
-    background: linear-gradient(180deg, #eef4f8 0%, #c3d3dc 50%, #93aab8 100%);
-    color: var(--aero-accent-dark);
-    font: bold 11px Verdana, Arial, sans-serif;
-    letter-spacing: .3px;
-    cursor: pointer;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 1px 2px rgba(0, 0, 0, .2);
-  }
-
-  .op-submit:hover {
-    background: linear-gradient(180deg, #ffffff 0%, #d3e0e7 50%, #a4bbc8 100%);
-  }
-
-  /* profile mini table */
-  .kv {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-  }
-
-  .kv td {
-    padding: 7px 4px;
-    border-bottom: 1px solid #ecebe6;
-  }
-
-  .kv td:first-child {
-    color: var(--muted);
-    width: 40%;
-  }
-
-  .kv td:last-child {
-    font-weight: bold;
-    color: var(--ink);
-  }
-
-  /* quick access tiles */
-  .tile-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-
-  .tile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 7px;
-    text-decoration: none;
-    padding: 12px 6px;
-    border: 1px solid var(--aero-border);
-    border-radius: 5px;
-    background: linear-gradient(180deg, #ffffff 0%, var(--aero-2) 100%);
-    color: var(--aero-ink);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
-  }
-
-  .tile:hover {
-    background: linear-gradient(180deg, #ffffff 0%, #dde6ea 100%);
-    border-color: var(--aero-accent);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, .12);
-  }
-
-  .tile .tico {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 33% 28%, #eef4f8 0%, var(--aero-accent) 55%, var(--aero-accent-dark) 100%);
-    color: #fff;
-    font-size: 13px;
-    border: 1px solid var(--aero-accent-dark);
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, .5);
-  }
-
-  .tile span.label {
-    font-size: 10px;
-    font-weight: bold;
-    text-align: center;
-    line-height: 1.25;
-  }
-
-  .two-col {
-    display: grid;
-    grid-template-columns: 1.4fr .9fr;
-    gap: 18px;
-    align-items: start;
-  }
-
-  @media (max-width: 980px) {
-    .hamburger {
-      display: flex;
-    }
-
-    .bank-topstrip nav {
-      display: none;
-    }
-
-    .bank-sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      z-index: 60;
-      transform: translateX(-102%);
-      transition: transform .22s ease;
-      box-shadow: 3px 0 14px rgba(0, 0, 0, .45);
-    }
-
-    .bank-app.sidebar-open .bank-sidebar {
-      transform: translateX(0);
-    }
-
-    .side-close {
-      display: inline-block;
-    }
-
-    .op-grid {
+  @media (max-width: 760px) {
+    .dashboard-grid {
       grid-template-columns: 1fr;
     }
 
-    .two-col {
+    .action-grid {
       grid-template-columns: 1fr;
-    }
-
-    .tile-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .bank-user .who {
-      display: none;
     }
   }
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="bank-app">
-  <div class="bank-topstrip">
-    <div class="strip-left">
-      <button type="button" class="hamburger" id="sidebar-toggle" aria-label="Abrir menú" aria-expanded="false"
-        aria-controls="bank-sidebar">
-        <span></span><span></span><span></span>
+{% block page_content %}
+<section class="dashboard-grid">
+  <div class="ui-card">
+    <div class="ui-card-header">
+      <span class="ui-card-title">Total Balance</span>
+      <i class="fa-solid fa-piggy-bank"
+        style="color: var(--red-primary); background: var(--red-soft); padding: 8px; border-radius: 4px;"></i>
+    </div>
+    <div class="stat-value">${{ total_balance | usd }}</div>
+    <div class="stat-caption">Across {{ accounts | length }} account{{ 's' if accounts | length != 1 }}</div>
+  </div>
+
+  <div class="ui-card">
+    <div class="ui-card-header">
+      <span class="ui-card-title">Accounts</span>
+      <i class="fa-solid fa-wallet"
+        style="color: var(--red-primary); background: var(--red-soft); padding: 8px; border-radius: 4px;"></i>
+    </div>
+    <div class="stat-value">{{ accounts | length }}</div>
+    <div class="stat-caption">{{ type_summary or "No accounts yet" }}</div>
+  </div>
+
+  <div class="ui-card">
+    <div class="ui-card-header">
+      <span class="ui-card-title">Customer ID</span>
+      <i class="fa-solid fa-id-card"
+        style="color: var(--red-primary); background: var(--red-soft); padding: 8px; border-radius: 4px;"></i>
+    </div>
+    <div class="stat-value">{{ current_user.customer_id }}</div>
+    <div class="stat-caption">{{ current_user.name }}</div>
+  </div>
+</section>
+
+<section class="ui-card" style="margin-bottom: 15px;">
+  <div class="ui-card-header">
+    <span class="ui-card-title" style="color: var(--text-main);">My Accounts</span>
+    <i class="fa-solid fa-list-check" style="color: var(--text-muted);"></i>
+  </div>
+  <div style="overflow-x: auto;">
+    <table class="ui-table">
+      <thead>
+        <tr>
+          <th>Account Type</th>
+          <th>Account Number</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for acct in accounts %}
+        <tr>
+          <td>{{ account_types.get(acct.type, acct.type) }}</td>
+          <td>{{ acct.account }}</td>
+          <td>${{ acct.balance | usd }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3">No accounts yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="action-grid">
+  <div class="ui-card">
+    <div class="ui-card-header">
+      <span class="ui-card-title" style="color: var(--text-main);">Deposit Funds</span>
+      <i class="fa-solid fa-arrow-down" style="color: var(--red-primary);"></i>
+    </div>
+    <form method="post" action="{{ url_for('banking.deposit') }}">
+      <div class="ui-form-group">
+        <label for="deposit-account">Account</label>
+        <div class="ui-input-wrapper">
+          <i class="fa-solid fa-wallet"></i>
+          <select id="deposit-account" name="account" required>
+            {% for acct in accounts %}
+            <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="ui-form-group">
+        <label for="deposit-amount-display">Amount ($)</label>
+        <div class="ui-input-wrapper">
+          <i class="fa-solid fa-dollar-sign"></i>
+          <input type="text" inputmode="numeric" id="deposit-amount-display" data-amount
+            data-amount-target="deposit-amount" placeholder="0" required autocomplete="off">
+        </div>
+        <input type="hidden" id="deposit-amount" name="amount">
+      </div>
+      <button type="submit" class="ui-btn ui-btn-red ui-btn-block">
+        <i class="fa-solid fa-arrow-down"></i> Confirm Deposit
       </button>
-      <a class="bank-logo" href="{{ url_for('banking.dashboard') }}">
-        <span class="mark">P</span>
-        <span class="word">PAYDAY BANK</span>
-      </a>
-    </div>
-    <nav>
-      <a href="#">Buscador</a>
-      <a href="#">Simuladores</a>
-      <a href="#">Oficinas</a>
-      <a href="#">Ayuda</a>
-    </nav>
-    <div class="bank-user">
-      <div class="who">
-        <strong>{{ current_user.name }}</strong>
-        <span>Cliente {{ current_user.customer_id }}</span>
-      </div>
-      <button class="btn-3d" type="button" id="logout-trigger">Cerrar sesión</button>
-    </div>
+    </form>
   </div>
 
-  <form id="logout-form" action="{{ url_for('auth.logout') }}" method="post" hidden></form>
-
-  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-
-  <div class="bank-body">
-    <aside class="bank-sidebar" id="bank-sidebar">
-      <div class="side-title">
-        <span>Menú principal</span>
-        <button type="button" class="side-close" id="sidebar-close" aria-label="Cerrar menú">&#10005;</button>
-      </div>
-      <ul class="side-menu">
-        <li class="active">
-          <a href="{{ url_for('banking.dashboard') }}"><span class="ico">&#9632;</span> Posición global</a>
-        </li>
-        <li>
-          <a href="#"><span class="ico">&#9632;</span> Cuentas</a>
-          <ul class="side-sub">
-            <li><a href="{{ url_for('banking.open_account') }}">Abrir cuenta</a></li>
-            <li><a href="#">Detalle de cuenta</a></li>
-            <li><a href="#">Movimientos</a></li>
-            <li><a href="#">Extractos</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="#"><span class="ico">&#9632;</span> Transferencias</a>
-          <ul class="side-sub">
-            <li><a href="#">Transferencia nacional</a></li>
-            <li><a href="#">Transferencia internacional</a></li>
-            <li><a href="{{ url_for('banking.transfer') }}">Entre mis cuentas</a></li>
-            <li><a href="#">Beneficiarios habituales</a></li>
-          </ul>
-        </li>
-        <li><a href="#"><span class="ico">&#9632;</span> Recibos y domiciliaciones</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Mi negocio</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Pagos y donaciones</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Tarjetas</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Préstamos y créditos</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Seguros</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Depósitos</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Fondos de inversión</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Planes de pensiones</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Bolsa y mercados</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Supernet Móvil</a></li>
-        <li><a href="#"><span class="ico">&#9632;</span> Buzón de contratos</a></li>
-      </ul>
-      <div class="side-foot">
-        Línea 24h: 600&nbsp;123&nbsp;456<br>
-        Banca telefónica y online.
-      </div>
-    </aside>
-
-    <div class="bank-main">
-      <div class="crumb"><span class="sq">&#9632;</span> Posición global <strong>&nbsp;·&nbsp;Resumen de tu banca
-          online</strong></div>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Mis cuentas</h2>
-          <span class="tag">Actualizado hoy</span>
-        </div>
-        <div class="panel-body">
-          <table class="acct">
-            <thead>
-              <tr>
-                <th>Alias</th>
-                <th>Nº de cuenta</th>
-                <th>Titular</th>
-                <th>Estado</th>
-                <th style="text-align:right;">Saldo disponible</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for acct in accounts %}
-              <tr>
-                <td>{{ account_types.get(acct.type, acct.type) }}</td>
-                <td>{{ acct.account }}</td>
-                <td>{{ current_user.name }}</td>
-                <td><span class="pill">Activa</span></td>
-                <td class="bal">${{ acct.balance | clp }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="two-col">
-        <section class="panel">
-          <div class="panel-head">
-            <h2>Operativa habitual</h2>
-          </div>
-          <div class="panel-body">
-            <div class="op-grid">
-              <div class="op-box">
-                <h3>&#9658; Depositar fondos</h3>
-                <form action="{{ url_for('banking.deposit') }}" method="post">
-                  <select name="account" required>
-                    {% for acct in accounts %}
-                    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} ·
-                      {{ acct.account }}</option>
-                    {% endfor %}
-                  </select>
-                  <input type="text" inputmode="numeric" data-clp-amount data-clp-target="deposit-amount"
-                    placeholder="Importe en pesos, por ejemplo $250.000" required>
-                  <input type="hidden" id="deposit-amount" name="amount">
-                  <button class="op-submit" type="submit">Confirmar depósito</button>
-                </form>
-              </div>
-              <div class="op-box">
-                <h3>&#9658; Retirar fondos</h3>
-                <form action="{{ url_for('banking.withdraw') }}" method="post">
-                  <select name="account" required>
-                    {% for acct in accounts %}
-                    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} ·
-                      {{ acct.account }}</option>
-                    {% endfor %}
-                  </select>
-                  <input type="text" inputmode="numeric" data-clp-amount data-clp-target="withdraw-amount"
-                    placeholder="Importe en pesos, por ejemplo $50.000" required>
-                  <input type="hidden" id="withdraw-amount" name="amount">
-                  <button class="op-submit" type="submit">Confirmar retiro</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-head">
-            <h2>Datos personales</h2>
-          </div>
-          <div class="panel-body">
-            <table class="kv">
-              <tr>
-                <td>Documento</td>
-                <td>{{ current_user.document }}</td>
-              </tr>
-              <tr>
-                <td>Correo</td>
-                <td>{{ current_user.email }}</td>
-              </tr>
-              <tr>
-                <td>Empresa</td>
-                <td>{{ current_user.employer }}</td>
-              </tr>
-            </table>
-          </div>
-        </section>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Accesos directos</h2>
-        </div>
-        <div class="panel-body">
-          <div class="tile-grid">
-            <a class="tile" href="#"><span class="tico">&#9670;</span><span class="label">Tarjetas</span></a>
-            <a class="tile" href="#"><span class="tico">&#8364;</span><span class="label">Préstamos y
-                créditos</span></a>
-            <a class="tile" href="#"><span class="tico">&#9825;</span><span class="label">Seguros</span></a>
-            <a class="tile" href="#"><span class="tico">&#9737;</span><span class="label">Depósitos</span></a>
-            <a class="tile" href="#"><span class="tico">&#9650;</span><span class="label">Fondos de
-                inversión</span></a>
-            <a class="tile" href="#"><span class="tico">&#9878;</span><span class="label">Planes de
-                pensiones</span></a>
-            <a class="tile" href="#"><span class="tico">&#9776;</span><span class="label">Bolsa y
-                mercados</span></a>
-            <a class="tile" href="#"><span class="tico">&#9993;</span><span class="label">Buzón de
-                contratos</span></a>
-          </div>
-        </div>
-      </section>
+  <div class="ui-card">
+    <div class="ui-card-header">
+      <span class="ui-card-title" style="color: var(--text-main);">Withdraw Funds</span>
+      <i class="fa-solid fa-arrow-up" style="color: var(--red-primary);"></i>
     </div>
+    <form method="post" action="{{ url_for('banking.withdraw') }}">
+      <div class="ui-form-group">
+        <label for="withdraw-account">Account</label>
+        <div class="ui-input-wrapper">
+          <i class="fa-solid fa-wallet"></i>
+          <select id="withdraw-account" name="account" required>
+            {% for acct in accounts %}
+            <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="ui-form-group">
+        <label for="withdraw-amount-display">Amount ($)</label>
+        <div class="ui-input-wrapper">
+          <i class="fa-solid fa-dollar-sign"></i>
+          <input type="text" inputmode="numeric" id="withdraw-amount-display" data-amount
+            data-amount-target="withdraw-amount" placeholder="0" required autocomplete="off">
+        </div>
+        <input type="hidden" id="withdraw-amount" name="amount">
+      </div>
+      <button type="submit" class="ui-btn ui-btn-red ui-btn-block">
+        <i class="fa-solid fa-arrow-up"></i> Confirm Withdrawal
+      </button>
+    </form>
   </div>
-
-  <div class="modal-backdrop" id="logout-modal" hidden>
-    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title">
-      <div class="modal-head">
-        <h3 id="logout-modal-title">Cerrar sesión</h3>
-      </div>
-      <div class="modal-body">
-        <p>¿Seguro que deseas cerrar tu sesión bancaria?</p>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn-ghost" id="logout-cancel">Cancelar</button>
-        <button type="submit" form="logout-form" class="btn-3d">Sí, cerrar sesión</button>
-      </div>
-    </div>
-  </div>
-</div>
+</section>
 {% endblock %}
 
-{% block extra_scripts %}
-<script>
-  (function () {
-    var app = document.querySelector('.bank-app');
-    var toggleBtn = document.getElementById('sidebar-toggle');
-    var closeBtn = document.getElementById('sidebar-close');
-    var backdrop = document.getElementById('sidebar-backdrop');
-
-    function openSidebar() {
-      app.classList.add('sidebar-open');
-      toggleBtn.setAttribute('aria-expanded', 'true');
-    }
-
-    function closeSidebar() {
-      app.classList.remove('sidebar-open');
-      toggleBtn.setAttribute('aria-expanded', 'false');
-    }
-
-    toggleBtn.addEventListener('click', function () {
-      if (app.classList.contains('sidebar-open')) {
-        closeSidebar();
-      } else {
-        openSidebar();
-      }
-    });
-    closeBtn.addEventListener('click', closeSidebar);
-    backdrop.addEventListener('click', closeSidebar);
-    document.querySelectorAll('.bank-sidebar a').forEach(function (link) {
-      link.addEventListener('click', closeSidebar);
-    });
-
-    var logoutModal = document.getElementById('logout-modal');
-    var logoutTrigger = document.getElementById('logout-trigger');
-    var logoutCancel = document.getElementById('logout-cancel');
-
-    function openLogoutModal() {
-      logoutModal.hidden = false;
-    }
-
-    function closeLogoutModal() {
-      logoutModal.hidden = true;
-    }
-
-    logoutTrigger.addEventListener('click', openLogoutModal);
-    logoutCancel.addEventListener('click', closeLogoutModal);
-    logoutModal.addEventListener('click', function (event) {
-      if (event.target === logoutModal) closeLogoutModal();
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-        closeLogoutModal();
-        closeSidebar();
-      }
-    });
-  })();
-</script>
+{% block dashboard_extra_scripts %}
+<script src="{{ url_for('static', filename='js/amount-input.js') }}" defer></script>
 {% endblock %}

@@ -49,7 +49,7 @@ def generate_account() -> str:
         candidate = body + account_digit(body)
         if not account_exists(candidate):
             return candidate
-    raise RuntimeError("No hay números de cuenta disponibles")
+    raise RuntimeError("No account numbers available")
 
 
 def customer_exists(customer_id: str) -> bool:
@@ -67,7 +67,7 @@ def generate_customer_id() -> str:
         candidate = body + account_digit(body)
         if not customer_exists(candidate):
             return candidate
-    raise RuntimeError("No hay números de cliente disponibles")
+    raise RuntimeError("No customer numbers available")
 
 
 def flash_result(lines: list[str], prefix: str = "", formatter=None) -> None:
@@ -77,14 +77,14 @@ def flash_result(lines: list[str], prefix: str = "", formatter=None) -> None:
     (e.g. to render a raw peso amount with thousands separators).
     """
     if not lines:
-        flash("El backend COBOL no respondió.", "error")
+        flash("The COBOL backend did not respond.", "error")
         return
     status, _, rest = lines[0].partition("|")
     if status == "OK":
         text = formatter(rest) if formatter and rest else rest
-        flash(f"{prefix}{text}" if prefix else text or "Operación exitosa.", "ok")
+        flash(f"{prefix}{text}" if prefix else text or "Operation successful.", "ok")
     else:
-        flash(rest or "Error desconocido.", "error")
+        flash(rest or "Unknown error.", "error")
 
 
 def list_customer_accounts(customer_id: str) -> list[dict[str, str]]:

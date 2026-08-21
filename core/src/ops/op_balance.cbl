@@ -1,4 +1,4 @@
-*> BALANCE <cuenta>
+*> BALANCE <account>
 *> Reports the owner name and current balance of a single account.
 IDENTIFICATION DIVISION.
 PROGRAM-ID. OP-BALANCE.
@@ -25,7 +25,7 @@ LINKAGE SECTION.
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
 MAIN-OP-BALANCE.
     IF LK-ARGC < 2
-        DISPLAY "ERR|Argumentos insuficientes"
+        DISPLAY "ERR|Insufficient arguments"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
@@ -37,7 +37,7 @@ MAIN-OP-BALANCE.
             WS-ACCOUNT-RECORD WS-REPO-FOUND WS-REPO-EOF
 
         IF WS-REPO-FOUND = "N"
-            DISPLAY "ERR|Cuenta no encontrada"
+            DISPLAY "ERR|Account not found"
         ELSE
             MOVE WS-BALANCE TO WS-BALANCE-DISPLAY
             DISPLAY "OK|" FUNCTION TRIM(WS-OWNER-NAME)

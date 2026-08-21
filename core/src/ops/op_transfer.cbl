@@ -47,7 +47,7 @@ LINKAGE SECTION.
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
 MAIN-OP-TRANSFER.
     IF LK-ARGC < 5
-        DISPLAY "ERR|Argumentos insuficientes"
+        DISPLAY "ERR|Insufficient arguments"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
@@ -68,30 +68,30 @@ MAIN-OP-TRANSFER.
         MOVE FUNCTION NUMVAL(WS-ARG-VALUE) TO WS-AMOUNT
 
         IF WS-FROM-NUMBER = WS-TO-NUMBER
-            DISPLAY "ERR|La cuenta de origen y destino deben ser distintas"
+            DISPLAY "ERR|Source and destination accounts must be different"
         ELSE
             MOVE "READ" TO WS-REPO-FUNCTION
             CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-REPO-FUNCTION
                 WS-FROM-RECORD WS-REPO-FOUND WS-REPO-EOF
 
             IF WS-REPO-FOUND = "N"
-                DISPLAY "ERR|Cuenta de origen no encontrada"
+                DISPLAY "ERR|Source account not found"
             ELSE
                 IF WS-FROM-CUSTOMER-ID NOT = WS-CUSTOMER-ID
-                    DISPLAY "ERR|La cuenta de origen no pertenece al cliente"
+                    DISPLAY "ERR|The source account does not belong to the customer"
                 ELSE
                     MOVE "READ" TO WS-REPO-FUNCTION
                     CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-REPO-FUNCTION
                         WS-TO-RECORD WS-REPO-FOUND WS-REPO-EOF
 
                     IF WS-REPO-FOUND = "N"
-                        DISPLAY "ERR|Cuenta de destino no encontrada"
+                        DISPLAY "ERR|Destination account not found"
                     ELSE
                         IF WS-TO-CUSTOMER-ID NOT = WS-CUSTOMER-ID
-                            DISPLAY "ERR|La cuenta de destino no pertenece al cliente"
+                            DISPLAY "ERR|The destination account does not belong to the customer"
                         ELSE
                             IF WS-AMOUNT > WS-FROM-BALANCE
-                                DISPLAY "ERR|Fondos insuficientes"
+                                DISPLAY "ERR|Insufficient funds"
                             ELSE
                                 SUBTRACT WS-AMOUNT FROM WS-FROM-BALANCE
                                 MOVE "REWRITE" TO WS-REPO-FUNCTION
@@ -99,7 +99,7 @@ MAIN-OP-TRANSFER.
                                     WS-FROM-RECORD WS-REPO-FOUND WS-REPO-EOF
 
                                 IF WS-REPO-FOUND = "N"
-                                    DISPLAY "ERR|No se pudo debitar la cuenta de origen"
+                                    DISPLAY "ERR|Could not debit the source account"
                                 ELSE
                                     ADD WS-AMOUNT TO WS-TO-BALANCE
                                     MOVE "REWRITE" TO WS-REPO-FUNCTION
@@ -121,9 +121,9 @@ MAIN-OP-TRANSFER.
                                             WS-FROM-RECORD WS-REPO-FOUND WS-REPO-EOF
 
                                         IF WS-REPO-FOUND = "Y"
-                                            DISPLAY "ERR|La transferencia no se pudo completar y fue revertida"
+                                            DISPLAY "ERR|The transfer could not be completed and was reversed"
                                         ELSE
-                                            DISPLAY "ERR|Fallo crítico: la cuenta de origen puede haber quedado inconsistente, contacte soporte"
+                                            DISPLAY "ERR|Critical failure: the source account may be left inconsistent, contact support"
                                         END-IF
                                     END-IF
                                 END-IF

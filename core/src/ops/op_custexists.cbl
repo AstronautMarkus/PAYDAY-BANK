@@ -30,7 +30,7 @@ LINKAGE SECTION.
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
 MAIN-OP-CUSTEXISTS.
     IF LK-ARGC < 2
-        DISPLAY "ERR|Argumentos insuficientes"
+        DISPLAY "ERR|Insufficient arguments"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
@@ -42,7 +42,7 @@ MAIN-OP-CUSTEXISTS.
             WS-CUSTOMER-RECORD WS-REPO-FOUND
 
         IF WS-REPO-FOUND = "N"
-            DISPLAY "ERR|Cliente no encontrado"
+            DISPLAY "ERR|Customer not found"
         ELSE
             DISPLAY "OK|" FUNCTION TRIM(WS-CUST-DOCUMENT)
         END-IF

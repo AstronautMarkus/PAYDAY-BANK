@@ -32,7 +32,7 @@ LINKAGE SECTION.
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
 MAIN-OP-LOGIN.
     IF LK-ARGC < 2
-        DISPLAY "ERR|Argumentos insuficientes"
+        DISPLAY "ERR|Insufficient arguments"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
@@ -43,7 +43,7 @@ MAIN-OP-LOGIN.
             WS-CUSTOMER-RECORD WS-REPO-FOUND
 
         IF WS-REPO-FOUND = "N"
-            DISPLAY "ERR|Correo o contraseña incorrectos"
+            DISPLAY "ERR|Incorrect email or password"
         ELSE
             DISPLAY "OK|" WS-CUST-CUSTOMER-ID "|"
                 FUNCTION TRIM(WS-CUST-PASSWORD-HASH)

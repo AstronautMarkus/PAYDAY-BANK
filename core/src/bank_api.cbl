@@ -23,7 +23,7 @@
 *> client/app/blueprints/auth/routes.py).
 *>
 *> A customer is an identity (profile + login); an account is a product
-*> (balance + type, "CORRIENTE" or "AHORRO") owned by one customer. Every
+*> (balance + type, "CHECKING" or "SAVINGS") owned by one customer. Every
 *> money-moving operation (DEPOSIT/WITHDRAW/TRANSFER) takes the caller's
 *> customer-id and the core verifies each account's ownership before
 *> touching its balance -- see OP-DEPOSIT/OP-WITHDRAW/OP-TRANSFER.
@@ -77,7 +77,7 @@ MAIN-PARAGRAPH.
     ACCEPT WS-ARGC FROM ARGUMENT-NUMBER
 
     IF WS-ARGC < 1
-        DISPLAY "ERR|Operación no especificada"
+        DISPLAY "ERR|Operation not specified"
         STOP RUN
     END-IF
 
@@ -116,7 +116,7 @@ MAIN-PARAGRAPH.
         WHEN "LIST"
             CALL "OP-LIST"
         WHEN OTHER
-            DISPLAY "ERR|Operación inválida"
+            DISPLAY "ERR|Invalid operation"
     END-EVALUATE
 
     MOVE "CLOSE" TO WS-ACCT-REPO-FUNCTION

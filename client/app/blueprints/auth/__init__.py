@@ -21,7 +21,7 @@ def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
         if "customer_id" not in session:
-            flash("Inicia sesión para entrar a PAYDAY BANK.", "error")
+            flash("Please sign in to access PAYDAY BANK.", "error")
             return redirect(url_for("auth.login"))
         return view(*args, **kwargs)
 

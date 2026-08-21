@@ -1,6 +1,6 @@
 *> OPENACCT <customer-id> <account> <name> <type>
 *> Opens an additional account (balance 0) for an existing customer.
-*> <type> must be CORRIENTE or AHORRO.
+*> <type> must be CHECKING or SAVINGS.
 IDENTIFICATION DIVISION.
 PROGRAM-ID. OP-OPENACCT.
 
@@ -42,7 +42,7 @@ LINKAGE SECTION.
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
 MAIN-OP-OPENACCT.
     IF LK-ARGC < 5
-        DISPLAY "ERR|Argumentos insuficientes"
+        DISPLAY "ERR|Insufficient arguments"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
@@ -58,15 +58,15 @@ MAIN-OP-OPENACCT.
         ACCEPT WS-ARG-TYPE FROM ARGUMENT-VALUE
 
         EVALUATE FUNCTION UPPER-CASE(WS-ARG-TYPE)
-            WHEN "CORRIENTE"
-            WHEN "AHORRO"
+            WHEN "CHECKING"
+            WHEN "SAVINGS"
                 MOVE "Y" TO WS-TYPE-VALID
             WHEN OTHER
                 MOVE "N" TO WS-TYPE-VALID
         END-EVALUATE
 
         IF WS-TYPE-VALID = "N"
-            DISPLAY "ERR|Tipo de cuenta inválido"
+            DISPLAY "ERR|Invalid account type"
         ELSE
             MOVE FUNCTION NUMVAL(WS-ARG-CUSTOMER) TO WS-CUST-CUSTOMER-ID
             MOVE "READ" TO WS-CUST-REPO-FUNCTION
@@ -74,7 +74,7 @@ MAIN-OP-OPENACCT.
                 WS-CUSTOMER-RECORD WS-CUST-REPO-FOUND
 
             IF WS-CUST-REPO-FOUND = "N"
-                DISPLAY "ERR|Cliente no encontrado"
+                DISPLAY "ERR|Customer not found"
             ELSE
                 MOVE FUNCTION NUMVAL(WS-ARG-ACCOUNT) TO WS-ACCOUNT-NUMBER
                 MOVE WS-CUST-CUSTOMER-ID TO WS-ACCOUNT-CUSTOMER-ID
@@ -87,9 +87,9 @@ MAIN-OP-OPENACCT.
                     WS-ACCOUNT-RECORD WS-ACCT-REPO-FOUND WS-ACCT-REPO-EOF
 
                 IF WS-ACCT-REPO-FOUND = "Y"
-                    DISPLAY "OK|Cuenta creada"
+                    DISPLAY "OK|Account created"
                 ELSE
-                    DISPLAY "ERR|La cuenta ya existe o no se pudo registrar"
+                    DISPLAY "ERR|The account already exists or could not be created"
                 END-IF
             END-IF
         END-IF

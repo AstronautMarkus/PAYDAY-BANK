@@ -31,7 +31,7 @@ LINKAGE SECTION.
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
 MAIN-OP-DEPOSIT.
     IF LK-ARGC < 4
-        DISPLAY "ERR|Argumentos insuficientes"
+        DISPLAY "ERR|Insufficient arguments"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
@@ -52,10 +52,10 @@ MAIN-OP-DEPOSIT.
             WS-ACCOUNT-RECORD WS-REPO-FOUND WS-REPO-EOF
 
         IF WS-REPO-FOUND = "N"
-            DISPLAY "ERR|Cuenta no encontrada"
+            DISPLAY "ERR|Account not found"
         ELSE
             IF WS-ACCOUNT-CUSTOMER-ID NOT = WS-CUSTOMER-ID
-                DISPLAY "ERR|La cuenta no pertenece al cliente"
+                DISPLAY "ERR|This account does not belong to the customer"
             ELSE
                 ADD WS-AMOUNT TO WS-BALANCE
                 MOVE "REWRITE" TO WS-REPO-FUNCTION

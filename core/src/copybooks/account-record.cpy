@@ -7,10 +7,9 @@
        01  ACCOUNT-RECORD.
            05 FD-ACCOUNT-NUMBER    PIC 9(6).
            05 FD-OWNER-NAME        PIC X(30).
-           *> CLP (peso chileno) no tiene submúltiplo decimal de uso
-           *> corriente: el saldo se guarda como pesos enteros,
-           *> empaquetado en COMP-3 para ahorrar espacio y acelerar la
-           *> aritmética de montos.
+           *> This system tracks whole-dollar balances only (no cents):
+           *> the balance is stored as an integer number of dollars,
+           *> packed in COMP-3 for compact storage and fast arithmetic.
            05 FD-BALANCE           PIC 9(12) COMP-3.
            *> Cliente dueño de esta cuenta (ver customer-record.cpy).
            *> Una cuenta pertenece a exactamente un cliente; un cliente

@@ -23,18 +23,18 @@ def login():
         lines = call_cobol("LOGIN", email)
         parts = lines[0].split("|") if lines else []
         if len(parts) != 3 or parts[0] != "OK" or not check_password_hash(parts[2], password):
-            flash("Correo o contraseña incorrectos.", "error")
+            flash("Incorrect email or password.", "error")
         else:
             session.clear()
             session["customer_id"] = parts[1]
             return redirect(url_for("banking.dashboard"))
-    return render_template("login.html")
+    return render_template("public.html", open_modal="login")
 
 
 @bp.route("/logout", methods=["POST"])
 def logout():
     session.clear()
-    flash("Sesión cerrada correctamente.", "ok")
+    flash("You have been signed out.", "ok")
     return redirect(url_for("auth.login"))
 
 
@@ -51,26 +51,26 @@ def register():
     password_confirmation = request.form.get("password_confirmation", "")
 
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("public.html", open_modal="register")
 
     if not name or len(name) > 30:
-        flash("El nombre del titular es obligatorio y admite hasta 30 caracteres.", "error")
+        flash("Full name is required, up to 30 characters.", "error")
     elif not DOCUMENT_RE.match(document):
-        flash("El documento debe tener entre 5 y 20 caracteres alfanuméricos.", "error")
+        flash("ID number must be 5 to 20 alphanumeric characters.", "error")
     elif not EMAIL_RE.match(email) or len(email) > 60:
-        flash("Introduce un correo electrónico válido.", "error")
+        flash("Enter a valid email address.", "error")
     elif not PHONE_RE.match(phone):
-        flash("Introduce un teléfono válido.", "error")
+        flash("Enter a valid phone number.", "error")
     elif not address or len(address) > 80:
-        flash("El domicilio es obligatorio y admite hasta 80 caracteres.", "error")
+        flash("Address is required, up to 80 characters.", "error")
     elif not occupation or len(occupation) > 40:
-        flash("La ocupación es obligatoria y admite hasta 40 caracteres.", "error")
+        flash("Occupation is required, up to 40 characters.", "error")
     elif not employer or len(employer) > 50:
-        flash("La empresa o actividad es obligatoria y admite hasta 50 caracteres.", "error")
+        flash("Employer is required, up to 50 characters.", "error")
     elif not PASSWORD_RE.match(password):
-        flash("La contraseña debe tener 8 caracteres, una letra y un número.", "error")
+        flash("Password must be at least 8 characters with a letter and a number.", "error")
     elif password != password_confirmation:
-        flash("Las contraseñas no coinciden.", "error")
+        flash("Passwords do not match.", "error")
     else:
         try:
             customer_id = generate_customer_id()
@@ -83,10 +83,10 @@ def register():
             line = []
         if line and line[0].startswith("OK|"):
             flash(
-                "Cliente creado. Tu número de cliente es " + customer_id
-                + " y tu cuenta corriente es " + account + ".",
+                "Account created. Your customer number is " + customer_id
+                + " and your checking account number is " + account + ".",
                 "ok",
             )
             return redirect(url_for("auth.login"))
         flash_result(line)
-    return render_template("register.html")
+    return render_template("public.html", open_modal="register")

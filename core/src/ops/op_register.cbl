@@ -1,7 +1,7 @@
 *> REGISTER <customer-id> <account> <name> <document> <email> <phone>
 *>     <address> <occupation> <employer> <password-hash>
 *> Creates the customer profile first, then the initial account (type
-*> CORRIENTE, balance 0) owned by that customer. Rejects the request if
+*> CHECKING, balance 0) owned by that customer. Rejects the request if
 *> the email or document is already registered to another customer.
 IDENTIFICATION DIVISION.
 PROGRAM-ID. OP-REGISTER.
@@ -54,7 +54,7 @@ LINKAGE SECTION.
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
 MAIN-OP-REGISTER.
     IF LK-ARGC < 11
-        DISPLAY "ERR|Argumentos insuficientes"
+        DISPLAY "ERR|Insufficient arguments"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
@@ -98,7 +98,7 @@ MAIN-OP-REGISTER.
             WS-DUP-RECORD WS-CUST-REPO-FOUND
 
         IF WS-CUST-REPO-FOUND = "Y"
-            DISPLAY "ERR|Ya existe un cliente con ese correo o documento"
+            DISPLAY "ERR|A customer with that email or document already exists"
         ELSE
             MOVE WS-CUST-DOCUMENT TO WS-DUP-DOCUMENT
             MOVE "READDOC" TO WS-CUST-REPO-FUNCTION
@@ -106,7 +106,7 @@ MAIN-OP-REGISTER.
                 WS-DUP-RECORD WS-CUST-REPO-FOUND
 
             IF WS-CUST-REPO-FOUND = "Y"
-                DISPLAY "ERR|Ya existe un cliente con ese correo o documento"
+                DISPLAY "ERR|A customer with that email or document already exists"
             ELSE
                 MOVE "WRITE" TO WS-CUST-REPO-FUNCTION
                 CALL "CUSTOMER-REPOSITORY" USING BY REFERENCE WS-CUST-REPO-FUNCTION
@@ -116,7 +116,7 @@ MAIN-OP-REGISTER.
                     MOVE FUNCTION NUMVAL(WS-ARG-ACCOUNT) TO WS-ACCOUNT-NUMBER
                     MOVE WS-CUST-CUSTOMER-ID TO WS-ACCOUNT-CUSTOMER-ID
                     MOVE WS-ARG-VALUE TO WS-OWNER-NAME
-                    MOVE "CORRIENTE" TO WS-ACCOUNT-TYPE
+                    MOVE "CHECKING" TO WS-ACCOUNT-TYPE
                     MOVE 0 TO WS-BALANCE
 
                     MOVE "WRITE" TO WS-ACCT-REPO-FUNCTION
@@ -124,12 +124,12 @@ MAIN-OP-REGISTER.
                         WS-ACCOUNT-RECORD WS-ACCT-REPO-FOUND WS-ACCT-REPO-EOF
 
                     IF WS-ACCT-REPO-FOUND = "Y"
-                        DISPLAY "OK|Cliente y cuenta registrados"
+                        DISPLAY "OK|Customer and account registered"
                     ELSE
-                        DISPLAY "ERR|El cliente se registró, pero la cuenta no pudo crearse"
+                        DISPLAY "ERR|The customer was registered, but the account could not be created"
                     END-IF
                 ELSE
-                    DISPLAY "ERR|El cliente ya existe o no se pudo registrar"
+                    DISPLAY "ERR|The customer already exists or could not be registered"
                 END-IF
             END-IF
         END-IF
