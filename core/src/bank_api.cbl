@@ -4,8 +4,10 @@
 *>
 *> Usage:
 *>   bank_api REGISTER   <customer-id> <account> <name> <document> <email>
-*>       <phone> <address> <occupation> <employer>
+*>       <phone> <address> <occupation> <employer> <password-hash>
 *>   bank_api CUSTEXISTS <customer-id>
+*>   bank_api LOGIN      <email>
+*>   bank_api PROFILE    <customer-id>
 *>   bank_api OPENACCT   <customer-id> <account> <name> <type>
 *>   bank_api ACCOUNTS   <customer-id>
 *>   bank_api BALANCE    <account>
@@ -13,6 +15,12 @@
 *>   bank_api WITHDRAW   <customer-id> <account> <amount>
 *>   bank_api TRANSFER   <customer-id> <from-account> <to-account> <amount>
 *>   bank_api LIST
+*>
+*> A customer's login credential (email + password hash) lives in the
+*> same customer profile record as everything else -- COBOL owns
+*> storage, but never interprets the hash. Hashing/verification is done
+*> by the Flask client (see LOGIN/REGISTER above and
+*> client/app/blueprints/auth/routes.py).
 *>
 *> A customer is an identity (profile + login); an account is a product
 *> (balance + type, "CORRIENTE" or "AHORRO") owned by one customer. Every
@@ -58,7 +66,9 @@ COPY "customer-record.cpy"
               ==PF-PHONE==          BY ==WS-CUST-PHONE==
               ==PF-ADDRESS==        BY ==WS-CUST-ADDRESS==
               ==PF-OCCUPATION==     BY ==WS-CUST-OCCUPATION==
-              ==PF-EMPLOYER==       BY ==WS-CUST-EMPLOYER==.
+              ==PF-EMPLOYER==       BY ==WS-CUST-EMPLOYER==
+              ==PF-NAME==           BY ==WS-CUST-NAME==
+              ==PF-PASSWORD-HASH==  BY ==WS-CUST-PASSWORD-HASH==.
 01  WS-CUST-REPO-FUNCTION   PIC X(10).
 01  WS-CUST-REPO-FOUND      PIC X.
 
@@ -87,6 +97,10 @@ MAIN-PARAGRAPH.
             CALL "OP-REGISTER" USING BY REFERENCE WS-ARGC
         WHEN "CUSTEXISTS"
             CALL "OP-CUSTEXISTS" USING BY REFERENCE WS-ARGC
+        WHEN "LOGIN"
+            CALL "OP-LOGIN" USING BY REFERENCE WS-ARGC
+        WHEN "PROFILE"
+            CALL "OP-PROFILE" USING BY REFERENCE WS-ARGC
         WHEN "OPENACCT"
             CALL "OP-OPENACCT" USING BY REFERENCE WS-ARGC
         WHEN "ACCOUNTS"

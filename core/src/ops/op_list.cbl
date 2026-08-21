@@ -24,7 +24,9 @@ COPY "customer-record.cpy"
               ==PF-PHONE==          BY ==WS-CUST-PHONE==
               ==PF-ADDRESS==        BY ==WS-CUST-ADDRESS==
               ==PF-OCCUPATION==     BY ==WS-CUST-OCCUPATION==
-              ==PF-EMPLOYER==       BY ==WS-CUST-EMPLOYER==.
+              ==PF-EMPLOYER==       BY ==WS-CUST-EMPLOYER==
+              ==PF-NAME==           BY ==WS-CUST-NAME==
+              ==PF-PASSWORD-HASH==  BY ==WS-CUST-PASSWORD-HASH==.
 01  WS-BALANCE-DISPLAY    PIC Z(11)9.
 01  WS-END-OF-FILE        PIC X VALUE "N".
 01  WS-ACCT-REPO-FUNCTION PIC X(10).

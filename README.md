@@ -3,7 +3,7 @@
 PAYDAY BANK is a prototype banking application that demonstrates how to integrate a legacy COBOL system with a modern web UI. It consists of two main components:
 
 - **`core/`** — the COBOL "mainframe": all business logic and persistence (account numbers, balances, customer profiles) live here, compiled to a native binary.
-- **`client/`** — the Flask web client: a thin presentation layer, organized into blueprints, that talks to the core over subprocess calls and keeps its own login database.
+- **`client/`** — the Flask web client: a thin presentation layer, organized into blueprints, that talks to the core over subprocess calls and keeps no persistent data of its own (not even login credentials — see below).
 
 This is a funny or educational project, not a production-ready banking system. It is intended to illustrate how COBOL can be integrated into a modern web application stack.
 
@@ -20,15 +20,12 @@ PAYDAY-BANK/
 ├── client/                     # Flask web client
 │   ├── app/
 │   │   ├── __init__.py         # create_app() factory
-│   │   ├── config.py           # paths, secret key, SQLAlchemy URI
-│   │   ├── extensions.py       # db = SQLAlchemy()
-│   │   ├── models.py           # User model (login credentials)
+│   │   ├── config.py           # paths, secret key
 │   │   ├── mainframe/          # subprocess client for the COBOL core
 │   │   ├── blueprints/
-│   │   │   ├── auth/           # login, logout, registration
+│   │   │   ├── auth/           # login, logout, registration; g.user loader
 │   │   │   └── banking/        # dashboard, deposit, withdraw, open account, transfer
 │   │   └── templates/
-│   ├── instance/                # bank_users.sqlite3 (generated, gitignored)
 │   ├── wsgi.py                  # entrypoint
 │   └── requirements.txt
 │
@@ -82,8 +79,10 @@ http://127.0.0.1:5005
 
 `bank_api.cbl` is a non-interactive COBOL program: it receives its operation and arguments on the command line, reads/writes two indexed files (`accounts.dat`, `customer_profiles.dat`), and prints one result line to stdout per call. A **customer** (identity: profile + login) is distinct from an **account** (a product with its own balance and type, `CORRIENTE` or `AHORRO`); a customer owns zero or more accounts. Every money-moving operation takes the caller's `customer-id`, and the core verifies each account's ownership before touching its balance. It recognizes:
 
-- `REGISTER <customer-id> <account> <name> <document> <email> <phone> <address> <occupation> <employer>` — creates the customer and their first account (type `CORRIENTE`, balance 0)
+- `REGISTER <customer-id> <account> <name> <document> <email> <phone> <address> <occupation> <employer> <password-hash>` — creates the customer (rejecting a duplicate email or document) and their first account (type `CORRIENTE`, balance 0)
 - `CUSTEXISTS <customer-id>` — existence check, used to generate unique customer IDs
+- `LOGIN <email>` — looks up a customer by email and returns `<customer-id>|<password-hash>`, or a generic error if no customer has that email
+- `PROFILE <customer-id>` — returns the customer's display profile (name, document, email, phone, address, occupation, employer)
 - `OPENACCT <customer-id> <account> <name> <type>` — opens an additional account (`type` is `CORRIENTE` or `AHORRO`) for an existing customer
 - `ACCOUNTS <customer-id>` — lists every account owned by one customer
 - `BALANCE <account>`
@@ -104,7 +103,7 @@ Responses follow this contract:
 `client/app` is a Flask app built with the application-factory pattern:
 
 - `app/mainframe/client.py` is the only module that shells out to `core/bin/bank_api` (via `subprocess`, with `core/data/` as its working directory) and parses the `OK|`/`ERR|`/`ROW|`/`END` contract above.
-- `app/models.py` defines the `User` model (SQLAlchemy) — it stores only password hashes and the association between a login and a COBOL `customer-id` in `client/instance/bank_users.sqlite3`. A customer's accounts (numbers, types, balances) live only in COBOL; the core remains the source of truth for them and for the profile data.
+- There is no database, ORM, or client-side persistence at all. The session cookie holds nothing but the logged-in customer-id; everything else — profile, credentials included — is read from COBOL on demand. Passwords are hashed and verified in Python (`werkzeug.security`, since COBOL has no crypto primitives), but the resulting hash is stored as an opaque field inside the COBOL customer record (`PF-PASSWORD-HASH` in `core/src/copybooks/customer-record.cpy`) via `REGISTER`, and read back via `LOGIN`. `app/blueprints/auth/__init__.py`'s `load_logged_in_user()` calls `PROFILE` on every request to hydrate `g.user`.
 - `app/blueprints/auth` exposes `GET,POST /login`, `POST /logout`, `GET,POST /register`.
 - `app/blueprints/banking` exposes `GET /`, `GET /dashboard`, `POST /deposit`, `POST /withdraw`, `GET,POST /accounts/open`, `GET,POST /transfer`.
 
@@ -112,7 +111,9 @@ When a form is submitted, the relevant blueprint route validates the input and c
 
 ```bash
 core/bin/bank_api REGISTER 900001 123456 Juan DNI-12345 juan@empresa.com \
-	"+34 600 000 000" "Calle Mayor 10, Madrid" Director "Empresa SL"
+	"+34 600 000 000" "Calle Mayor 10, Madrid" Director "Empresa SL" "scrypt:32768:8:1$..."
+core/bin/bank_api LOGIN juan@empresa.com
+core/bin/bank_api PROFILE 900001
 core/bin/bank_api OPENACCT 900001 123457 Juan AHORRO
 core/bin/bank_api DEPOSIT 900001 123456 150000
 core/bin/bank_api WITHDRAW 900001 123456 50000
@@ -124,7 +125,7 @@ core/bin/bank_api ACCOUNTS 900001
 
 - Customer IDs and account numbers are both 6 digits, generated the same way (see below) but in separate keyspaces — a customer ID is never a valid account number and vice versa.
 - Balances are Chilean pesos (CLP): whole numbers with no decimal places, matching everyday CLP usage. `core/src/copybooks/account-record.cpy` stores `FD-BALANCE` as `PIC 9(12) COMP-3` (packed decimal, up to 999,999,999,999 pesos) and each op prints it through an edited `PIC Z(11)9` field so output has no leading zeros. `client`'s `AMOUNT_RE` (in `app/blueprints/banking/routes.py`) only accepts a positive integer with no leading zero or decimal point, and the dashboard renders balances through the `clp` Jinja filter (`app/formatting.py`), which adds "." as the thousands separator (e.g. `1234567` -> `$1.234.567`).
-- Customer profiles are stored in `core/data/customer_profiles.dat`, keyed by `customer-id`. Accounts are stored in `core/data/accounts.dat`, keyed by account number, each carrying the `customer-id` of its owner and its `FD-ACCOUNT-TYPE` (`CORRIENTE` or `AHORRO`). A customer may own several accounts, including more than one of the same type.
+- Customer profiles (including name and password hash) are stored in `core/data/customer_profiles.dat`, keyed by `customer-id`, with unique alternate keys on email and document (used by `LOGIN`/`READEMAIL` and the `REGISTER`-time duplicate check/`READDOC`). GnuCOBOL keeps each alternate key's index in a companion file (`customer_profiles.dat.1`, `.2`, ...) alongside the primary `.dat` — also generated and gitignored. Accounts are stored in `core/data/accounts.dat`, keyed by account number, each carrying the `customer-id` of its owner and its `FD-ACCOUNT-TYPE` (`CORRIENTE` or `AHORRO`). A customer may own several accounts, including more than one of the same type.
 - New account numbers use the `42` entity prefix, and new customer IDs the `77` prefix — both a three-digit value chosen with a cryptographically secure random source plus a Luhn check digit. Each candidate is checked against the COBOL index before use (`app/mainframe/client.py`: `generate_account()`/`generate_customer_id()`).
 - Deposits, withdrawals, and transfers all require the caller's `customer-id` and the COBOL core rejects any operation on an account it doesn't own (`ERR|La cuenta no pertenece al cliente`) — this is enforced in the core itself, not just in the Flask forms, since the account number involved is client-supplied. Transfers are restricted to a customer's own accounts in this phase (no transfers to other customers).
 - Set `BANK_SECRET_KEY` in a real deployment instead of using the development fallback in `app/config.py`.

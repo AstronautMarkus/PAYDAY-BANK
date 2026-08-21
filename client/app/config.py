@@ -16,8 +16,6 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
 
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
     # The compiled COBOL "mainframe" binary and the directory holding its
     # indexed data files. The binary is invoked with this directory as its
     # working directory, since bank_api.cbl assigns its files by bare

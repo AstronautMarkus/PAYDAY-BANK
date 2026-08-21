@@ -1,10 +1,13 @@
-*> CUSTEXISTS <customer-id>
-*> Reports whether a customer-id is already taken. Used by the Flask
-*> client to check candidate customer IDs the same way it already uses
-*> BALANCE to check candidate account numbers (see account_exists() in
-*> app/mainframe/client.py).
+*> LOGIN <email>
+*> Looks up a customer by email (alternate key) and hands back the
+*> stored password hash for the Flask client to verify with
+*> check_password_hash -- COBOL has no crypto primitives, so hashing
+*> and verification stay in Python; this op only owns the lookup.
+*> On a miss, the error message is deliberately the same generic text
+*> used for a wrong password, so a failed login never reveals whether
+*> the email exists.
 IDENTIFICATION DIVISION.
-PROGRAM-ID. OP-CUSTEXISTS.
+PROGRAM-ID. OP-LOGIN.
 
 DATA DIVISION.
 WORKING-STORAGE SECTION.
@@ -20,7 +23,6 @@ COPY "customer-record.cpy"
               ==PF-NAME==           BY ==WS-CUST-NAME==
               ==PF-PASSWORD-HASH==  BY ==WS-CUST-PASSWORD-HASH==.
 01  WS-ARG-INDEX        PIC 9(2).
-01  WS-ARG-CUSTOMER     PIC X(10).
 01  WS-REPO-FUNCTION    PIC X(10).
 01  WS-REPO-FOUND       PIC X.
 
@@ -28,25 +30,25 @@ LINKAGE SECTION.
 01  LK-ARGC  PIC 9(2).
 
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
-MAIN-OP-CUSTEXISTS.
+MAIN-OP-LOGIN.
     IF LK-ARGC < 2
         DISPLAY "ERR|Argumentos insuficientes"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
-        ACCEPT WS-ARG-CUSTOMER FROM ARGUMENT-VALUE
-        MOVE FUNCTION NUMVAL(WS-ARG-CUSTOMER) TO WS-CUST-CUSTOMER-ID
+        ACCEPT WS-CUST-EMAIL FROM ARGUMENT-VALUE
 
-        MOVE "READ" TO WS-REPO-FUNCTION
+        MOVE "READEMAIL" TO WS-REPO-FUNCTION
         CALL "CUSTOMER-REPOSITORY" USING BY REFERENCE WS-REPO-FUNCTION
             WS-CUSTOMER-RECORD WS-REPO-FOUND
 
         IF WS-REPO-FOUND = "N"
-            DISPLAY "ERR|Cliente no encontrado"
+            DISPLAY "ERR|Correo o contraseña incorrectos"
         ELSE
-            DISPLAY "OK|" FUNCTION TRIM(WS-CUST-DOCUMENT)
+            DISPLAY "OK|" WS-CUST-CUSTOMER-ID "|"
+                FUNCTION TRIM(WS-CUST-PASSWORD-HASH)
         END-IF
     END-IF
     GOBACK.
 
-END PROGRAM OP-CUSTEXISTS.
+END PROGRAM OP-LOGIN.

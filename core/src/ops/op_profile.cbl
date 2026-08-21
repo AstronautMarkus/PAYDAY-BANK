@@ -1,10 +1,9 @@
-*> CUSTEXISTS <customer-id>
-*> Reports whether a customer-id is already taken. Used by the Flask
-*> client to check candidate customer IDs the same way it already uses
-*> BALANCE to check candidate account numbers (see account_exists() in
-*> app/mainframe/client.py).
+*> PROFILE <customer-id>
+*> Returns the customer's display profile. Used by the Flask client to
+*> hydrate the logged-in user on every request (replaces what used to
+*> be a SQLite row lookup).
 IDENTIFICATION DIVISION.
-PROGRAM-ID. OP-CUSTEXISTS.
+PROGRAM-ID. OP-PROFILE.
 
 DATA DIVISION.
 WORKING-STORAGE SECTION.
@@ -28,7 +27,7 @@ LINKAGE SECTION.
 01  LK-ARGC  PIC 9(2).
 
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
-MAIN-OP-CUSTEXISTS.
+MAIN-OP-PROFILE.
     IF LK-ARGC < 2
         DISPLAY "ERR|Argumentos insuficientes"
     ELSE
@@ -44,9 +43,16 @@ MAIN-OP-CUSTEXISTS.
         IF WS-REPO-FOUND = "N"
             DISPLAY "ERR|Cliente no encontrado"
         ELSE
-            DISPLAY "OK|" FUNCTION TRIM(WS-CUST-DOCUMENT)
+            DISPLAY "OK|" WS-CUST-CUSTOMER-ID "|"
+                FUNCTION TRIM(WS-CUST-NAME) "|"
+                FUNCTION TRIM(WS-CUST-DOCUMENT) "|"
+                FUNCTION TRIM(WS-CUST-EMAIL) "|"
+                FUNCTION TRIM(WS-CUST-PHONE) "|"
+                FUNCTION TRIM(WS-CUST-ADDRESS) "|"
+                FUNCTION TRIM(WS-CUST-OCCUPATION) "|"
+                FUNCTION TRIM(WS-CUST-EMPLOYER)
         END-IF
     END-IF
     GOBACK.
 
-END PROGRAM OP-CUSTEXISTS.
+END PROGRAM OP-PROFILE.

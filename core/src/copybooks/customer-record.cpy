@@ -17,3 +17,8 @@
            05 PF-ADDRESS           PIC X(80).
            05 PF-OCCUPATION        PIC X(40).
            05 PF-EMPLOYER          PIC X(50).
+           05 PF-NAME              PIC X(30).
+           *> Opaque werkzeug password hash (e.g. "scrypt:..."). COBOL
+           *> never interprets this -- hashing/verification stays in the
+           *> Flask client, which has actual crypto primitives.
+           05 PF-PASSWORD-HASH     PIC X(255).

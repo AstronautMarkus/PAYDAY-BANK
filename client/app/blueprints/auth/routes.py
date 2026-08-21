@@ -3,9 +3,7 @@ import re
 from flask import flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.extensions import db
 from app.mainframe import call_cobol, flash_result, generate_account, generate_customer_id
-from app.models import User
 
 from . import bp
 
@@ -22,14 +20,13 @@ def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
-        user = db.session.execute(
-            db.select(User).filter_by(email=email)
-        ).scalar_one_or_none()
-        if user is None or not check_password_hash(user.password_hash, password):
+        lines = call_cobol("LOGIN", email)
+        parts = lines[0].split("|") if lines else []
+        if len(parts) != 3 or parts[0] != "OK" or not check_password_hash(parts[2], password):
             flash("Correo o contraseña incorrectos.", "error")
         else:
             session.clear()
-            session["user_id"] = user.id
+            session["customer_id"] = parts[1]
             return redirect(url_for("banking.dashboard"))
     return render_template("login.html")
 
@@ -75,35 +72,21 @@ def register():
     elif password != password_confirmation:
         flash("Las contraseñas no coinciden.", "error")
     else:
-        duplicate = db.session.execute(
-            db.select(User).where((User.email == email) | (User.document == document))
-        ).scalar_one_or_none()
-        if duplicate:
-            flash("Ya existe un cliente con ese correo o documento.", "error")
-        else:
-            try:
-                customer_id = generate_customer_id()
-                account = generate_account()
-                line = call_cobol(
-                    "REGISTER", customer_id, account, name, document, email, phone,
-                    address, occupation, employer,
-                )
-            except (OSError, RuntimeError):
-                line = []
-            if line and line[0].startswith("OK|"):
-                db.session.add(
-                    User(
-                        name=name, document=document, email=email, phone=phone,
-                        address=address, occupation=occupation, employer=employer,
-                        customer_id=customer_id, password_hash=generate_password_hash(password),
-                    )
-                )
-                db.session.commit()
-                flash(
-                    "Cliente creado. Tu número de cliente es " + customer_id
-                    + " y tu cuenta corriente es " + account + ".",
-                    "ok",
-                )
-                return redirect(url_for("auth.login"))
-            flash_result(line)
+        try:
+            customer_id = generate_customer_id()
+            account = generate_account()
+            line = call_cobol(
+                "REGISTER", customer_id, account, name, document, email, phone,
+                address, occupation, employer, generate_password_hash(password),
+            )
+        except (OSError, RuntimeError):
+            line = []
+        if line and line[0].startswith("OK|"):
+            flash(
+                "Cliente creado. Tu número de cliente es " + customer_id
+                + " y tu cuenta corriente es " + account + ".",
+                "ok",
+            )
+            return redirect(url_for("auth.login"))
+        flash_result(line)
     return render_template("register.html")

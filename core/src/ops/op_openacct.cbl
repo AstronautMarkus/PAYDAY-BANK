@@ -21,7 +21,9 @@ COPY "customer-record.cpy"
               ==PF-PHONE==          BY ==WS-CUST-PHONE==
               ==PF-ADDRESS==        BY ==WS-CUST-ADDRESS==
               ==PF-OCCUPATION==     BY ==WS-CUST-OCCUPATION==
-              ==PF-EMPLOYER==       BY ==WS-CUST-EMPLOYER==.
+              ==PF-EMPLOYER==       BY ==WS-CUST-EMPLOYER==
+              ==PF-NAME==           BY ==WS-CUST-NAME==
+              ==PF-PASSWORD-HASH==  BY ==WS-CUST-PASSWORD-HASH==.
 01  WS-ARG-INDEX          PIC 9(2).
 01  WS-ARG-CUSTOMER       PIC X(10).
 01  WS-ARG-ACCOUNT        PIC X(10).
