@@ -225,3 +225,5 @@ core/data/*.dat
 # GnuCOBOL's alternate-index side files for CUSTOMER-FILE's email/document
 # ALTERNATE RECORD KEYs (customer_profiles.dat.1, .dat.2, ...).
 core/data/*.dat.*
+
+.DS_Store
