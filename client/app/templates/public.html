@@ -60,7 +60,7 @@
 
   .hero-section {
     position: relative;
-    background: url('https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+    background: url('/static/img/ee0fce15-04d4-41d3-b787-2fd3e042c605.png') center/cover no-repeat;
     height: 480px;
     display: flex;
     align-items: center;
@@ -170,6 +170,7 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
+    pointer-events: none;
   }
 
   .showcase-text h2 {
@@ -274,34 +275,31 @@
       <div class="feature-icon">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
-      <h3>Bank-Grade Security</h3>
-      <p>Passwords are hashed, never stored in plain text, and every account action is
-        verified against your customer profile before it's processed.</p>
+      <h3>Your Security</h3>
+      <p>We use bank-level encryption and security protocols to ensure your personal and financial information is always protected.</p>
     </div>
 
     <div class="ui-card feature-card">
       <div class="feature-icon">
-        <i class="fa-solid fa-bolt"></i>
+        <i class="fa-solid fa-gamepad"></i>
       </div>
-      <h3>Instant Transfers</h3>
-      <p>Move funds between your own Checking and Savings accounts instantly, with
-        balances updated in real time.</p>
+      <h3>Minigames = Farm Cash</h3>
+      <p>Play our fun minigames to earn extra cash for your account. The more you play, the more you can earn!</p>
     </div>
 
     <div class="ui-card feature-card">
       <div class="feature-icon">
-        <i class="fa-solid fa-mobile-screen-button"></i>
+        <i class="fa-solid fa-info"></i>
       </div>
-      <h3>Simple Account Management</h3>
-      <p>Open new accounts, check balances, and manage deposits and withdrawals from a
-        single dashboard.</p>
+      <h3>Just for Fun</h3>
+      <p>Remember: this isn't a real bank. This is a fun, educational project to learn about web development and banking concepts.</p>
     </div>
   </div>
 </section>
 
 <section class="showcase-section" id="about">
   <div class="showcase-grid">
-    <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80"
+    <img src="{{ url_for('static', filename='img/f5f57e75-fdac-456a-9ecd-48b8eccf0556.png') }}"
       alt="Online banking platform" class="showcase-img">
     <div class="showcase-text">
       <h2>Designed for Speed & Flexibility</h2>
