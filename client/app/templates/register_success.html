@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Account Created - PAYDAY BANK{% endblock %}
+
+{% block extra_head %}
+<style>
+  body {
+    background: var(--bg-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .success-header {
+    background: linear-gradient(180deg, var(--red-primary) 0%, var(--red-dark) 100%);
+    color: #ffffff;
+    padding: 0 30px;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+
+  .success-header a {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+
+  .success-wrap {
+    max-width: 480px;
+    margin: 60px auto;
+    padding: 0 20px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #e6f4ea;
+    color: #137333;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+  }
+
+  .success-wrap h1 {
+    font-size: 21px;
+    color: var(--text-main);
+    margin-bottom: 8px;
+  }
+
+  .success-wrap > p {
+    color: var(--text-muted);
+    margin-bottom: 22px;
+  }
+
+  .id-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    text-align: left;
+  }
+
+  .id-card .id-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.4px;
+    margin-bottom: 2px;
+  }
+
+  .id-card .id-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+
+  .id-card button {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .id-card button:hover {
+    color: var(--red-primary);
+    border-color: var(--red-primary);
+  }
+
+  .id-card button.copied {
+    color: #137333;
+    border-color: #137333;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="success-header">
+  <a href="{{ url_for('banking.index') }}"><i class="fa-solid fa-vault"></i> PAYDAY BANK</a>
+</header>
+
+<div class="success-wrap">
+  <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+  <h1>Your account is ready</h1>
+  <p>Save these numbers -- you'll need your customer number to sign in and manage your accounts.</p>
+
+  <div class="id-card">
+    <div>
+      <div class="id-label">Customer Number</div>
+      <div class="id-value" id="value-customer">{{ customer_id }}</div>
+    </div>
+    <button type="button" data-copy="value-customer"><i class="fa-regular fa-copy"></i> Copy</button>
+  </div>
+
+  <div class="id-card">
+    <div>
+      <div class="id-label">Checking Account Number</div>
+      <div class="id-value" id="value-account">{{ account }}</div>
+    </div>
+    <button type="button" data-copy="value-account"><i class="fa-regular fa-copy"></i> Copy</button>
+  </div>
+
+  <a href="{{ url_for('auth.login') }}" class="ui-btn ui-btn-red ui-btn-block" style="margin-top: 22px;">
+    Continue to Sign In <i class="fa-solid fa-arrow-right"></i>
+  </a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.copy).textContent.trim();
+      navigator.clipboard.writeText(text).then(function () {
+        var original = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.innerHTML = original;
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    });
+  });
+</script>
+{% endblock %}

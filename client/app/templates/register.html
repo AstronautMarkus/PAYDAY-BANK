@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+{% block title %}Open an Account - PAYDAY BANK{% endblock %}
+
+{% block extra_head %}
+<style>
+  body {
+    background: var(--bg-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .register-header {
+    background: linear-gradient(180deg, var(--red-primary) 0%, var(--red-dark) 100%);
+    color: #ffffff;
+    padding: 0 30px;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+
+  .register-header a {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+
+  .register-wrap {
+    max-width: 620px;
+    margin: 36px auto 60px;
+    padding: 0 20px;
+    width: 100%;
+  }
+
+  .register-intro {
+    text-align: center;
+    margin-bottom: 26px;
+  }
+
+  .register-intro h1 {
+    font-size: 22px;
+    color: var(--text-main);
+    margin-bottom: 6px;
+  }
+
+  .register-intro p {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* Stepper */
+  .stepper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 26px;
+  }
+
+  .stepper-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+  }
+
+  .stepper-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--border-color);
+    z-index: 0;
+  }
+
+  .stepper-item.done:not(:last-child)::after,
+  .stepper-item.active:not(:last-child)::after {
+    background: var(--red-primary);
+  }
+
+  .stepper-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid var(--border-color);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    z-index: 1;
+    transition: all 0.2s ease;
+  }
+
+  .stepper-item.active .stepper-dot {
+    border-color: var(--red-primary);
+    color: var(--red-primary);
+    box-shadow: 0 0 0 3px var(--red-soft);
+  }
+
+  .stepper-item.done .stepper-dot {
+    background: var(--red-primary);
+    border-color: var(--red-primary);
+    color: #ffffff;
+  }
+
+  .stepper-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    max-width: 90px;
+  }
+
+  .stepper-item.active .stepper-label {
+    color: var(--text-main);
+    font-weight: 600;
+  }
+
+  /* Wizard panel */
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; }
+
+  .field-msg {
+    display: block;
+    font-size: 11.5px;
+    margin-top: 5px;
+    min-height: 14px;
+  }
+
+  .field-msg.error { color: var(--red-primary); }
+  .field-msg.ok { color: #137333; }
+
+  .ui-input-wrapper.has-error input,
+  .ui-input-wrapper.has-error select {
+    border-color: var(--red-primary);
+    background-color: var(--red-soft);
+  }
+
+  .ui-input-wrapper.has-ok input {
+    border-color: #34a853;
+  }
+
+  .password-wrapper .toggle-visibility {
+    position: absolute;
+    right: 10px;
+    left: auto;
+    cursor: pointer;
+    color: #8b95a1;
+    background: none;
+    border: none;
+    font-size: 13px;
+  }
+
+  .strength-meter {
+    height: 5px;
+    border-radius: 3px;
+    background: #e9ecef;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .strength-meter-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--red-primary);
+    transition: width 0.2s ease, background-color 0.2s ease;
+  }
+
+  .strength-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .review-list {
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 18px;
+  }
+
+  .review-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 12.5px;
+    border-bottom: 1px solid #eef0f2;
+  }
+
+  .review-row:last-child { border-bottom: none; }
+  .review-row span:first-child { color: var(--text-muted); }
+  .review-row span:last-child { color: var(--text-main); font-weight: 600; text-align: right; }
+
+  .login-hint {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="register-header">
+  <a href="{{ url_for('banking.index') }}"><i class="fa-solid fa-vault"></i> PAYDAY BANK</a>
+</header>
+
+<div class="register-wrap">
+  <div class="register-intro">
+    <h1>Open a Bank Account</h1>
+    <p>It only takes four short steps to get your customer number and first checking account.</p>
+  </div>
+
+  <div class="stepper" id="wizard-stepper">
+    <div class="stepper-item" data-step-index="0">
+      <div class="stepper-dot">1</div>
+      <div class="stepper-label">Personal</div>
+    </div>
+    <div class="stepper-item" data-step-index="1">
+      <div class="stepper-dot">2</div>
+      <div class="stepper-label">Contact</div>
+    </div>
+    <div class="stepper-item" data-step-index="2">
+      <div class="stepper-dot">3</div>
+      <div class="stepper-label">Employment</div>
+    </div>
+    <div class="stepper-item" data-step-index="3">
+      <div class="stepper-dot">4</div>
+      <div class="stepper-label">Security</div>
+    </div>
+  </div>
+
+  <div class="ui-card">
+    <form method="post" id="register-form" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <fieldset class="wizard-step" data-step="0" {% if errors.name or errors.document %}data-has-error{% endif %} style="border: none; padding: 0; margin: 0;">
+        <div class="ui-form-group">
+          <label for="reg-name">Full Name</label>
+          <div class="ui-input-wrapper {{ 'has-error' if errors.name }}">
+            <i class="fa-solid fa-id-card"></i>
+            <input type="text" id="reg-name" name="name" maxlength="30" autocomplete="name"
+              placeholder="Jane Doe" value="{{ values.get('name', '') }}" data-validate="name" required>
+          </div>
+          <span class="field-msg {{ 'error' if errors.name }}" data-msg-for="name">{{ errors.name or '' }}</span>
+        </div>
+        <div class="ui-form-group">
+          <label for="reg-document">ID Number</label>
+          <div class="ui-input-wrapper {{ 'has-error' if errors.document }}">
+            <i class="fa-solid fa-address-card"></i>
+            <input type="text" id="reg-document" name="document" maxlength="20"
+              placeholder="SSN, driver's license, or passport" value="{{ values.get('document', '') }}"
+              data-validate="document" required>
+          </div>
+          <span class="field-msg {{ 'error' if errors.document }}" data-msg-for="document">{{ errors.document or '' }}</span>
+        </div>
+      </fieldset>
+
+      <fieldset class="wizard-step" data-step="1" {% if errors.email or errors.phone or errors.address %}data-has-error{% endif %} style="border: none; padding: 0; margin: 0;">
+        <div class="ui-form-group">
+          <label for="reg-email">Email Address</label>
+          <div class="ui-input-wrapper {{ 'has-error' if errors.email }}">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" id="reg-email" name="email" maxlength="60" autocomplete="email"
+              placeholder="jane@example.com" value="{{ values.get('email', '') }}" data-validate="email" required>
+          </div>
+          <span class="field-msg {{ 'error' if errors.email }}" data-msg-for="email">{{ errors.email or '' }}</span>
+        </div>
+        <div class="ui-form-group">
+          <label for="reg-phone">Phone</label>
+          <div class="ui-input-wrapper {{ 'has-error' if errors.phone }}">
+            <i class="fa-solid fa-phone"></i>
+            <input type="tel" id="reg-phone" name="phone" maxlength="20" autocomplete="tel"
+              placeholder="(555) 123-4567" value="{{ values.get('phone', '') }}" data-validate="phone" required>
+          </div>
+          <span class="field-msg {{ 'error' if errors.phone }}" data-msg-for="phone">{{ errors.phone or '' }}</span>
+        </div>
+        <div class="ui-form-group">
+          <label for="reg-address">Home Address</label>
+          <div class="ui-input-wrapper {{ 'has-error' if errors.address }}">
+            <i class="fa-solid fa-location-dot"></i>
+            <input type="text" id="reg-address" name="address" maxlength="80" autocomplete="street-address"
+              placeholder="123 Main St, Springfield" value="{{ values.get('address', '') }}"
+              data-validate="address" required>
+          </div>
+          <span class="field-msg {{ 'error' if errors.address }}" data-msg-for="address">{{ errors.address or '' }}</span>
+        </div>
+      </fieldset>
+
+      <fieldset class="wizard-step" data-step="2" {% if errors.occupation or errors.employer %}data-has-error{% endif %} style="border: none; padding: 0; margin: 0;">
+        <div class="ui-form-group">
+          <label for="reg-occupation">Occupation</label>
+          <div class="ui-input-wrapper {{ 'has-error' if errors.occupation }}">
+            <i class="fa-solid fa-briefcase"></i>
+            <input type="text" id="reg-occupation" name="occupation" maxlength="40"
+              placeholder="Financial Analyst" value="{{ values.get('occupation', '') }}"
+              data-validate="occupation" required>
+          </div>
+          <span class="field-msg {{ 'error' if errors.occupation }}" data-msg-for="occupation">{{ errors.occupation or '' }}</span>
+        </div>
+        <div class="ui-form-group">
+          <label for="reg-employer">Employer</label>
+          <div class="ui-input-wrapper {{ 'has-error' if errors.employer }}">
+            <i class="fa-solid fa-building"></i>
+            <input type="text" id="reg-employer" name="employer" maxlength="50"
+              placeholder="Company or business name" value="{{ values.get('employer', '') }}"
+              data-validate="employer" required>
+          </div>
+          <span class="field-msg {{ 'error' if errors.employer }}" data-msg-for="employer">{{ errors.employer or '' }}</span>
+        </div>
+      </fieldset>
+
+      <fieldset class="wizard-step" data-step="3" {% if errors.password or errors.password_confirmation %}data-has-error{% endif %} style="border: none; padding: 0; margin: 0;">
+        <div class="review-list" id="review-summary"></div>
+
+        <div class="ui-form-group">
+          <label for="reg-password">Create Password</label>
+          <div class="ui-input-wrapper password-wrapper {{ 'has-error' if errors.password }}">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="reg-password" name="password" minlength="8" maxlength="72"
+              autocomplete="new-password" placeholder="At least 8 characters, one letter, one number"
+              data-validate="password" required>
+            <button type="button" class="toggle-visibility" data-toggle-for="reg-password">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="strength-meter"><div class="strength-meter-fill" id="strength-fill"></div></div>
+          <div class="strength-label" id="strength-label">&nbsp;</div>
+          <span class="field-msg {{ 'error' if errors.password }}" data-msg-for="password">{{ errors.password or '' }}</span>
+        </div>
+        <div class="ui-form-group">
+          <label for="reg-password-confirmation">Confirm Password</label>
+          <div class="ui-input-wrapper password-wrapper {{ 'has-error' if errors.password_confirmation }}">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="reg-password-confirmation" name="password_confirmation" minlength="8"
+              maxlength="72" autocomplete="new-password" placeholder="Repeat your password"
+              data-validate="password_confirmation" required>
+            <button type="button" class="toggle-visibility" data-toggle-for="reg-password-confirmation">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <span class="field-msg {{ 'error' if errors.password_confirmation }}" data-msg-for="password_confirmation">{{ errors.password_confirmation or '' }}</span>
+        </div>
+      </fieldset>
+
+      <div class="wizard-nav">
+        <button type="button" class="ui-btn ui-btn-secondary" id="btn-prev" style="visibility: hidden;">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        <button type="button" class="ui-btn ui-btn-red" id="btn-next">
+          Continue <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button type="submit" class="ui-btn ui-btn-red" id="btn-submit" style="display: none;">
+          <i class="fa-solid fa-user-plus"></i> Create Account
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <p class="login-hint">
+    Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+  </p>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/register-validate.js') }}" defer></script>
+{% endblock %}

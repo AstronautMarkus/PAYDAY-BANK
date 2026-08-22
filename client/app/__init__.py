@@ -7,6 +7,7 @@ cookie, and translates HTTP requests into calls to the mainframe binary
 via the app.mainframe client.
 """
 from flask import Flask
+from flask_wtf import CSRFProtect
 
 from .config import Config
 from .formatting import format_usd, initials
@@ -17,6 +18,8 @@ def create_app() -> Flask:
     app.config.from_object(Config)
     app.jinja_env.filters["usd"] = format_usd
     app.jinja_env.filters["initials"] = initials
+
+    CSRFProtect(app)
 
     from .blueprints.auth import bp as auth_bp
     from .blueprints.banking import bp as banking_bp

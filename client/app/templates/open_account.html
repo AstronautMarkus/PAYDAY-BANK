@@ -12,6 +12,7 @@
     automatically, just like your first Checking account.
   </p>
   <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="ui-form-group">
       <label for="account_type">Account Type</label>
       <div class="ui-input-wrapper">

@@ -329,7 +329,9 @@
   </main>
 </div>
 
-<form id="logout-form" action="{{ url_for('auth.logout') }}" method="post" hidden></form>
+<form id="logout-form" action="{{ url_for('auth.logout') }}" method="post" hidden>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
 
 <div class="ui-modal-overlay" id="modal-logout">
   <div class="ui-modal" role="dialog" aria-modal="true">

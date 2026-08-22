@@ -103,6 +103,7 @@
       <i class="fa-solid fa-arrow-down" style="color: var(--red-primary);"></i>
     </div>
     <form method="post" action="{{ url_for('banking.deposit') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="ui-form-group">
         <label for="deposit-account">Account</label>
         <div class="ui-input-wrapper">
@@ -135,6 +136,7 @@
       <i class="fa-solid fa-arrow-up" style="color: var(--red-primary);"></i>
     </div>
     <form method="post" action="{{ url_for('banking.withdraw') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="ui-form-group">
         <label for="withdraw-account">Account</label>
         <div class="ui-input-wrapper">

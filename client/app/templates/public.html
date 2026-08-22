@@ -245,9 +245,9 @@
     <button type="button" class="ui-btn ui-btn-light" id="btn-open-login">
       <i class="fa-solid fa-lock"></i> Sign In
     </button>
-    <button type="button" class="ui-btn ui-btn-red" id="btn-open-register">
+    <a href="{{ url_for('auth.register') }}" class="ui-btn ui-btn-red">
       Open Account
-    </button>
+    </a>
   </div>
 </header>
 
@@ -258,9 +258,9 @@
     <p>Manage your accounts, track your balances, and move money between Checking and
       Savings from one secure online banking platform.</p>
     <div class="hero-cta">
-      <button type="button" class="ui-btn ui-btn-red" style="padding: 12px 24px; font-size: 15px;" id="btn-hero-register">
+      <a href="{{ url_for('auth.register') }}" class="ui-btn ui-btn-red" style="padding: 12px 24px; font-size: 15px;">
         Get Started Today
-      </button>
+      </a>
       <button type="button" class="ui-btn ui-btn-light" style="padding: 12px 20px; font-size: 15px;" id="btn-hero-login">
         Access Portal
       </button>
@@ -307,9 +307,9 @@
       <h2>Designed for Speed & Flexibility</h2>
       <p>Open a Checking account in minutes, add a Savings account whenever you're
         ready, and move money between them without leaving your dashboard.</p>
-      <button type="button" class="ui-btn ui-btn-red" id="btn-showcase-register">
+      <a href="{{ url_for('auth.register') }}" class="ui-btn ui-btn-red">
         Create an Account
-      </button>
+      </a>
     </div>
   </div>
 </section>
@@ -334,6 +334,7 @@
       <button type="button" class="ui-modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
     </div>
     <form method="post" action="{{ url_for('auth.login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="ui-modal-body">
         <div class="ui-form-group">
           <label for="login-email">Email</label>
@@ -359,103 +360,12 @@
     </form>
   </div>
 </div>
-
-<div class="ui-modal-overlay" id="modal-register">
-  <div class="ui-modal" role="dialog" aria-modal="true" aria-labelledby="register-modal-title">
-    <div class="ui-modal-header">
-      <h3 id="register-modal-title"><i class="fa-solid fa-user-plus" style="color: var(--red-primary);"></i> Open a
-        Bank Account</h3>
-      <button type="button" class="ui-modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <form method="post" action="{{ url_for('auth.register') }}">
-      <div class="ui-modal-body">
-        <div class="ui-form-group">
-          <label for="reg-name">Full Name</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-id-card"></i>
-            <input type="text" id="reg-name" name="name" maxlength="30" autocomplete="name" placeholder="Jane Doe"
-              required>
-          </div>
-        </div>
-        <div class="ui-form-group">
-          <label for="reg-document">ID Number</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-address-card"></i>
-            <input type="text" id="reg-document" name="document" maxlength="20"
-              placeholder="SSN, driver's license, or passport" required>
-          </div>
-        </div>
-        <div class="ui-form-group">
-          <label for="reg-email">Email Address</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-envelope"></i>
-            <input type="email" id="reg-email" name="email" maxlength="60" autocomplete="email"
-              placeholder="jane@example.com" required>
-          </div>
-        </div>
-        <div class="ui-form-group">
-          <label for="reg-phone">Phone</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-phone"></i>
-            <input type="tel" id="reg-phone" name="phone" maxlength="20" autocomplete="tel"
-              placeholder="(555) 123-4567" required>
-          </div>
-        </div>
-        <div class="ui-form-group">
-          <label for="reg-address">Home Address</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-location-dot"></i>
-            <input type="text" id="reg-address" name="address" maxlength="80" autocomplete="street-address"
-              placeholder="123 Main St, Springfield" required>
-          </div>
-        </div>
-        <div class="ui-form-group">
-          <label for="reg-occupation">Occupation</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-briefcase"></i>
-            <input type="text" id="reg-occupation" name="occupation" maxlength="40"
-              placeholder="Financial Analyst" required>
-          </div>
-        </div>
-        <div class="ui-form-group">
-          <label for="reg-employer">Employer</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-building"></i>
-            <input type="text" id="reg-employer" name="employer" maxlength="50"
-              placeholder="Company or business name" required>
-          </div>
-        </div>
-        <div class="ui-form-group">
-          <label for="reg-password">Create Password</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-lock"></i>
-            <input type="password" id="reg-password" name="password" minlength="8" maxlength="72"
-              autocomplete="new-password" placeholder="At least 8 characters, one letter, one number" required>
-          </div>
-        </div>
-        <div class="ui-form-group">
-          <label for="reg-password-confirmation">Confirm Password</label>
-          <div class="ui-input-wrapper">
-            <i class="fa-solid fa-lock"></i>
-            <input type="password" id="reg-password-confirmation" name="password_confirmation" minlength="8"
-              maxlength="72" autocomplete="new-password" placeholder="Repeat your password" required>
-          </div>
-        </div>
-      </div>
-      <div class="ui-modal-footer">
-        <button type="button" class="ui-btn ui-btn-secondary" data-close-modal>Cancel</button>
-        <button type="submit" class="ui-btn ui-btn-red">Register Account</button>
-      </div>
-    </form>
-  </div>
-</div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const modalLogin = document.getElementById('modal-login');
-    const modalRegister = document.getElementById('modal-register');
 
     function openModal(modal) {
       modal.classList.add('active');
@@ -467,10 +377,6 @@
 
     document.getElementById('btn-open-login').addEventListener('click', () => openModal(modalLogin));
     document.getElementById('btn-hero-login').addEventListener('click', () => openModal(modalLogin));
-
-    document.getElementById('btn-open-register').addEventListener('click', () => openModal(modalRegister));
-    document.getElementById('btn-hero-register').addEventListener('click', () => openModal(modalRegister));
-    document.getElementById('btn-showcase-register').addEventListener('click', () => openModal(modalRegister));
 
     document.querySelectorAll('[data-close-modal]').forEach((btn) => {
       btn.addEventListener('click', () => closeModal(btn.closest('.ui-modal-overlay')));
@@ -484,8 +390,6 @@
 
     {% if open_modal == 'login' %}
     openModal(modalLogin);
-    {% elif open_modal == 'register' %}
-    openModal(modalRegister);
     {% endif %}
   });
 </script>
