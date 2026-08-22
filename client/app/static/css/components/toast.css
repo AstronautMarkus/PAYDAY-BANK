@@ -1,0 +1,102 @@
+/* Floating notification stack. Replaces the old top-of-document flash
+   banner: toasts live in a fixed-position container outside the normal
+   document flow, so they float over the page instead of pushing content
+   down or getting caught inside a flex layout (see partials/_toast_stack.html
+   and static/js/toast.js). */
+.toast-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  width: min(340px, calc(100vw - 40px));
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid #34a853;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-md);
+  font-size: 13px;
+  color: var(--text-main);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: toast-in 0.2s ease forwards;
+}
+
+.toast.error {
+  border-left-color: var(--red-primary);
+}
+
+.toast-icon {
+  font-size: 14px;
+  margin-top: 1px;
+}
+
+.toast.success .toast-icon { color: #137333; }
+.toast.error .toast-icon { color: var(--red-primary); }
+
+.toast-message {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 2px;
+}
+
+.toast-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: #34a853;
+  animation: toast-countdown 5s linear forwards;
+  transform-origin: left;
+}
+
+.toast.error .toast-bar { background: var(--red-primary); }
+
+.toast.leaving {
+  animation: toast-out 0.18s ease forwards;
+}
+
+.toast.paused .toast-bar {
+  animation-play-state: paused;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translateX(14px); }
+}
+
+@keyframes toast-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast, .toast-bar { animation: none !important; }
+}

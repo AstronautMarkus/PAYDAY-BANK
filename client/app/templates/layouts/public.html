@@ -1,0 +1,30 @@
+{#
+  Shared shell for every anonymous-facing page: landing, the register
+  wizard, and the register success screen. Owns the one red top bar (was
+  copy-pasted per page as .public-header/.register-header/.success-header)
+  and an optional footer. Child templates override topbar_actions and/or
+  footer, and always fill page_content.
+#}
+{% extends "layouts/base.html" %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/layout/public-topbar.css') }}">
+{% block page_head %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="public-shell">
+  <header class="topbar">
+    <a href="{{ url_for('banking.index') }}" class="brand"><i class="fa-solid fa-vault"></i> PAYDAY BANK</a>
+    {% block topbar_actions %}{% endblock %}
+  </header>
+
+  {% block page_content %}{% endblock %}
+
+  {% block footer %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% block page_scripts %}{% endblock %}
+{% endblock %}

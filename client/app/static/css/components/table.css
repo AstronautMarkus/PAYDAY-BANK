@@ -1,0 +1,23 @@
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ui-table th,
+.ui-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.ui-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+  background-color: #f8f9fa;
+}
+
+/* Wraps a table so it scrolls horizontally instead of the page body. */
+.table-scroll {
+  overflow-x: auto;
+}

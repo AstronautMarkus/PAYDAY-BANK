@@ -1,13 +1,13 @@
-{% extends "dashboard_base.html" %}
+{% extends "layouts/dashboard.html" %}
 {% block page_title %}Open Account{% endblock %}
 
 {% block page_content %}
-<section class="ui-card" style="max-width: 480px; margin: 0 auto;">
+<section class="ui-card ui-card--narrow">
   <div class="ui-card-header">
-    <span class="ui-card-title" style="color: var(--text-main);">Customer {{ current_user.customer_id }}</span>
-    <i class="fa-solid fa-user-plus" style="color: var(--red-primary);"></i>
+    <span class="ui-card-title ui-card-title--dark">Customer {{ current_user.customer_id }}</span>
+    <i class="fa-solid fa-user-plus text-accent"></i>
   </div>
-  <p style="color: var(--text-muted); line-height: 1.5; margin-bottom: 18px;">
+  <p class="text-muted mb-md">
     Choose the type of account you'd like to add. The account number is generated
     automatically, just like your first Checking account.
   </p>
@@ -26,7 +26,7 @@
     </div>
     <button type="submit" class="ui-btn ui-btn-red ui-btn-block">Create Account</button>
   </form>
-  <p style="text-align: center; margin-top: 18px; font-size: 12px;">
+  <p class="text-center mt-md text-sm">
     <a href="{{ url_for('banking.dashboard') }}">Back to Dashboard</a>
   </p>
 </section>

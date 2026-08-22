@@ -100,9 +100,9 @@
       item.classList.toggle("active", i === index);
       item.classList.toggle("done", i < index);
     });
-    btnPrev.style.visibility = index === 0 ? "hidden" : "visible";
-    btnNext.style.display = index === steps.length - 1 ? "none" : "inline-flex";
-    btnSubmit.style.display = index === steps.length - 1 ? "inline-flex" : "none";
+    btnPrev.classList.toggle("ui-btn--invisible", index === 0);
+    btnNext.classList.toggle("ui-btn--hidden", index === steps.length - 1);
+    btnSubmit.classList.toggle("ui-btn--hidden", index !== steps.length - 1);
     if (index === steps.length - 1) updateReviewSummary();
     current = index;
   }

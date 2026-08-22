@@ -1,0 +1,40 @@
+.ui-form-group {
+  margin-bottom: 14px;
+}
+
+.ui-form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.ui-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ui-input-wrapper i {
+  position: absolute;
+  left: 10px;
+  color: #8b95a1;
+}
+
+.ui-input-wrapper input,
+.ui-input-wrapper select {
+  width: 100%;
+  padding: 9px 9px 9px 32px;
+  border: 1px solid #ced4da;
+  border-radius: var(--radius-sm);
+  outline: none;
+  background-color: #fafafa;
+}
+
+.ui-input-wrapper input:focus,
+.ui-input-wrapper select:focus {
+  border-color: var(--red-primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(158, 13, 13, 0.15);
+}

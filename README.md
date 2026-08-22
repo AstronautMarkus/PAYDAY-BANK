@@ -25,13 +25,16 @@ PAYDAY-BANK/
 │   │   ├── blueprints/
 │   │   │   ├── auth/           # login, logout, registration; g.user loader
 │   │   │   └── banking/        # dashboard, deposit, withdraw, open account, transfer
+│   │   ├── static/
+│   │   │   ├── css/                # tokens, base, components/, layout/, pages/
+│   │   │   └── js/                  # one small script per behavior (toast, wizard, ...)
 │   │   └── templates/
-│   │       ├── base.html           # shared head/CSS tokens + flash banner
-│   │       ├── public.html         # index + login + register (modals), anonymous users
-│   │       ├── dashboard_base.html # sidebar/header shell for logged-in pages
-│   │       ├── dashboard.html      # stats, accounts table, deposit/withdraw
-│   │       ├── open_account.html
-│   │       └── transfer.html
+│   │       ├── layouts/            # base.html, public.html, dashboard.html (shells)
+│   │       ├── partials/           # topbar, login modal, user menu, logout modal, toasts
+│   │       ├── macros/             # forms.html (shared field markup)
+│   │       ├── public/             # landing.html (anonymous index)
+│   │       ├── auth/                # register.html, register_success.html
+│   │       └── banking/             # dashboard.html, open_account.html, transfer.html
 │   ├── wsgi.py                  # entrypoint
 │   └── requirements.txt
 │
@@ -110,8 +113,9 @@ Responses follow this contract:
 
 - `app/mainframe/client.py` is the only module that shells out to `core/bin/bank_api` (via `subprocess`, with `core/data/` as its working directory) and parses the `OK|`/`ERR|`/`ROW|`/`END` contract above.
 - There is no database, ORM, or client-side persistence at all. The session cookie holds nothing but the logged-in customer-id; everything else — profile, credentials included — is read from COBOL on demand. Passwords are hashed and verified in Python (`werkzeug.security`, since COBOL has no crypto primitives), but the resulting hash is stored as an opaque field inside the COBOL customer record (`PF-PASSWORD-HASH` in `core/src/copybooks/customer-record.cpy`) via `REGISTER`, and read back via `LOGIN`. `app/blueprints/auth/__init__.py`'s `load_logged_in_user()` calls `PROFILE` on every request to hydrate `g.user`.
-- `app/blueprints/auth` exposes `GET,POST /login`, `POST /logout`, `GET,POST /register`. All three GET cases (plus a failed login/register POST) render the same `public.html` template — index, login, and register are one page with Sign In / Register modals, not three separate views. `GET /login` and `GET /register` just pass `open_modal` so the right modal opens on load.
-- `app/blueprints/banking` exposes `GET /`, `GET /dashboard`, `POST /deposit`, `POST /withdraw`, `GET,POST /accounts/open`, `GET,POST /transfer`. `GET /` renders `public.html` directly for anonymous visitors (redirects to the dashboard if already logged in); the other four routes render `dashboard.html`/`open_account.html`/`transfer.html`, all extending `dashboard_base.html`'s sidebar shell.
+- `app/blueprints/auth` exposes `GET,POST /login`, `POST /logout`, `GET,POST /register`, `GET /register/success`. `GET /login` renders `public/landing.html` with its Sign In modal opened; `GET /register` renders the standalone `auth/register.html` wizard (personal → contact → employment → security, with client-side validation mirroring the server's) instead of a modal; a successful registration redirects to `auth/register_success.html` rather than flashing the new customer/account numbers.
+- `app/blueprints/banking` exposes `GET /`, `GET /dashboard`, `POST /deposit`, `POST /withdraw`, `GET,POST /accounts/open`, `GET,POST /transfer`. `GET /` renders `public/landing.html` for anonymous visitors (redirects to the dashboard if already logged in); the other four routes render `banking/dashboard.html`/`banking/open_account.html`/`banking/transfer.html`, all extending `layouts/dashboard.html`'s sidebar shell.
+- Every form is protected by Flask-WTF's `CSRFProtect` (wired up in `app/__init__.py`), and every route renders through `templates/layouts/` (shared shells), `templates/partials/` (shared fragments: topbar, login modal, user menu, logout modal, toast stack) and `templates/macros/forms.html` (shared form-field markup) instead of each page duplicating its own header/CSS. Flash messages (`flash()`/`get_flashed_messages()`) render as floating, auto-dismissing toasts (`partials/_toast_stack.html`, `static/css/components/toast.css`, `static/js/toast.js`) rather than a banner in the document flow.
 
 When a form is submitted, the relevant blueprint route validates the input and calls into `app.mainframe` with arguments such as:
 

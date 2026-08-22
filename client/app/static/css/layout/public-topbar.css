@@ -1,0 +1,69 @@
+/* Shared shell for every anonymous-facing page: keeps the (optional)
+   footer pinned to the bottom of the viewport even on short pages. */
+.public-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.public-shell > footer {
+  margin-top: auto;
+}
+
+/* Shared red top bar for every anonymous-facing page (landing, register
+   wizard, register success). Used by layouts/public.html so the header
+   markup only exists in one place instead of being copy-pasted per page. */
+.topbar {
+  background: linear-gradient(180deg, var(--red-primary) 0%, var(--red-dark) 100%);
+  color: #ffffff;
+  padding: 0 30px;
+  height: 65px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  text-decoration: none;
+}
+
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.topbar-nav a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.topbar-nav a:hover {
+  color: #ffffff;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .topbar-nav {
+    display: none;
+  }
+}

@@ -1,0 +1,20 @@
+{# Sign-out confirmation, shared by every logged-in page. #}
+<form id="logout-form" action="{{ url_for('auth.logout') }}" method="post" hidden>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+
+<div class="ui-modal-overlay" id="modal-logout">
+  <div class="ui-modal" role="dialog" aria-modal="true">
+    <div class="ui-modal-header">
+      <h3><i class="fa-solid fa-right-from-bracket text-accent"></i> Sign Out</h3>
+      <button type="button" class="ui-modal-close" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ui-modal-body">
+      Are you sure you want to sign out of your online banking session?
+    </div>
+    <div class="ui-modal-footer">
+      <button type="button" class="ui-btn ui-btn-secondary" data-close-modal>Cancel</button>
+      <button type="submit" form="logout-form" class="ui-btn ui-btn-red">Sign Out</button>
+    </div>
+  </div>
+</div>

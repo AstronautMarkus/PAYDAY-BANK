@@ -1,0 +1,38 @@
+{% extends "layouts/public.html" %}
+{% block title %}Account Created - PAYDAY BANK{% endblock %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register-success.css') }}">
+{% endblock %}
+
+{% block page_content %}
+<div class="success-wrap">
+  <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+  <h1>Your account is ready</h1>
+  <p>Save these numbers -- you'll need your customer number to sign in and manage your accounts.</p>
+
+  <div class="id-card">
+    <div>
+      <div class="id-label">Customer Number</div>
+      <div class="id-value" id="value-customer">{{ customer_id }}</div>
+    </div>
+    <button type="button" data-copy="value-customer"><i class="fa-regular fa-copy"></i> Copy</button>
+  </div>
+
+  <div class="id-card">
+    <div>
+      <div class="id-label">Checking Account Number</div>
+      <div class="id-value" id="value-account">{{ account }}</div>
+    </div>
+    <button type="button" data-copy="value-account"><i class="fa-regular fa-copy"></i> Copy</button>
+  </div>
+
+  <a href="{{ url_for('auth.login') }}" class="ui-btn ui-btn-red ui-btn-block mt-md">
+    Continue to Sign In <i class="fa-solid fa-arrow-right"></i>
+  </a>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='js/copy-value.js') }}" defer></script>
+{% endblock %}
