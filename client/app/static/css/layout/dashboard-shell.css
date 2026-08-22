@@ -1,0 +1,248 @@
+/* Sidebar + header shell for every logged-in page. Used by
+   layouts/dashboard.html. */
+body.dashboard-body {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-shell {
+  display: flex;
+  width: 100%;
+}
+
+aside {
+  width: 230px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--red-primary) 0%, var(--red-dark) 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  min-height: 100vh;
+}
+
+aside .brand {
+  padding: 20px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-decoration: none;
+}
+
+.menu {
+  list-style: none;
+  padding: 15px 0;
+  flex: 1;
+}
+
+.menu li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.menu li a i {
+  font-size: 15px;
+  width: 20px;
+  text-align: center;
+}
+
+.menu li a:hover,
+.menu li a.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-weight: 600;
+  border-left: 4px solid #ffffff;
+}
+
+.menu-logout {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 12px 0;
+}
+
+.menu-logout a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: rgba(255, 220, 220, 0.95);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-logout a:hover {
+  background: rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+  min-width: 0;
+}
+
+header.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-title h2 {
+  font-size: 16px;
+  color: var(--text-main);
+}
+
+.user-dropdown-container {
+  position: relative;
+}
+
+.user-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.user-dropdown-trigger:hover,
+.user-dropdown-container.open .user-dropdown-trigger {
+  background-color: #e9ecef;
+}
+
+.dropdown-caret {
+  font-size: 10px;
+  color: #777;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(180deg, var(--red-primary) 0%, var(--red-dark) 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  border: 1px solid var(--red-border);
+}
+
+.user-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  display: none;
+  z-index: 100;
+}
+
+.user-dropdown-container.open .user-dropdown-menu {
+  display: block;
+}
+
+.ms-menu-header {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #eee;
+  background-color: #fbfcfd;
+}
+
+.ms-menu-header .user-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+.ms-user-details strong {
+  display: block;
+  color: #111;
+  font-size: 13px;
+}
+
+.ms-user-details span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.ms-menu-list {
+  list-style: none;
+  padding: 6px 0;
+}
+
+.ms-menu-list li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ms-menu-list li a:hover {
+  background-color: #f0f0f0;
+  color: var(--red-primary);
+}
+
+.ms-menu-list li a i {
+  width: 16px;
+  color: #666;
+}
+
+.ms-menu-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 4px 0;
+}
+
+@media (max-width: 860px) {
+  aside {
+    width: 70px;
+  }
+
+  aside .brand span,
+  .menu li a span,
+  .menu-logout a span {
+    display: none;
+  }
+}

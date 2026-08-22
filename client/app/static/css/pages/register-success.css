@@ -1,0 +1,77 @@
+.success-wrap {
+  max-width: 480px;
+  margin: 60px auto;
+  padding: 0 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e6f4ea;
+  color: #137333;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.success-wrap h1 {
+  font-size: 21px;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.success-wrap > p {
+  color: var(--text-muted);
+  margin-bottom: 22px;
+}
+
+.id-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.id-card .id-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+
+.id-card .id-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+.id-card button {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.id-card button:hover {
+  color: var(--red-primary);
+  border-color: var(--red-primary);
+}
+
+.id-card button.copied {
+  color: #137333;
+  border-color: #137333;
+}

@@ -1,0 +1,117 @@
+{% extends "layouts/public.html" %}
+{% from "macros/forms.html" import field %}
+{% block title %}Open an Account - PAYDAY BANK{% endblock %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register-wizard.css') }}">
+{% endblock %}
+
+{% block page_content %}
+<div class="register-wrap">
+  <div class="register-intro">
+    <h1>Open a Bank Account</h1>
+    <p>It only takes four short steps to get your customer number and first checking account.</p>
+  </div>
+
+  <div class="stepper" id="wizard-stepper">
+    <div class="stepper-item" data-step-index="0">
+      <div class="stepper-dot">1</div>
+      <div class="stepper-label">Personal</div>
+    </div>
+    <div class="stepper-item" data-step-index="1">
+      <div class="stepper-dot">2</div>
+      <div class="stepper-label">Contact</div>
+    </div>
+    <div class="stepper-item" data-step-index="2">
+      <div class="stepper-dot">3</div>
+      <div class="stepper-label">Employment</div>
+    </div>
+    <div class="stepper-item" data-step-index="3">
+      <div class="stepper-dot">4</div>
+      <div class="stepper-label">Security</div>
+    </div>
+  </div>
+
+  <div class="ui-card">
+    <form method="post" id="register-form" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <fieldset class="wizard-step" data-step="0" {% if errors.name or errors.document %}data-has-error{% endif %}>
+        {{ field("name", "Full Name", "id-card", value=values.get("name", ""), error=errors.name,
+                 id="reg-name", maxlength=30, autocomplete="name", placeholder="Jane Doe", required="required") }}
+        {{ field("document", "ID Number", "address-card", value=values.get("document", ""), error=errors.document,
+                 id="reg-document", maxlength=20, placeholder="SSN, driver's license, or passport", required="required") }}
+      </fieldset>
+
+      <fieldset class="wizard-step" data-step="1" {% if errors.email or errors.phone or errors.address %}data-has-error{% endif %}>
+        {{ field("email", "Email Address", "envelope", type="email", value=values.get("email", ""), error=errors.email,
+                 id="reg-email", maxlength=60, autocomplete="email", placeholder="jane@example.com", required="required") }}
+        {{ field("phone", "Phone", "phone", type="tel", value=values.get("phone", ""), error=errors.phone,
+                 id="reg-phone", maxlength=20, autocomplete="tel", placeholder="(555) 123-4567", required="required") }}
+        {{ field("address", "Home Address", "location-dot", value=values.get("address", ""), error=errors.address,
+                 id="reg-address", maxlength=80, autocomplete="street-address", placeholder="123 Main St, Springfield", required="required") }}
+      </fieldset>
+
+      <fieldset class="wizard-step" data-step="2" {% if errors.occupation or errors.employer %}data-has-error{% endif %}>
+        {{ field("occupation", "Occupation", "briefcase", value=values.get("occupation", ""), error=errors.occupation,
+                 id="reg-occupation", maxlength=40, placeholder="Financial Analyst", required="required") }}
+        {{ field("employer", "Employer", "building", value=values.get("employer", ""), error=errors.employer,
+                 id="reg-employer", maxlength=50, placeholder="Company or business name", required="required") }}
+      </fieldset>
+
+      <fieldset class="wizard-step" data-step="3" {% if errors.password or errors.password_confirmation %}data-has-error{% endif %}>
+        <div class="review-list" id="review-summary"></div>
+
+        <div class="ui-form-group">
+          <label for="reg-password">Create Password</label>
+          <div class="ui-input-wrapper password-wrapper {{ 'has-error' if errors.password }}">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="reg-password" name="password" minlength="8" maxlength="72"
+              autocomplete="new-password" placeholder="At least 8 characters, one letter, one number"
+              data-validate="password" required>
+            <button type="button" class="toggle-visibility" data-toggle-for="reg-password">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <div class="strength-meter"><div class="strength-meter-fill" id="strength-fill"></div></div>
+          <div class="strength-label" id="strength-label">&nbsp;</div>
+          <span class="field-msg {{ 'error' if errors.password }}" data-msg-for="password">{{ errors.password or '' }}</span>
+        </div>
+        <div class="ui-form-group">
+          <label for="reg-password-confirmation">Confirm Password</label>
+          <div class="ui-input-wrapper password-wrapper {{ 'has-error' if errors.password_confirmation }}">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="reg-password-confirmation" name="password_confirmation" minlength="8"
+              maxlength="72" autocomplete="new-password" placeholder="Repeat your password"
+              data-validate="password_confirmation" required>
+            <button type="button" class="toggle-visibility" data-toggle-for="reg-password-confirmation">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <span class="field-msg {{ 'error' if errors.password_confirmation }}" data-msg-for="password_confirmation">{{ errors.password_confirmation or '' }}</span>
+        </div>
+      </fieldset>
+
+      <div class="wizard-nav">
+        <button type="button" class="ui-btn ui-btn-secondary ui-btn--invisible" id="btn-prev">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        <button type="button" class="ui-btn ui-btn-red" id="btn-next">
+          Continue <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <button type="submit" class="ui-btn ui-btn-red ui-btn--hidden" id="btn-submit">
+          <i class="fa-solid fa-user-plus"></i> Create Account
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <p class="login-hint">
+    Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+  </p>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='js/register-validate.js') }}" defer></script>
+{% endblock %}

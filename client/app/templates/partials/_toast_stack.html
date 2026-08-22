@@ -1,0 +1,19 @@
+{#
+  Floating notification stack. Included once at the end of <body> in
+  layouts/base.html -- deliberately outside any layout's flex/grid
+  containers, so it can never get pulled into a sidebar column the way the
+  old top-of-page flash banner did. See static/css/components/toast.css
+  and static/js/toast.js for the rest of the component.
+#}
+<div class="toast-stack" id="toast-stack">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+  <div class="toast {{ 'success' if category == 'ok' else 'error' }}">
+    <i class="fa-solid {{ 'fa-circle-check' if category == 'ok' else 'fa-circle-exclamation' }} toast-icon"></i>
+    <span class="toast-message">{{ message }}</span>
+    <button type="button" class="toast-close" aria-label="Dismiss"><i class="fa-solid fa-xmark"></i></button>
+    <span class="toast-bar"></span>
+  </div>
+  {% endfor %}
+  {% endwith %}
+</div>

@@ -1,0 +1,66 @@
+{#
+  Sidebar + header shell for every logged-in page (dashboard, accounts,
+  transfers). Child templates set page_title and fill page_content.
+#}
+{% extends "layouts/base.html" %}
+{% block title %}{% block page_title %}Dashboard{% endblock %} | PAYDAY BANK{% endblock %}
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/layout/dashboard-shell.css') }}">
+{% block page_head %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+  <aside>
+    <a class="brand" href="{{ url_for('banking.dashboard') }}">
+      <i class="fa-solid fa-vault"></i> <span>PAYDAY BANK</span>
+    </a>
+    <ul class="menu">
+      <li>
+        <a href="{{ url_for('banking.dashboard') }}" class="{{ 'active' if request.endpoint == 'banking.dashboard' }}">
+          <i class="fa-solid fa-chart-line"></i> <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="{{ url_for('banking.open_account') }}" class="{{ 'active' if request.endpoint == 'banking.open_account' }}">
+          <i class="fa-solid fa-wallet"></i> <span>Accounts</span>
+        </a>
+      </li>
+      <li>
+        <a href="{{ url_for('banking.transfer') }}" class="{{ 'active' if request.endpoint == 'banking.transfer' }}">
+          <i class="fa-solid fa-paper-plane"></i> <span>Transfers</span>
+        </a>
+      </li>
+      <li><a href="#"><i class="fa-solid fa-credit-card"></i> <span>Cards</span></a></li>
+      <li><a href="#"><i class="fa-solid fa-sliders"></i> <span>Settings</span></a></li>
+    </ul>
+    <div class="menu-logout">
+      <a class="btn-trigger-logout">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Sign Out</span>
+      </a>
+    </div>
+  </aside>
+
+  <main>
+    <header class="page-header">
+      <div class="header-title">
+        <i class="fa-solid fa-house-user text-muted"></i>
+        <h2>{% block header_title %}{{ self.page_title() }}{% endblock %}</h2>
+      </div>
+      {% include "partials/_user_menu.html" %}
+    </header>
+
+    {% block page_content %}{% endblock %}
+  </main>
+</div>
+
+{% include "partials/_logout_modal.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard-shell.js') }}" defer></script>
+{% block page_scripts %}{% endblock %}
+{% endblock %}

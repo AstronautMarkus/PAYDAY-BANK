@@ -1,0 +1,20 @@
+/* Design tokens shared by every page. Component and page stylesheets read
+   these custom properties instead of hardcoding colors/radii/shadows. */
+:root {
+  --red-primary: #9E0D0D;
+  --red-dark: #6B0808;
+  --red-hover: #7E0A0A;
+  --red-soft: #fcf0f0;
+  --red-border: #800A0A;
+
+  --bg-body: #f0f2f5;
+  --bg-surface: #ffffff;
+  --border-color: #dbe0e6;
+  --text-main: #212529;
+  --text-muted: #6c757d;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+}

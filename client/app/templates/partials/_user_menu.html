@@ -1,0 +1,30 @@
+{# Header user avatar + dropdown menu, shared by every logged-in page. #}
+<div class="user-dropdown-container" id="user-dropdown">
+  <div class="user-dropdown-trigger">
+    <div class="user-avatar">{{ current_user.name | initials }}</div>
+    <div class="user-name-wrapper">
+      <span>{{ current_user.name }}</span>
+      <i class="fa-solid fa-chevron-down dropdown-caret"></i>
+    </div>
+  </div>
+
+  <div class="user-dropdown-menu">
+    <div class="ms-menu-header">
+      <div class="user-avatar">{{ current_user.name | initials }}</div>
+      <div class="ms-user-details">
+        <strong>{{ current_user.name }}</strong>
+        <span>{{ current_user.email }}</span>
+      </div>
+    </div>
+    <ul class="ms-menu-list">
+      <li><a href="#"><i class="fa-regular fa-user"></i> My Profile</a></li>
+      <li><a href="#"><i class="fa-solid fa-shield-halved"></i> Security</a></li>
+      <li class="ms-menu-divider"></li>
+      <li>
+        <a class="btn-trigger-logout text-accent">
+          <i class="fa-solid fa-right-from-bracket text-accent"></i> Sign Out
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>

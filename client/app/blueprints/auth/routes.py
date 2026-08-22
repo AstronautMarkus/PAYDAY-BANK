@@ -60,7 +60,7 @@ def login():
             session.clear()
             session["customer_id"] = parts[1]
             return redirect(url_for("banking.dashboard"))
-    return render_template("public.html", open_modal="login")
+    return render_template("public/landing.html", open_modal="login")
 
 
 @bp.route("/logout", methods=["POST"])
@@ -76,7 +76,7 @@ def register():
         return redirect(url_for("banking.dashboard"))
 
     if request.method == "GET":
-        return render_template("register.html", values={}, errors={})
+        return render_template("auth/register.html", values={}, errors={})
 
     errors = validate_registration(request.form)
     if not errors:
@@ -101,10 +101,10 @@ def register():
         if line and line[0].startswith("OK|"):
             return redirect(url_for("auth.register_success", customer=customer_id, account=account))
         flash_result(line)
-        return render_template("register.html", values=request.form, errors={})
+        return render_template("auth/register.html", values=request.form, errors={})
 
     flash("Please fix the highlighted fields and try again.", "error")
-    return render_template("register.html", values=request.form, errors=errors)
+    return render_template("auth/register.html", values=request.form, errors=errors)
 
 
 @bp.route("/register/success")
@@ -113,4 +113,4 @@ def register_success():
     account = request.args.get("account", "")
     if not NUMERIC_ID_RE.match(customer_id) or not NUMERIC_ID_RE.match(account):
         return redirect(url_for("auth.register"))
-    return render_template("register_success.html", customer_id=customer_id, account=account)
+    return render_template("auth/register_success.html", customer_id=customer_id, account=account)

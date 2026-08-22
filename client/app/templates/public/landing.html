@@ -1,0 +1,108 @@
+{% extends "layouts/public.html" %}
+{% block title %}PAYDAY BANK - Personal & Business Banking{% endblock %}
+
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/landing.css') }}">
+{% endblock %}
+
+{% block topbar_actions %}
+<nav class="topbar-nav">
+  <a href="#features">Features</a>
+  <a href="#about">About Us</a>
+  <a href="#security">Security</a>
+</nav>
+
+<div class="topbar-actions">
+  <button type="button" class="ui-btn ui-btn-light" data-open-modal="modal-login">
+    <i class="fa-solid fa-lock"></i> Sign In
+  </button>
+  <a href="{{ url_for('auth.register') }}" class="ui-btn ui-btn-red">
+    Open Account
+  </a>
+</div>
+{% endblock %}
+
+{% block page_content %}
+<section class="hero-section">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1>Smarter Banking for Your Financial Freedom</h1>
+    <p>Manage your accounts, track your balances, and move money between Checking and
+      Savings from one secure online banking platform.</p>
+    <div class="hero-cta">
+      <a href="{{ url_for('auth.register') }}" class="ui-btn ui-btn-red ui-btn-lg">
+        Get Started Today
+      </a>
+      <button type="button" class="ui-btn ui-btn-light ui-btn-lg" data-open-modal="modal-login">
+        Access Portal
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="features-container" id="features">
+  <div class="grid-3">
+    <div class="ui-card feature-card">
+      <div class="feature-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h3>Bank-Grade Security</h3>
+      <p>Passwords are hashed, never stored in plain text, and every account action is
+        verified against your customer profile before it's processed.</p>
+    </div>
+
+    <div class="ui-card feature-card">
+      <div class="feature-icon">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+      <h3>Instant Transfers</h3>
+      <p>Move funds between your own Checking and Savings accounts instantly, with
+        balances updated in real time.</p>
+    </div>
+
+    <div class="ui-card feature-card">
+      <div class="feature-icon">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+      </div>
+      <h3>Simple Account Management</h3>
+      <p>Open new accounts, check balances, and manage deposits and withdrawals from a
+        single dashboard.</p>
+    </div>
+  </div>
+</section>
+
+<section class="showcase-section" id="about">
+  <div class="showcase-grid">
+    <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80"
+      alt="Online banking platform" class="showcase-img">
+    <div class="showcase-text">
+      <h2>Designed for Speed & Flexibility</h2>
+      <p>Open a Checking account in minutes, add a Savings account whenever you're
+        ready, and move money between them without leaving your dashboard.</p>
+      <a href="{{ url_for('auth.register') }}" class="ui-btn ui-btn-red">
+        Create an Account
+      </a>
+    </div>
+  </div>
+</section>
+
+{% include "partials/_login_modal.html" %}
+{% endblock %}
+
+{% block footer %}
+<footer id="security">
+  <div class="footer-container">
+    <div class="brand">
+      <i class="fa-solid fa-vault"></i> PAYDAY BANK
+    </div>
+    <div>Member FDIC. Equal Housing Lender. &copy; 2026 PAYDAY BANK.</div>
+  </div>
+  <div class="footer-rights">
+    All rights reserved. Unauthorized access to online banking systems is prohibited and monitored.
+  </div>
+</footer>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='js/login-modal.js') }}" defer></script>
+{% endblock %}
