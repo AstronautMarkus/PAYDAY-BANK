@@ -18,6 +18,7 @@
     supported yet.
   </p>
   <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="ui-form-group">
       <label for="from_account">From Account</label>
       <div class="ui-input-wrapper">
