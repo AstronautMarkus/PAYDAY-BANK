@@ -1,0 +1,195 @@
+.register-wrap {
+  max-width: 620px;
+  margin: 36px auto 60px;
+  padding: 0 20px;
+  width: 100%;
+}
+
+.register-intro {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.register-intro h1 {
+  font-size: 22px;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.register-intro p {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Stepper */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 26px;
+}
+
+.stepper-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.stepper-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border-color);
+  z-index: 0;
+}
+
+.stepper-item.done:not(:last-child)::after,
+.stepper-item.active:not(:last-child)::after {
+  background: var(--red-primary);
+}
+
+.stepper-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--border-color);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  z-index: 1;
+  transition: all 0.2s ease;
+}
+
+.stepper-item.active .stepper-dot {
+  border-color: var(--red-primary);
+  color: var(--red-primary);
+  box-shadow: 0 0 0 3px var(--red-soft);
+}
+
+.stepper-item.done .stepper-dot {
+  background: var(--red-primary);
+  border-color: var(--red-primary);
+  color: #ffffff;
+}
+
+.stepper-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  max-width: 90px;
+}
+
+.stepper-item.active .stepper-label {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* Wizard panel */
+.wizard-step {
+  display: none;
+  /* Fieldsets carry default browser chrome (border/padding/margin) --
+     reset it here instead of repeating style="border:none;padding:0;
+     margin:0" on every one of the 4 steps in register.html. */
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.wizard-step.active { display: block; }
+
+.field-msg {
+  display: block;
+  font-size: 11.5px;
+  margin-top: 5px;
+  min-height: 14px;
+}
+
+.field-msg.error { color: var(--red-primary); }
+.field-msg.ok { color: #137333; }
+
+.ui-input-wrapper.has-error input,
+.ui-input-wrapper.has-error select {
+  border-color: var(--red-primary);
+  background-color: var(--red-soft);
+}
+
+.ui-input-wrapper.has-ok input {
+  border-color: #34a853;
+}
+
+.password-wrapper .toggle-visibility {
+  position: absolute;
+  right: 10px;
+  left: auto;
+  cursor: pointer;
+  color: #8b95a1;
+  background: none;
+  border: none;
+  font-size: 13px;
+}
+
+.strength-meter {
+  height: 5px;
+  border-radius: 3px;
+  background: #e9ecef;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.strength-meter-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--red-primary);
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+.strength-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.review-list {
+  background: #f8f9fa;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12.5px;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.review-row:last-child { border-bottom: none; }
+.review-row span:first-child { color: var(--text-muted); }
+.review-row span:last-child { color: var(--text-main); font-weight: 600; text-align: right; }
+
+.login-hint {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}

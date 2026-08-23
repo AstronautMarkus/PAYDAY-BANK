@@ -1,0 +1,43 @@
+.ui-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ui-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ui-card-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Modifier: a card title used as a plain section heading instead of the
+   default muted/uppercase eyebrow style (e.g. "My Accounts", "Deposit Funds"). */
+.ui-card-title--dark {
+  color: var(--text-main);
+}
+
+/* Modifier: single-column centered card used for standalone forms
+   (open an account, transfer money). */
+.ui-card--narrow {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Round icon badge shown in a card header (stat cards, action cards). */
+.icon-badge {
+  color: var(--red-primary);
+  background: var(--red-soft);
+  padding: 8px;
+  border-radius: 4px;
+}

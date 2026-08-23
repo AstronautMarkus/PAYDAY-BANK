@@ -1,35 +1,8 @@
-{% extends "dashboard_base.html" %}
+{% extends "layouts/dashboard.html" %}
 {% block page_title %}Dashboard{% endblock %}
 
-{% block dashboard_extra_head %}
-<style>
-  .action-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-  }
-
-  .stat-value {
-    font-size: 22px;
-    font-weight: 700;
-  }
-
-  .stat-caption {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 5px;
-  }
-
-  @media (max-width: 760px) {
-    .dashboard-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .action-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+{% block page_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/dashboard.css') }}">
 {% endblock %}
 
 {% block page_content %}
@@ -37,8 +10,7 @@
   <div class="ui-card">
     <div class="ui-card-header">
       <span class="ui-card-title">Total Balance</span>
-      <i class="fa-solid fa-piggy-bank"
-        style="color: var(--red-primary); background: var(--red-soft); padding: 8px; border-radius: 4px;"></i>
+      <i class="fa-solid fa-piggy-bank icon-badge"></i>
     </div>
     <div class="stat-value">${{ total_balance | usd }}</div>
     <div class="stat-caption">Across {{ accounts | length }} account{{ 's' if accounts | length != 1 }}</div>
@@ -47,8 +19,7 @@
   <div class="ui-card">
     <div class="ui-card-header">
       <span class="ui-card-title">Accounts</span>
-      <i class="fa-solid fa-wallet"
-        style="color: var(--red-primary); background: var(--red-soft); padding: 8px; border-radius: 4px;"></i>
+      <i class="fa-solid fa-wallet icon-badge"></i>
     </div>
     <div class="stat-value">{{ accounts | length }}</div>
     <div class="stat-caption">{{ type_summary or "No accounts yet" }}</div>
@@ -57,20 +28,19 @@
   <div class="ui-card">
     <div class="ui-card-header">
       <span class="ui-card-title">Customer ID</span>
-      <i class="fa-solid fa-id-card"
-        style="color: var(--red-primary); background: var(--red-soft); padding: 8px; border-radius: 4px;"></i>
+      <i class="fa-solid fa-id-card icon-badge"></i>
     </div>
     <div class="stat-value">{{ current_user.customer_id }}</div>
     <div class="stat-caption">{{ current_user.name }}</div>
   </div>
 </section>
 
-<section class="ui-card" style="margin-bottom: 15px;">
+<section class="ui-card mb-md">
   <div class="ui-card-header">
-    <span class="ui-card-title" style="color: var(--text-main);">My Accounts</span>
-    <i class="fa-solid fa-list-check" style="color: var(--text-muted);"></i>
+    <span class="ui-card-title ui-card-title--dark">My Accounts</span>
+    <i class="fa-solid fa-list-check text-muted"></i>
   </div>
-  <div style="overflow-x: auto;">
+  <div class="table-scroll">
     <table class="ui-table">
       <thead>
         <tr>
@@ -99,10 +69,11 @@
 <section class="action-grid">
   <div class="ui-card">
     <div class="ui-card-header">
-      <span class="ui-card-title" style="color: var(--text-main);">Deposit Funds</span>
-      <i class="fa-solid fa-arrow-down" style="color: var(--red-primary);"></i>
+      <span class="ui-card-title ui-card-title--dark">Deposit Funds</span>
+      <i class="fa-solid fa-arrow-down text-accent"></i>
     </div>
     <form method="post" action="{{ url_for('banking.deposit') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="ui-form-group">
         <label for="deposit-account">Account</label>
         <div class="ui-input-wrapper">
@@ -131,10 +102,11 @@
 
   <div class="ui-card">
     <div class="ui-card-header">
-      <span class="ui-card-title" style="color: var(--text-main);">Withdraw Funds</span>
-      <i class="fa-solid fa-arrow-up" style="color: var(--red-primary);"></i>
+      <span class="ui-card-title ui-card-title--dark">Withdraw Funds</span>
+      <i class="fa-solid fa-arrow-up text-accent"></i>
     </div>
     <form method="post" action="{{ url_for('banking.withdraw') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="ui-form-group">
         <label for="withdraw-account">Account</label>
         <div class="ui-input-wrapper">
@@ -163,6 +135,6 @@
 </section>
 {% endblock %}
 
-{% block dashboard_extra_scripts %}
+{% block page_scripts %}
 <script src="{{ url_for('static', filename='js/amount-input.js') }}" defer></script>
 {% endblock %}

@@ -20,7 +20,7 @@ ACCOUNT_TYPES = {"CHECKING": "Checking Account", "SAVINGS": "Savings Account"}
 def index():
     if g.user:
         return redirect(url_for("banking.dashboard"))
-    return render_template("public.html")
+    return render_template("public/landing.html")
 
 
 @bp.route("/dashboard")
@@ -36,7 +36,7 @@ def dashboard():
         for acct_type, count in type_counts.items()
     )
     return render_template(
-        "dashboard.html", accounts=accounts, account_types=ACCOUNT_TYPES,
+        "banking/dashboard.html", accounts=accounts, account_types=ACCOUNT_TYPES,
         total_balance=total_balance, type_summary=type_summary,
     )
 
@@ -92,7 +92,7 @@ def open_account():
                 flash_result(line)
                 return redirect(url_for("banking.dashboard"))
             flash_result(line)
-    return render_template("open_account.html", account_types=ACCOUNT_TYPES)
+    return render_template("banking/open_account.html", account_types=ACCOUNT_TYPES)
 
 
 @bp.route("/transfer", methods=["GET", "POST"])
@@ -120,7 +120,7 @@ def transfer():
             if line and line[0].startswith("OK|"):
                 return redirect(url_for("banking.dashboard"))
 
-    return render_template("transfer.html", accounts=accounts, account_types=ACCOUNT_TYPES)
+    return render_template("banking/transfer.html", accounts=accounts, account_types=ACCOUNT_TYPES)
 
 
 def format_transfer_balances(rest: str) -> str:

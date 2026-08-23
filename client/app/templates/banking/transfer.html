@@ -1,23 +1,24 @@
-{% extends "dashboard_base.html" %}
+{% extends "layouts/dashboard.html" %}
 {% block page_title %}Transfer Money{% endblock %}
 
 {% block page_content %}
-<section class="ui-card" style="max-width: 480px; margin: 0 auto;">
+<section class="ui-card ui-card--narrow">
   <div class="ui-card-header">
-    <span class="ui-card-title" style="color: var(--text-main);">Customer {{ current_user.customer_id }}</span>
-    <i class="fa-solid fa-paper-plane" style="color: var(--red-primary);"></i>
+    <span class="ui-card-title ui-card-title--dark">Customer {{ current_user.customer_id }}</span>
+    <i class="fa-solid fa-paper-plane text-accent"></i>
   </div>
   {% if accounts | length < 2 %}
-  <p style="color: var(--text-muted); line-height: 1.5;">
+  <p class="text-muted">
     You need at least two accounts to transfer funds.
     <a href="{{ url_for('banking.open_account') }}">Open an additional account</a>.
   </p>
   {% else %}
-  <p style="color: var(--text-muted); line-height: 1.5; margin-bottom: 18px;">
+  <p class="text-muted mb-md">
     Move money between your own accounts. Transfers to other customers are not
     supported yet.
   </p>
   <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="ui-form-group">
       <label for="from_account">From Account</label>
       <div class="ui-input-wrapper">
@@ -54,12 +55,12 @@
     </button>
   </form>
   {% endif %}
-  <p style="text-align: center; margin-top: 18px; font-size: 12px;">
+  <p class="text-center mt-md text-sm">
     <a href="{{ url_for('banking.dashboard') }}">Back to Dashboard</a>
   </p>
 </section>
 {% endblock %}
 
-{% block dashboard_extra_scripts %}
+{% block page_scripts %}
 <script src="{{ url_for('static', filename='js/amount-input.js') }}" defer></script>
 {% endblock %}

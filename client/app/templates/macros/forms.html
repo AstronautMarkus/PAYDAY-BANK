@@ -1,0 +1,19 @@
+{#
+  Shared form-field markup: label + icon + input + inline error message.
+  Covers the plain text/email/tel inputs repeated across the register
+  wizard (name, document, email, phone, address, occupation, employer).
+  Password fields aren't covered here -- they carry extra chrome (a
+  show/hide toggle, a strength meter) that doesn't fit this shape, so
+  register.html writes those by hand.
+#}
+{% macro field(name, label, icon, type="text", value="", error="", id=None) %}
+{% set field_id = id or name %}
+<div class="ui-form-group">
+  <label for="{{ field_id }}">{{ label }}</label>
+  <div class="ui-input-wrapper {{ 'has-error' if error }}">
+    <i class="fa-solid fa-{{ icon }}"></i>
+    <input type="{{ type }}" id="{{ field_id }}" name="{{ name }}" value="{{ value }}" data-validate="{{ name }}" {{ kwargs|xmlattr }}>
+  </div>
+  <span class="field-msg {{ 'error' if error }}" data-msg-for="{{ name }}">{{ error or '' }}</span>
+</div>
+{% endmacro %}
