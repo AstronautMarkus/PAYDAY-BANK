@@ -142,6 +142,28 @@ core/bin/bank_api ACCOUNTS 900001
 - The codebase (identifiers, comments, docstrings, and every user-facing message — flash messages, validation errors, templates, COBOL `DISPLAY` strings) is entirely in English.
 - The project is intentionally lightweight and is better suited for learning and demonstration than for large-scale production banking systems.
 
+## Running with Docker
+
+A multi-stage `Dockerfile` compiles `core/` (GNU COBOL) in a builder stage and
+runs `client/` (gunicorn) in the final image. `core/data/*.dat` is **not**
+baked into the image — `docker-compose.yml` bind-mounts `./core/data` so
+data survives image rebuilds whenever `core/` is updated.
+
+```bash
+cp .env.example .env   # set a real BANK_SECRET_KEY
+docker compose up -d --build
+```
+
+The app is then served at `http://localhost:5005` (bound to loopback only;
+point your own reverse proxy at it). `docker compose logs -f` for logs,
+`docker compose down` to stop.
+
+> **Note:** the indexed `.dat` files are tied to the GnuCOBOL/Berkeley DB
+> build that created them. Files created by a different GnuCOBOL build (e.g.
+> a local `cobc` on macOS) are not guaranteed readable by the container's
+> `gnucobol3`/`libcob4` (Debian) — start `core/data` empty in a new
+> environment rather than copying files in from a different build.
+
 ## Typical workflow
 
 1. `make setup && make build-core`

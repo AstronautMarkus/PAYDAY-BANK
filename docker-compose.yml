@@ -1,0 +1,15 @@
+services:
+  payday-bank:
+    build: .
+    container_name: payday-bank
+    restart: unless-stopped
+    environment:
+      BANK_SECRET_KEY: ${BANK_SECRET_KEY:?Set BANK_SECRET_KEY in a .env file next to docker-compose.yml}
+    ports:
+      # Bound to loopback only: the host's own reverse proxy talks to this.
+      - "127.0.0.1:5005:5005"
+    volumes:
+      # core/data/*.dat are the COBOL indexed files — kept on the host so
+      # they survive image rebuilds when core/ (the "program with
+      # updates") changes.
+      - ./core/data:/app/core/data

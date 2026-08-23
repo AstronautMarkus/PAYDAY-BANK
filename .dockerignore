@@ -1,0 +1,7 @@
+.git
+.venv
+**/__pycache__
+**/*.pyc
+core/bin
+core/data
+.DS_Store
