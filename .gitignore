@@ -225,5 +225,9 @@ core/data/*.dat
 # GnuCOBOL's alternate-index side files for CUSTOMER-FILE's email/document
 # ALTERNATE RECORD KEYs (customer_profiles.dat.1, .dat.2, ...).
 core/data/*.dat.*
+# One-off pre-migration backups of the above (see account-record.cpy's
+# FD-ACCOUNT-STATUS field history) -- same disposable local data, just
+# nested one level deeper.
+core/data/*/
 
 .DS_Store

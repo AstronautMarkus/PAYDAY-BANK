@@ -1,16 +1,16 @@
-*> TRANSFER <customer-id> <from-account> <to-account> <amount>
-*> Moves money between two accounts. Both accounts must be owned by
-*> <customer-id> (this phase only supports transfers between a
-*> customer's own accounts, never to another customer).
+*> TRANSFER-P2P <customer-id> <from-account> <to-account> <amount>
+*> Moves money from a customer's own account to ANY other existing
+*> account in the bank -- unlike OP-TRANSFER, the destination does not
+*> need to belong to the same customer. The source account still must
+*> belong to <customer-id> and be ACTIVE; the destination just needs to
+*> exist and be ACTIVE.
 *>
-*> Sequence: read and verify both accounts fully (existence, ownership,
-*> distinctness, funds) before writing anything. Only after both checks
-*> pass does it debit the source and credit the destination. If the
-*> destination REWRITE fails after the source was already debited, it
-*> attempts one compensating REWRITE to restore the source's balance,
-*> so a mid-transfer failure never silently loses money.
+*> Same read-both-before-writing + compensating-rewrite pattern as
+*> OP-TRANSFER (see op_transfer.cbl), but the response never reveals
+*> the destination's balance -- it may belong to a different customer,
+*> so only "OK|<from-balance>" is returned.
 IDENTIFICATION DIVISION.
-PROGRAM-ID. OP-TRANSFER.
+PROGRAM-ID. OP-TRANSFER-P2P.
 
 DATA DIVISION.
 WORKING-STORAGE SECTION.
@@ -48,7 +48,6 @@ COPY "transaction-record.cpy"
 01  WS-CUSTOMER-ID          PIC 9(6).
 01  WS-AMOUNT               PIC 9(12) COMP-3.
 01  WS-FROM-BALANCE-DISPLAY PIC Z(11)9.
-01  WS-TO-BALANCE-DISPLAY   PIC Z(11)9.
 01  WS-REPO-FUNCTION        PIC X(10).
 01  WS-REPO-FOUND           PIC X.
 01  WS-REPO-EOF             PIC X.
@@ -60,7 +59,7 @@ LINKAGE SECTION.
 01  LK-ARGC  PIC 9(2).
 
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
-MAIN-OP-TRANSFER.
+MAIN-OP-TRANSFER-P2P.
     IF LK-ARGC < 5
         DISPLAY "ERR|Insufficient arguments"
     ELSE
@@ -105,74 +104,68 @@ MAIN-OP-TRANSFER.
                     IF WS-REPO-FOUND = "N"
                         DISPLAY "ERR|Destination account not found"
                     ELSE
-                        IF WS-TO-CUSTOMER-ID NOT = WS-CUSTOMER-ID
-                            DISPLAY "ERR|The destination account does not belong to the customer"
+                      IF WS-TO-STATUS NOT = "ACTIVE"
+                        DISPLAY "ERR|Destination account is not active"
+                      ELSE
+                        IF WS-AMOUNT > WS-FROM-BALANCE
+                            DISPLAY "ERR|Insufficient funds"
                         ELSE
-                          IF WS-TO-STATUS NOT = "ACTIVE"
-                            DISPLAY "ERR|Destination account is not active"
-                          ELSE
-                            IF WS-AMOUNT > WS-FROM-BALANCE
-                                DISPLAY "ERR|Insufficient funds"
+                            SUBTRACT WS-AMOUNT FROM WS-FROM-BALANCE
+                            MOVE "REWRITE" TO WS-REPO-FUNCTION
+                            CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-REPO-FUNCTION
+                                WS-FROM-RECORD WS-REPO-FOUND WS-REPO-EOF
+
+                            IF WS-REPO-FOUND = "N"
+                                DISPLAY "ERR|Could not debit the source account"
                             ELSE
-                                SUBTRACT WS-AMOUNT FROM WS-FROM-BALANCE
+                                ADD WS-AMOUNT TO WS-TO-BALANCE
                                 MOVE "REWRITE" TO WS-REPO-FUNCTION
                                 CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-REPO-FUNCTION
-                                    WS-FROM-RECORD WS-REPO-FOUND WS-REPO-EOF
+                                    WS-TO-RECORD WS-REPO-FOUND WS-REPO-EOF
 
-                                IF WS-REPO-FOUND = "N"
-                                    DISPLAY "ERR|Could not debit the source account"
+                                IF WS-REPO-FOUND = "Y"
+                                    MOVE WS-FROM-NUMBER TO WS-TX-ACCOUNT
+                                    MOVE "P2P-OUT" TO WS-TX-TYPE
+                                    MOVE WS-AMOUNT TO WS-TX-AMOUNT
+                                    MOVE WS-FROM-BALANCE TO WS-TX-BALANCE-AFTER
+                                    MOVE WS-TO-NUMBER TO WS-TX-COUNTERPARTY
+                                    MOVE SPACES TO WS-TX-DESCRIPTION
+                                    MOVE "APPEND" TO WS-TX-REPO-FUNCTION
+                                    CALL "TRANSACTION-REPOSITORY" USING BY REFERENCE
+                                        WS-TX-REPO-FUNCTION WS-TX-RECORD WS-TX-REPO-FOUND
+                                        WS-TX-REPO-EOF
+
+                                    MOVE WS-TO-NUMBER TO WS-TX-ACCOUNT
+                                    MOVE "P2P-IN" TO WS-TX-TYPE
+                                    MOVE WS-AMOUNT TO WS-TX-AMOUNT
+                                    MOVE WS-TO-BALANCE TO WS-TX-BALANCE-AFTER
+                                    MOVE WS-FROM-NUMBER TO WS-TX-COUNTERPARTY
+                                    MOVE SPACES TO WS-TX-DESCRIPTION
+                                    MOVE "APPEND" TO WS-TX-REPO-FUNCTION
+                                    CALL "TRANSACTION-REPOSITORY" USING BY REFERENCE
+                                        WS-TX-REPO-FUNCTION WS-TX-RECORD WS-TX-REPO-FOUND
+                                        WS-TX-REPO-EOF
+
+                                    MOVE WS-FROM-BALANCE TO WS-FROM-BALANCE-DISPLAY
+                                    DISPLAY "OK|" FUNCTION TRIM(WS-FROM-BALANCE-DISPLAY)
                                 ELSE
-                                    ADD WS-AMOUNT TO WS-TO-BALANCE
+                                    *> Compensate: the source was already debited but the
+                                    *> destination credit failed. Restore the source balance
+                                    *> so the failed transfer doesn't silently lose money.
+                                    ADD WS-AMOUNT TO WS-FROM-BALANCE
                                     MOVE "REWRITE" TO WS-REPO-FUNCTION
                                     CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-REPO-FUNCTION
-                                        WS-TO-RECORD WS-REPO-FOUND WS-REPO-EOF
+                                        WS-FROM-RECORD WS-REPO-FOUND WS-REPO-EOF
 
                                     IF WS-REPO-FOUND = "Y"
-                                        MOVE WS-FROM-NUMBER TO WS-TX-ACCOUNT
-                                        MOVE "TRANSFER-OUT" TO WS-TX-TYPE
-                                        MOVE WS-AMOUNT TO WS-TX-AMOUNT
-                                        MOVE WS-FROM-BALANCE TO WS-TX-BALANCE-AFTER
-                                        MOVE WS-TO-NUMBER TO WS-TX-COUNTERPARTY
-                                        MOVE SPACES TO WS-TX-DESCRIPTION
-                                        MOVE "APPEND" TO WS-TX-REPO-FUNCTION
-                                        CALL "TRANSACTION-REPOSITORY" USING BY REFERENCE
-                                            WS-TX-REPO-FUNCTION WS-TX-RECORD WS-TX-REPO-FOUND
-                                            WS-TX-REPO-EOF
-
-                                        MOVE WS-TO-NUMBER TO WS-TX-ACCOUNT
-                                        MOVE "TRANSFER-IN" TO WS-TX-TYPE
-                                        MOVE WS-AMOUNT TO WS-TX-AMOUNT
-                                        MOVE WS-TO-BALANCE TO WS-TX-BALANCE-AFTER
-                                        MOVE WS-FROM-NUMBER TO WS-TX-COUNTERPARTY
-                                        MOVE SPACES TO WS-TX-DESCRIPTION
-                                        MOVE "APPEND" TO WS-TX-REPO-FUNCTION
-                                        CALL "TRANSACTION-REPOSITORY" USING BY REFERENCE
-                                            WS-TX-REPO-FUNCTION WS-TX-RECORD WS-TX-REPO-FOUND
-                                            WS-TX-REPO-EOF
-
-                                        MOVE WS-FROM-BALANCE TO WS-FROM-BALANCE-DISPLAY
-                                        MOVE WS-TO-BALANCE TO WS-TO-BALANCE-DISPLAY
-                                        DISPLAY "OK|" FUNCTION TRIM(WS-FROM-BALANCE-DISPLAY)
-                                            "|" FUNCTION TRIM(WS-TO-BALANCE-DISPLAY)
+                                        DISPLAY "ERR|The transfer could not be completed and was reversed"
                                     ELSE
-                                        *> Compensate: the source was already debited but the
-                                        *> destination credit failed. Restore the source balance
-                                        *> so the failed transfer doesn't silently lose money.
-                                        ADD WS-AMOUNT TO WS-FROM-BALANCE
-                                        MOVE "REWRITE" TO WS-REPO-FUNCTION
-                                        CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-REPO-FUNCTION
-                                            WS-FROM-RECORD WS-REPO-FOUND WS-REPO-EOF
-
-                                        IF WS-REPO-FOUND = "Y"
-                                            DISPLAY "ERR|The transfer could not be completed and was reversed"
-                                        ELSE
-                                            DISPLAY "ERR|Critical failure: the source account may be left inconsistent, contact support"
-                                        END-IF
+                                        DISPLAY "ERR|Critical failure: the source account may be left inconsistent, contact support"
                                     END-IF
                                 END-IF
                             END-IF
-                          END-IF
                         END-IF
+                      END-IF
                     END-IF
                   END-IF
                 END-IF
@@ -181,4 +174,4 @@ MAIN-OP-TRANSFER.
     END-IF
     GOBACK.
 
-END PROGRAM OP-TRANSFER.
+END PROGRAM OP-TRANSFER-P2P.

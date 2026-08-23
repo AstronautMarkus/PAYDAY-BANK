@@ -1,0 +1,68 @@
+*> UNBLOCKCARD <customer-id> <card-number>
+*> Reactivates a card previously blocked by BLOCKCARD.
+IDENTIFICATION DIVISION.
+PROGRAM-ID. OP-UNBLOCKCARD.
+
+DATA DIVISION.
+WORKING-STORAGE SECTION.
+COPY "card-record.cpy"
+    REPLACING ==CARD-RECORD==       BY ==WS-CARD-RECORD==
+              ==CD-CARD-NUMBER==    BY ==WS-CARD-NUMBER==
+              ==CD-ACCOUNT-NUMBER== BY ==WS-CARD-ACCOUNT==
+              ==CD-CUSTOMER-ID==    BY ==WS-CARD-CUSTOMER-ID==
+              ==CD-CARD-TYPE==      BY ==WS-CARD-TYPE==
+              ==CD-CVV==            BY ==WS-CVV==
+              ==CD-EXPIRY==         BY ==WS-EXPIRY==
+              ==CD-STATUS==         BY ==WS-CARD-STATUS==
+              ==CD-TX-LIMIT==       BY ==WS-TX-LIMIT==.
+01  WS-ARG-INDEX          PIC 9(2).
+01  WS-ARG-CUSTOMER       PIC X(10).
+01  WS-ARG-CARD           PIC X(20).
+01  WS-CUSTOMER-ID        PIC 9(6).
+01  WS-CARD-REPO-FUNCTION PIC X(10).
+01  WS-CARD-REPO-FOUND    PIC X.
+01  WS-CARD-REPO-EOF      PIC X.
+
+LINKAGE SECTION.
+01  LK-ARGC  PIC 9(2).
+
+PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
+MAIN-OP-UNBLOCKCARD.
+    IF LK-ARGC < 3
+        DISPLAY "ERR|Insufficient arguments"
+    ELSE
+        MOVE 2 TO WS-ARG-INDEX
+        DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
+        ACCEPT WS-ARG-CUSTOMER FROM ARGUMENT-VALUE
+        MOVE 3 TO WS-ARG-INDEX
+        DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
+        ACCEPT WS-ARG-CARD FROM ARGUMENT-VALUE
+
+        MOVE FUNCTION NUMVAL(WS-ARG-CUSTOMER) TO WS-CUSTOMER-ID
+        MOVE FUNCTION NUMVAL(WS-ARG-CARD) TO WS-CARD-NUMBER
+
+        MOVE "READ" TO WS-CARD-REPO-FUNCTION
+        CALL "CARD-REPOSITORY" USING BY REFERENCE WS-CARD-REPO-FUNCTION
+            WS-CARD-RECORD WS-CARD-REPO-FOUND WS-CARD-REPO-EOF
+
+        IF WS-CARD-REPO-FOUND = "N"
+            DISPLAY "ERR|Card not found"
+        ELSE
+            IF WS-CARD-CUSTOMER-ID NOT = WS-CUSTOMER-ID
+                DISPLAY "ERR|This card does not belong to the customer"
+            ELSE
+                IF WS-CARD-STATUS NOT = "BLOCKED"
+                    DISPLAY "ERR|Card is not blocked"
+                ELSE
+                    MOVE "ACTIVE" TO WS-CARD-STATUS
+                    MOVE "REWRITE" TO WS-CARD-REPO-FUNCTION
+                    CALL "CARD-REPOSITORY" USING BY REFERENCE WS-CARD-REPO-FUNCTION
+                        WS-CARD-RECORD WS-CARD-REPO-FOUND WS-CARD-REPO-EOF
+                    DISPLAY "OK|Card unblocked"
+                END-IF
+            END-IF
+        END-IF
+    END-IF
+    GOBACK.
+
+END PROGRAM OP-UNBLOCKCARD.

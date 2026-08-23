@@ -1,7 +1,10 @@
-*> BALANCE <account>
-*> Reports the owner name and current balance of a single account.
+*> BLOCKACCT <customer-id> <account>
+*> Freezes an account owned by the customer: DEPOSIT, WITHDRAW,
+*> TRANSFER, TRANSFER-P2P and CARDPAYMENT (on cards linked to this
+*> account) all refuse to move money while status is FROZEN. Reversed
+*> by UNBLOCKACCT.
 IDENTIFICATION DIVISION.
-PROGRAM-ID. OP-BALANCE.
+PROGRAM-ID. OP-BLOCKACCT.
 
 DATA DIVISION.
 WORKING-STORAGE SECTION.
@@ -14,8 +17,9 @@ COPY "account-record.cpy"
               ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==
               ==FD-ACCOUNT-STATUS== BY ==WS-ACCOUNT-STATUS==.
 01  WS-ARG-INDEX        PIC 9(2).
+01  WS-ARG-CUSTOMER     PIC X(10).
 01  WS-ARG-ACCOUNT      PIC X(10).
-01  WS-BALANCE-DISPLAY  PIC Z(11)9.
+01  WS-CUSTOMER-ID      PIC 9(6).
 01  WS-REPO-FUNCTION    PIC X(10).
 01  WS-REPO-FOUND       PIC X.
 01  WS-REPO-EOF         PIC X.
@@ -24,13 +28,18 @@ LINKAGE SECTION.
 01  LK-ARGC  PIC 9(2).
 
 PROCEDURE DIVISION USING BY REFERENCE LK-ARGC.
-MAIN-OP-BALANCE.
-    IF LK-ARGC < 2
+MAIN-OP-BLOCKACCT.
+    IF LK-ARGC < 3
         DISPLAY "ERR|Insufficient arguments"
     ELSE
         MOVE 2 TO WS-ARG-INDEX
         DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
+        ACCEPT WS-ARG-CUSTOMER FROM ARGUMENT-VALUE
+        MOVE 3 TO WS-ARG-INDEX
+        DISPLAY WS-ARG-INDEX UPON ARGUMENT-NUMBER
         ACCEPT WS-ARG-ACCOUNT FROM ARGUMENT-VALUE
+
+        MOVE FUNCTION NUMVAL(WS-ARG-CUSTOMER) TO WS-CUSTOMER-ID
         MOVE FUNCTION NUMVAL(WS-ARG-ACCOUNT) TO WS-ACCOUNT-NUMBER
 
         MOVE "READ" TO WS-REPO-FUNCTION
@@ -40,11 +49,21 @@ MAIN-OP-BALANCE.
         IF WS-REPO-FOUND = "N"
             DISPLAY "ERR|Account not found"
         ELSE
-            MOVE WS-BALANCE TO WS-BALANCE-DISPLAY
-            DISPLAY "OK|" FUNCTION TRIM(WS-OWNER-NAME)
-                "|" FUNCTION TRIM(WS-BALANCE-DISPLAY)
+            IF WS-ACCOUNT-CUSTOMER-ID NOT = WS-CUSTOMER-ID
+                DISPLAY "ERR|This account does not belong to the customer"
+            ELSE
+                IF WS-ACCOUNT-STATUS = "CLOSED"
+                    DISPLAY "ERR|Account is closed"
+                ELSE
+                    MOVE "FROZEN" TO WS-ACCOUNT-STATUS
+                    MOVE "REWRITE" TO WS-REPO-FUNCTION
+                    CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-REPO-FUNCTION
+                        WS-ACCOUNT-RECORD WS-REPO-FOUND WS-REPO-EOF
+                    DISPLAY "OK|Account frozen"
+                END-IF
+            END-IF
         END-IF
     END-IF
     GOBACK.
 
-END PROGRAM OP-BALANCE.
+END PROGRAM OP-BLOCKACCT.

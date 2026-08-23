@@ -39,7 +39,8 @@ COPY "account-record.cpy"
               ==FD-OWNER-NAME==     BY ==LK-OWNER-NAME==
               ==FD-BALANCE==        BY ==LK-BALANCE==
               ==FD-CUSTOMER-ID==    BY ==LK-CUSTOMER-ID==
-              ==FD-ACCOUNT-TYPE==   BY ==LK-ACCOUNT-TYPE==.
+              ==FD-ACCOUNT-TYPE==   BY ==LK-ACCOUNT-TYPE==
+              ==FD-ACCOUNT-STATUS== BY ==LK-ACCOUNT-STATUS==.
 01  LK-REPO-FOUND           PIC X.
 01  LK-REPO-EOF             PIC X.
 

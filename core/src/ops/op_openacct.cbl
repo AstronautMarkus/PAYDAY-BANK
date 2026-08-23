@@ -12,7 +12,18 @@ COPY "account-record.cpy"
               ==FD-OWNER-NAME==     BY ==WS-OWNER-NAME==
               ==FD-BALANCE==        BY ==WS-BALANCE==
               ==FD-CUSTOMER-ID==    BY ==WS-ACCOUNT-CUSTOMER-ID==
-              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==.
+              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==
+              ==FD-ACCOUNT-STATUS== BY ==WS-ACCOUNT-STATUS==.
+COPY "transaction-record.cpy"
+    REPLACING ==TRANSACTION-RECORD== BY ==WS-TX-RECORD==
+              ==TX-ID==              BY ==WS-TX-ID==
+              ==TX-ACCOUNT==         BY ==WS-TX-ACCOUNT==
+              ==TX-TYPE==            BY ==WS-TX-TYPE==
+              ==TX-AMOUNT==          BY ==WS-TX-AMOUNT==
+              ==TX-BALANCE-AFTER==   BY ==WS-TX-BALANCE-AFTER==
+              ==TX-COUNTERPARTY==    BY ==WS-TX-COUNTERPARTY==
+              ==TX-DESCRIPTION==     BY ==WS-TX-DESCRIPTION==
+              ==TX-DATETIME==        BY ==WS-TX-DATETIME==.
 COPY "customer-record.cpy"
     REPLACING ==CUSTOMER-RECORD==   BY ==WS-CUSTOMER-RECORD==
               ==PF-CUSTOMER-ID==    BY ==WS-CUST-CUSTOMER-ID==
@@ -35,6 +46,9 @@ COPY "customer-record.cpy"
 01  WS-ACCT-REPO-EOF      PIC X.
 01  WS-CUST-REPO-FUNCTION PIC X(10).
 01  WS-CUST-REPO-FOUND    PIC X.
+01  WS-TX-REPO-FUNCTION   PIC X(10).
+01  WS-TX-REPO-FOUND      PIC X.
+01  WS-TX-REPO-EOF        PIC X.
 
 LINKAGE SECTION.
 01  LK-ARGC  PIC 9(2).
@@ -81,12 +95,24 @@ MAIN-OP-OPENACCT.
                 MOVE WS-ARG-NAME TO WS-OWNER-NAME
                 MOVE FUNCTION UPPER-CASE(WS-ARG-TYPE) TO WS-ACCOUNT-TYPE
                 MOVE 0 TO WS-BALANCE
+                MOVE "ACTIVE" TO WS-ACCOUNT-STATUS
 
                 MOVE "WRITE" TO WS-ACCT-REPO-FUNCTION
                 CALL "ACCOUNT-REPOSITORY" USING BY REFERENCE WS-ACCT-REPO-FUNCTION
                     WS-ACCOUNT-RECORD WS-ACCT-REPO-FOUND WS-ACCT-REPO-EOF
 
                 IF WS-ACCT-REPO-FOUND = "Y"
+                    MOVE WS-ACCOUNT-NUMBER TO WS-TX-ACCOUNT
+                    MOVE "OPEN" TO WS-TX-TYPE
+                    MOVE 0 TO WS-TX-AMOUNT
+                    MOVE 0 TO WS-TX-BALANCE-AFTER
+                    MOVE 0 TO WS-TX-COUNTERPARTY
+                    MOVE SPACES TO WS-TX-DESCRIPTION
+                    MOVE "APPEND" TO WS-TX-REPO-FUNCTION
+                    CALL "TRANSACTION-REPOSITORY" USING BY REFERENCE
+                        WS-TX-REPO-FUNCTION WS-TX-RECORD WS-TX-REPO-FOUND
+                        WS-TX-REPO-EOF
+
                     DISPLAY "OK|Account created"
                 ELSE
                     DISPLAY "ERR|The account already exists or could not be created"

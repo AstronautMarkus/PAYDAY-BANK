@@ -17,3 +17,8 @@
            *> límite impuesto aquí).
            05 FD-CUSTOMER-ID       PIC 9(6).
            05 FD-ACCOUNT-TYPE      PIC X(10).
+           *> Lifecycle state. ACTIVE accounts accept money movement;
+           *> FROZEN rejects DEPOSIT/WITHDRAW/TRANSFER/TRANSFER-P2P/
+           *> CARDPAYMENT; CLOSED is terminal (set by OP-CLOSEACCT, no
+           *> reopen operation exists).
+           05 FD-ACCOUNT-STATUS    PIC X(8).

@@ -15,7 +15,8 @@ COPY "account-record.cpy"
               ==FD-OWNER-NAME==     BY ==WS-OWNER-NAME==
               ==FD-BALANCE==        BY ==WS-BALANCE==
               ==FD-CUSTOMER-ID==    BY ==WS-ACCOUNT-CUSTOMER-ID==
-              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==.
+              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==
+              ==FD-ACCOUNT-STATUS== BY ==WS-ACCOUNT-STATUS==.
 COPY "customer-record.cpy"
     REPLACING ==CUSTOMER-RECORD==   BY ==WS-CUSTOMER-RECORD==
               ==PF-CUSTOMER-ID==    BY ==WS-CUST-CUSTOMER-ID==

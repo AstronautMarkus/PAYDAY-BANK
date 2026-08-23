@@ -20,7 +20,8 @@ COPY "account-record.cpy"
               ==FD-OWNER-NAME==     BY ==WS-OWNER-NAME==
               ==FD-BALANCE==        BY ==WS-BALANCE==
               ==FD-CUSTOMER-ID==    BY ==WS-ACCOUNT-CUSTOMER-ID==
-              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==.
+              ==FD-ACCOUNT-TYPE==   BY ==WS-ACCOUNT-TYPE==
+              ==FD-ACCOUNT-STATUS== BY ==WS-ACCOUNT-STATUS==.
 01  WS-ARG-INDEX          PIC 9(2).
 01  WS-ARG-CUSTOMER       PIC X(10).
 01  WS-CUSTOMER-ID        PIC 9(6).
