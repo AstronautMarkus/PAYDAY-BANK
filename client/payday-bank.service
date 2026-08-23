@@ -1,5 +1,5 @@
 [Unit]
-Description=PAYDAY BANK Flask client (gunicorn)
+Description=PAYDAY BANK Flask Client
 After=network.target
 
 [Service]
@@ -8,8 +8,8 @@ User=astronautmarkus
 Group=astronautmarkus
 
 WorkingDirectory=/var/www/payday-bank.astronautmarkus.dev/client
+
 Environment="PATH=/var/www/payday-bank.astronautmarkus.dev/.venv/bin"
-# Override the dev-only default from app/config.py — required in production.
 Environment="BANK_SECRET_KEY=change-me"
 
 ExecStart=/var/www/payday-bank.astronautmarkus.dev/.venv/bin/gunicorn \
@@ -19,8 +19,6 @@ ExecStart=/var/www/payday-bank.astronautmarkus.dev/.venv/bin/gunicorn \
 
 Restart=on-failure
 RestartSec=5
-# gunicorn/systemd manage the process lifecycle; do not pass gunicorn's own
-# --daemon flag here, it would break Type=notify supervision.
 
 [Install]
 WantedBy=multi-user.target
