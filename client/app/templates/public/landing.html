@@ -153,4 +153,50 @@
     </div>
   </div>
 </section>
+
+{# (layer, icon, Metro color, text color that stays readable on it, items) #}
+{% set stack = [
+  ("Core \"mainframe\"", "server", "crimson", "fg-white", ["COBOL", "GnuCOBOL 3", "Indexed files (ISAM)"]),
+  ("Web client", "cogs", "cobalt", "fg-white", ["Python 3.12", "Flask 3", "Jinja2", "Flask-WTF (CSRF)", "Werkzeug password hashing", "Gunicorn"]),
+  ("Frontend", "display", "orange", "fg-dark", ["HTML5", "CSS3", "JavaScript", "Metro UI 5"]),
+  ("Deployment", "cloud", "green", "fg-dark", ["Docker", "Docker Compose", "Debian", "systemd"]),
+] %}
+<section class="w-100" id="disclaimer">
+  <div class="container pt-10 pb-10">
+    <div class="row">
+      <div class="cell-md-7">
+        <h2 class="text-light"><span class="mif-warning fg-crimson"></span> This Is <strong class="fg-crimson">Not</strong> a Real Bank</h2>
+        <p class="mt-4 text-leader">
+          PAYDAY BANK is a <strong>personal, educational and humorous project</strong>. It is
+          <strong class="fg-crimson">not a bank</strong>, it is <strong class="fg-crimson">not licensed, regulated or
+          insured</strong> by any authority (FDIC included), and it holds <strong class="fg-crimson">no real money</strong>.
+          Every account, card, balance, customer and testimonial on this site is <strong>fictional</strong>, and so is the
+          list of countries we are "banned" in.
+        </p>
+        <div class="remark crimson mt-4">
+          <p><span class="mif-lock"></span> <strong>Please don't enter real personal data, real card numbers, or a
+            password you use anywhere else.</strong></p>
+        </div>
+        <div class="remark cobalt mt-4">
+          <p><span class="mif-info"></span> <strong>Why it exists:</strong> to show a modern web app running on top of a
+            legacy <strong>COBOL "mainframe"</strong>. Every balance, transfer and card payment is decided by a
+            <strong>GnuCOBOL</strong> binary working on indexed files, while the <strong>Flask</strong> client only
+            renders pages and forwards requests.</p>
+        </div>
+        <a href="https://github.com/astronautmarkus/PAYDAY-BANK" class="button large dark mt-6" target="_blank" rel="noopener">
+          <span class="mif-github"></span> View the source on GitHub
+        </a>
+      </div>
+      <div class="cell-md-5">
+        <h3 class="text-light mb-4"><span class="mif-code fg-cobalt"></span> Built With</h3>
+        {% for layer, icon, color, text, items in stack %}
+        <div class="text-bold"><span class="mif-{{ icon }} fg-{{ color }}"></span> {{ layer }}</div>
+        <ul class="tech-list">
+          {% for item in items %}<li class="bg-{{ color }} {{ text }}">{{ item }}</li>{% endfor %}
+        </ul>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

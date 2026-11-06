@@ -158,6 +158,28 @@
   background: var(--pb-band);
 }
 
+/* Landing disclaimer: crimson rule on top, then pill chips colored per
+   layer (the color classes come from Metro, set in the template). */
+#disclaimer {
+  border-top: 6px solid var(--color-crimson);
+}
+
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.tech-list li {
+  padding: 0.25rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 999px;
+}
+
 /* Big centered statement between sections. */
 .statement {
   font-size: 2rem;
