@@ -13,6 +13,12 @@
 {% endmacro %}
 
 {% block page_content %}
+<marquee class="notice-bar d-block" scrollamount="30" onmouseover="this.stop()" onmouseout="this.start()">
+  <span class="mif-warning"></span> PAYDAY BANK is prohibited from operating in
+  {% for country in countries %}{{ country }}{{ ", " if not loop.last }}{% endfor %}.
+  Beware of the "dinosaur offering money": it may be <strong>a banking scam</strong>. 
+</marquee>
+
 <section class="hero w-100">
   <div class="container">
     <div class="hero-inner">

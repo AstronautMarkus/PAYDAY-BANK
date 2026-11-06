@@ -1,4 +1,6 @@
+import json
 import re
+from pathlib import Path
 
 from flask import abort, flash, g, redirect, render_template, request, session, url_for
 
@@ -48,12 +50,16 @@ TX_TYPES = {
     "CARD-PAY": ("Card payment", -1),
 }
 
+# Landing-page marquee: the bank is "banned" in every country on Earth (the joke).
+COUNTRIES = [c["name"] for c in json.loads(
+    (Path(__file__).parents[2] / "data" / "countries.json").read_text(encoding="utf-8"))]
+
 
 @bp.route("/")
 def index():
     if g.user:
         return redirect(url_for("banking.dashboard"))
-    return render_template("public/landing.html")
+    return render_template("public/landing.html", countries=COUNTRIES)
 
 
 @bp.route("/<any(products, security, help):page>")
