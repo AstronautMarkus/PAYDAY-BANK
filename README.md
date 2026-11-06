@@ -26,11 +26,11 @@ PAYDAY-BANK/
 │   │   │   ├── auth/           # login, logout, registration; g.user loader
 │   │   │   └── banking/        # dashboard, deposit, withdraw, open account, transfer
 │   │   ├── static/
-│   │   │   ├── css/                # theme.css: brand overrides of Metro UI variables
+│   │   │   ├── css/                # theme.css: Metro variable overrides + hand-written pieces
 │   │   │   └── js/                  # one small script per behavior (wizard, amounts, copy)
 │   │   └── templates/
 │   │       ├── layouts/            # base.html, public.html, dashboard.html (shells)
-│   │       ├── partials/           # login modal, user menu, logout modal, flash notifications
+│   │       ├── partials/           # user menu, logout modal, flash notifications
 │   │       ├── macros/             # forms.html (shared field markup)
 │   │       ├── public/             # landing.html (anonymous index)
 │   │       ├── auth/                # register.html, register_success.html
@@ -93,7 +93,7 @@ http://127.0.0.1:5005
 - `LOGIN <email>` — looks up a customer by email and returns `<customer-id>|<password-hash>`, or a generic error if no customer has that email
 - `PROFILE <customer-id>` — returns the customer's display profile (name, document, email, phone, address, occupation, employer)
 - `OPENACCT <customer-id> <account> <name> <type>` — opens an additional account (`type` is `CHECKING` or `SAVINGS`) for an existing customer
-- `ACCOUNTS <customer-id>` — lists every account owned by one customer
+- `ACCOUNTS <customer-id>` — lists every account owned by one customer as `ROW|account|type|balance|status` (status: `ACTIVE`/`FROZEN`/`CLOSED`)
 - `BALANCE <account>`
 - `DEPOSIT <customer-id> <account> <amount>`
 - `WITHDRAW <customer-id> <account> <amount>`
@@ -113,9 +113,9 @@ Responses follow this contract:
 
 - `app/mainframe/client.py` is the only module that shells out to `core/bin/bank_api` (via `subprocess`, with `core/data/` as its working directory) and parses the `OK|`/`ERR|`/`ROW|`/`END` contract above.
 - There is no database, ORM, or client-side persistence at all. The session cookie holds nothing but the logged-in customer-id; everything else — profile, credentials included — is read from COBOL on demand. Passwords are hashed and verified in Python (`werkzeug.security`, since COBOL has no crypto primitives), but the resulting hash is stored as an opaque field inside the COBOL customer record (`PF-PASSWORD-HASH` in `core/src/copybooks/customer-record.cpy`) via `REGISTER`, and read back via `LOGIN`. `app/blueprints/auth/__init__.py`'s `load_logged_in_user()` calls `PROFILE` on every request to hydrate `g.user`.
-- `app/blueprints/auth` exposes `GET,POST /login`, `POST /logout`, `GET,POST /register`, `GET /register/success`. `GET /login` renders `public/landing.html` with its Sign In modal opened; `GET /register` renders the standalone `auth/register.html` wizard (personal → contact → employment → security, with client-side validation mirroring the server's) instead of a modal; a successful registration redirects to `auth/register_success.html` rather than flashing the new customer/account numbers.
-- `app/blueprints/banking` exposes `GET /`, `GET /dashboard`, `POST /deposit`, `POST /withdraw`, `GET,POST /accounts/open`, `GET,POST /transfer`. `GET /` renders `public/landing.html` for anonymous visitors (redirects to the dashboard if already logged in); the other four routes render `banking/dashboard.html`/`banking/open_account.html`/`banking/transfer.html`, all extending `layouts/dashboard.html`'s sidebar shell.
-- Every form is protected by Flask-WTF's `CSRFProtect` (wired up in `app/__init__.py`), and every route renders through `templates/layouts/` (shared shells), `templates/partials/` (shared fragments: topbar, login modal, user menu, logout modal, toast stack) and `templates/macros/forms.html` (shared form-field markup) instead of each page duplicating its own header. All styling comes from [Metro UI v5](https://v5.metroui.org.ua) (CSS, icons and JS loaded from its CDN, pinned in `layouts/base.html`): app-bar, navview sidebar, dialogs, dropdown, inputs/selects and grid are Metro classes and `data-role` components, and `static/css/theme.css` only overrides Metro's CSS variables with the brand colors. Flash messages (`flash()`/`get_flashed_messages()`) render as auto-dismissing Metro notifications (`partials/_toast_stack.html`) rather than a banner in the document flow.
+- `app/blueprints/auth` exposes `GET,POST /login`, `POST /logout`, `GET,POST /register`, `GET /register/success`. `GET /login` renders the standalone split-screen `auth/login.html`; `GET /profile` shows the logged-in customer's profile; `GET /register` renders the standalone `auth/register.html` wizard (personal → contact → employment → security, with client-side validation mirroring the server's) instead of a modal; a successful registration redirects to `auth/register_success.html` rather than flashing the new customer/account numbers.
+- `app/blueprints/banking` exposes the public pages `GET /`, `GET /products`, `GET /security`, `GET /help` (`templates/public/`; `/` redirects to the dashboard if already logged in) and the logged-in pages, all extending `layouts/dashboard.html`'s sidebar shell: `GET /dashboard`, `POST /deposit`, `POST /withdraw`; `GET /accounts`, `POST /accounts/open`, `POST /accounts/<account>/{freeze,unfreeze,close}`, `GET /accounts/<account>/statement`; `GET,POST /transfer` (own accounts) and `POST /transfer/external` (TRANSFER-P2P); `GET /cards`, `POST /cards/issue`, `POST /cards/<card>/{block,unblock}`, `GET,POST /cards/pay` (CARDPAYMENT checkout simulator).
+- Every form is protected by Flask-WTF's `CSRFProtect` (wired up in `app/__init__.py`), and every route renders through `templates/layouts/` (shared shells), `templates/partials/` (shared fragments: user menu, logout modal, toast stack) and `templates/macros/` (`forms.html`: form fields, account select, amount input; `banking.html`: status badge, plastic card) instead of each page duplicating its own header. All styling comes from [Metro UI v5](https://v5.metroui.org.ua) (CSS, icons and JS loaded from its CDN, pinned in `layouts/base.html`): app-bar, navview sidebar, dialogs, dropdown, inputs/selects and grid are Metro classes and `data-role` components, and `static/css/theme.css` overrides Metro's CSS variables with the brand colors and adds the few hand-written pieces Metro lacks (landing hero, gray band, feature cards, plastic card, split login). Flash messages (`flash()`/`get_flashed_messages()`) render as auto-dismissing Metro notifications (`partials/_toast_stack.html`) rather than a banner in the document flow.
 
 When a form is submitted, the relevant blueprint route validates the input and calls into `app.mainframe` with arguments such as:
 

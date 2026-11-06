@@ -60,7 +60,7 @@ def login():
             session.clear()
             session["customer_id"] = parts[1]
             return redirect(url_for("banking.dashboard"))
-    return render_template("public/landing.html", open_modal="login")
+    return render_template("auth/login.html")
 
 
 @bp.route("/logout", methods=["POST"])

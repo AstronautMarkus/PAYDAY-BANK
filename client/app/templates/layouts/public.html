@@ -1,8 +1,7 @@
 {#
   Shared shell for every anonymous-facing page: landing, products,
   security, help, the register wizard and the register success screen.
-  Owns the Metro app-bar (nav + sign-in), the sign-in modal and the
-  footer. Child templates fill page_content and may override footer.
+  Owns the Metro app-bar (nav + sign-in link) and the footer. Child templates fill page_content and may override footer.
 #}
 {% extends "layouts/base.html" %}
 
@@ -28,9 +27,7 @@
     {% if current_user %}
     <a href="{{ url_for('banking.dashboard') }}" class="button light"><span class="mif-dashboard"></span> My Dashboard</a>
     {% else %}
-    <button type="button" class="button light" onclick="Metro.dialog.open('#modal-login')">
-      <span class="mif-lock"></span> Sign In
-    </button>
+    <a href="{{ url_for('auth.login') }}" class="button light"><span class="mif-lock"></span> Sign In</a>
     <a href="{{ url_for('auth.register') }}" class="button dark">Open Account</a>
     {% endif %}
   </div>
@@ -79,9 +76,6 @@
 </footer>
 {% endblock %}
 
-{% if not current_user %}
-{% include "partials/_login_modal.html" %}
-{% endif %}
 {% endblock %}
 
 {% block extra_scripts %}

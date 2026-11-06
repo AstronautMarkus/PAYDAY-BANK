@@ -24,9 +24,9 @@
         <a href="{{ url_for('auth.register') }}" class="button large button-crimson">
           Get Started Today <span class="mif-arrow-right"></span>
         </a>
-        <button type="button" class="button large light" onclick="Metro.dialog.open('#modal-login')">
+        <a href="{{ url_for('auth.login') }}" class="button large light">
           <span class="mif-lock"></span> Access Portal
-        </button>
+        </a>
       </div>
     </div>
   </div>

@@ -209,3 +209,104 @@
 .select .select-input {
   padding-right: 2.5rem;
 }
+
+/* Split-screen sign-in page (auth/login.html): lobby photo + brand on the
+   left, form on the right; stacks with a short photo strip on phones. */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+.split-brand {
+  /* Metro sets aside { margin: 0 auto }, which shrinks it inside a grid cell. */
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background:
+    linear-gradient(rgba(12, 12, 12, 0.7), rgba(12, 12, 12, 0.7)),
+    url("../img/bank-header.jpeg") 65% center / cover no-repeat;
+}
+
+.split-brand .mif-library {
+  font-size: 6rem;
+  color: var(--color-crimson);
+}
+
+.split-brand .brand-word {
+  margin-top: 1rem;
+  font-size: 3rem;
+  letter-spacing: -0.01em;
+}
+
+.split-brand p {
+  font-size: 1.4rem;
+  font-weight: 300;
+}
+
+.split-form {
+  display: flex;
+  align-items: center;
+  padding: 3rem 4rem;
+  background: #fff;
+}
+
+.split-form .input {
+  --input-height: var(--control-height-largest);
+  font-size: 1.1rem;
+}
+
+.split-form-inner {
+  width: 100%;
+  max-width: 560px;
+}
+
+.split-form h1 {
+  font-size: 4rem;
+  font-weight: 200;
+}
+
+.split-links,
+.split-legal {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--pb-line);
+}
+
+.split-links {
+  font-size: 1.15rem;
+  line-height: 1.7;
+}
+
+.split-legal {
+  color: #777;
+}
+
+@media (max-width: 767.98px) {
+  .split {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .split-brand {
+    padding: 2.5rem 1rem;
+  }
+
+  .split-brand .mif-library {
+    font-size: 3rem;
+  }
+
+  .split-brand .brand-word {
+    font-size: 2rem;
+  }
+
+  .split-form {
+    padding: 2rem 1.25rem;
+  }
+
+  .split-form h1 {
+    font-size: 2.8rem;
+  }
+}

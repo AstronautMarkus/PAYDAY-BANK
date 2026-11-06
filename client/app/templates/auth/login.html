@@ -1,0 +1,53 @@
+{#
+  Standalone split-screen sign-in page (GET/POST /login): the lobby photo
+  with the brand on the left, the form on the right. No app-bar, so it
+  extends the bare base layout.
+#}
+{% extends "layouts/base.html" %}
+{% block title %}Sign In - PAYDAY BANK{% endblock %}
+
+{% block content %}
+<div class="split w-100">
+  <aside class="split-brand">
+    <a href="{{ url_for('banking.index') }}" class="no-decor fg-white text-center">
+      <span class="mif-library"></span>
+      <div class="brand-word">PAYDAY<span>BANK</span></div>
+      <p>Banking that never goes extinct.</p>
+    </a>
+  </aside>
+
+  <main class="split-form">
+    <div class="split-form-inner">
+      <h1>Login</h1>
+      <form method="post" action="{{ url_for('auth.login') }}" class="mt-8">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <input type="email" id="login-email" name="email" autocomplete="email" aria-label="Email"
+            placeholder="Enter your email..." value="{{ request.form.get('email', '') }}" required autofocus
+            data-role="input" data-prepend="<span class='mif-person'></span>">
+        </div>
+        <div class="form-group">
+          <input type="password" id="login-password" name="password" autocomplete="current-password"
+            aria-label="Password" placeholder="Enter your password..." required
+            data-role="input" data-prepend="<span class='mif-lock'></span>">
+        </div>
+        <div class="d-flex flex-align-center gap-4 mt-8">
+          <button type="submit" class="button large button-crimson">Login</button>
+          <a href="{{ url_for('banking.index') }}" class="fg-gray fg-dark-hover text-leader">Cancel</a>
+        </div>
+      </form>
+
+      <div class="split-links">
+        <div>Forgot your password? <a href="{{ url_for('banking.info', page='help') }}">Contact support</a></div>
+        <div>No account at PAYDAY BANK? <a href="{{ url_for('auth.register') }}">Sign up now!</a></div>
+      </div>
+
+      <div class="split-legal">
+        Copyright 2026 by PAYDAY BANK. <a href="{{ url_for('banking.info', page='security') }}">Security</a>
+        &middot; <a href="{{ url_for('banking.info', page='help') }}">Help center</a><br>
+        Site created with <a href="https://metroui.org.ua" rel="noopener">Metro UI</a>. All rights reserved.
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
