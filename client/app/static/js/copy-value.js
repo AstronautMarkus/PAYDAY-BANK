@@ -5,11 +5,11 @@ document.querySelectorAll("[data-copy]").forEach(function (btn) {
     var text = document.getElementById(btn.dataset.copy).textContent.trim();
     navigator.clipboard.writeText(text).then(function () {
       var original = btn.innerHTML;
-      btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
-      btn.classList.add("copied");
+      btn.innerHTML = '<span class="mif-checkmark"></span> Copied';
+      btn.classList.add("success");
       setTimeout(function () {
         btn.innerHTML = original;
-        btn.classList.remove("copied");
+        btn.classList.remove("success");
       }, 1500);
     });
   });

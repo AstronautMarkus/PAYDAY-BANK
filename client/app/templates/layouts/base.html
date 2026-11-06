@@ -5,22 +5,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}PAYDAY BANK{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/buttons.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/cards.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/forms.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/modals.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/table.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/toast.css') }}">
-  {% block extra_head %}{% endblock %}
+  {# Metro UI v5 (https://v5.metroui.org.ua): every page is styled with its
+     classes and data-role components; theme.css only sets Metro variables.
+     Pinned so a new "current" release can't restyle the app unannounced. #}
+  <link rel="stylesheet" href="https://cdn.metroui.org.ua/5.1.20/metro.css">
+  <link rel="stylesheet" href="https://cdn.metroui.org.ua/5.1.20/icons.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
 </head>
 
 <body class="{% block body_class %}{% endblock %}">
   {% block content %}{% endblock %}
+
+  <script>
+    // Metro reads these globals when it loads, as defaults for every
+    // data-role="input" and for Metro.notify (used by the flash stack).
+    var metroInputSetup = { clearButton: false, revealButtonIcon: "<span class='mif-eye'></span>" };
+    var metroNotifySetup = { timeout: 5000, width: 340 };
+  </script>
+  <script src="https://cdn.metroui.org.ua/5.1.20/metro.js"></script>
+  <script>
+    // Metro dialogs have no Escape-to-close of their own.
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") document.querySelectorAll(".dialog").forEach(function (d) { Metro.dialog.close(d); });
+    });
+  </script>
   {% include "partials/_toast_stack.html" %}
-  <script src="{{ url_for('static', filename='js/toast.js') }}" defer></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 

@@ -1,52 +1,74 @@
 {% extends "layouts/dashboard.html" %}
 {% block page_title %}Dashboard{% endblock %}
 
-{% block page_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/dashboard.css') }}">
-{% endblock %}
+{% macro stat(title, value, caption, icon) %}
+<div class="cell-md-4">
+  <div class="icon-box border bd-default">
+    <div class="icon bg-crimson fg-white"><span class="mif-{{ icon }}"></span></div>
+    <div class="content p-4">
+      <div class="text-upper text-small fg-gray">{{ title }}</div>
+      <div class="h4 text-bold m-0">{{ value }}</div>
+      <div class="text-small fg-gray text-ellipsis">{{ caption }}</div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro money_form(action, prefix, title, icon, verb) %}
+<div class="cell-md-6">
+  <div class="card">
+    <div class="card-header d-flex flex-justify-between">
+      <span class="text-bold">{{ title }}</span>
+      <span class="mif-{{ icon }} fg-crimson"></span>
+    </div>
+    <div class="card-content d-block p-4">
+      <form method="post" action="{{ url_for(action) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+          <label for="{{ prefix }}-account">Account</label>
+          <select id="{{ prefix }}-account" name="account" data-role="select"
+            data-prepend="<span class='mif-wallet'></span>" required>
+            {% for acct in accounts %}
+            <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="{{ prefix }}-amount-display">Amount ($)</label>
+          <input type="text" inputmode="numeric" id="{{ prefix }}-amount-display" data-amount
+            data-amount-target="{{ prefix }}-amount" placeholder="0" required autocomplete="off"
+            data-role="input" data-prepend="<span class='mif-dollars'></span>">
+          <input type="hidden" id="{{ prefix }}-amount" name="amount">
+        </div>
+        <button type="submit" class="button button-crimson w-100">
+          <span class="mif-{{ icon }}"></span> Confirm {{ verb }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endmacro %}
 
 {% block page_content %}
-<section class="dashboard-grid">
-  <div class="ui-card">
-    <div class="ui-card-header">
-      <span class="ui-card-title">Total Balance</span>
-      <i class="fa-solid fa-piggy-bank icon-badge"></i>
-    </div>
-    <div class="stat-value">${{ total_balance | usd }}</div>
-    <div class="stat-caption">Across {{ accounts | length }} account{{ 's' if accounts | length != 1 }}</div>
-  </div>
+<div class="row">
+  {{ stat("Total Balance", "$" ~ (total_balance | usd),
+          "Across %d account%s" % (accounts | length, "s" if accounts | length != 1 else ""), "dollars") }}
+  {{ stat("Accounts", accounts | length, type_summary or "No accounts yet", "wallet") }}
+  {{ stat("Customer ID", current_user.customer_id, current_user.name, "person-card") }}
+</div>
 
-  <div class="ui-card">
-    <div class="ui-card-header">
-      <span class="ui-card-title">Accounts</span>
-      <i class="fa-solid fa-wallet icon-badge"></i>
-    </div>
-    <div class="stat-value">{{ accounts | length }}</div>
-    <div class="stat-caption">{{ type_summary or "No accounts yet" }}</div>
+<div class="card mt-4">
+  <div class="card-header d-flex flex-justify-between">
+    <span class="text-bold">My Accounts</span>
+    <span class="mif-list fg-gray"></span>
   </div>
-
-  <div class="ui-card">
-    <div class="ui-card-header">
-      <span class="ui-card-title">Customer ID</span>
-      <i class="fa-solid fa-id-card icon-badge"></i>
-    </div>
-    <div class="stat-value">{{ current_user.customer_id }}</div>
-    <div class="stat-caption">{{ current_user.name }}</div>
-  </div>
-</section>
-
-<section class="ui-card mb-md">
-  <div class="ui-card-header">
-    <span class="ui-card-title ui-card-title--dark">My Accounts</span>
-    <i class="fa-solid fa-list-check text-muted"></i>
-  </div>
-  <div class="table-scroll">
-    <table class="ui-table">
+  <div class="card-content d-block">
+    <table class="table striped row-hover m-0">
       <thead>
         <tr>
           <th>Account Type</th>
           <th>Account Number</th>
-          <th>Balance</th>
+          <th class="text-right">Balance</th>
         </tr>
       </thead>
       <tbody>
@@ -54,7 +76,7 @@
         <tr>
           <td>{{ account_types.get(acct.type, acct.type) }}</td>
           <td>{{ acct.account }}</td>
-          <td>${{ acct.balance | usd }}</td>
+          <td class="text-right">${{ acct.balance | usd }}</td>
         </tr>
         {% else %}
         <tr>
@@ -64,75 +86,12 @@
       </tbody>
     </table>
   </div>
-</section>
+</div>
 
-<section class="action-grid">
-  <div class="ui-card">
-    <div class="ui-card-header">
-      <span class="ui-card-title ui-card-title--dark">Deposit Funds</span>
-      <i class="fa-solid fa-arrow-down text-accent"></i>
-    </div>
-    <form method="post" action="{{ url_for('banking.deposit') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <div class="ui-form-group">
-        <label for="deposit-account">Account</label>
-        <div class="ui-input-wrapper">
-          <i class="fa-solid fa-wallet"></i>
-          <select id="deposit-account" name="account" required>
-            {% for acct in accounts %}
-            <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-      <div class="ui-form-group">
-        <label for="deposit-amount-display">Amount ($)</label>
-        <div class="ui-input-wrapper">
-          <i class="fa-solid fa-dollar-sign"></i>
-          <input type="text" inputmode="numeric" id="deposit-amount-display" data-amount
-            data-amount-target="deposit-amount" placeholder="0" required autocomplete="off">
-        </div>
-        <input type="hidden" id="deposit-amount" name="amount">
-      </div>
-      <button type="submit" class="ui-btn ui-btn-red ui-btn-block">
-        <i class="fa-solid fa-arrow-down"></i> Confirm Deposit
-      </button>
-    </form>
-  </div>
-
-  <div class="ui-card">
-    <div class="ui-card-header">
-      <span class="ui-card-title ui-card-title--dark">Withdraw Funds</span>
-      <i class="fa-solid fa-arrow-up text-accent"></i>
-    </div>
-    <form method="post" action="{{ url_for('banking.withdraw') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <div class="ui-form-group">
-        <label for="withdraw-account">Account</label>
-        <div class="ui-input-wrapper">
-          <i class="fa-solid fa-wallet"></i>
-          <select id="withdraw-account" name="account" required>
-            {% for acct in accounts %}
-            <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-      <div class="ui-form-group">
-        <label for="withdraw-amount-display">Amount ($)</label>
-        <div class="ui-input-wrapper">
-          <i class="fa-solid fa-dollar-sign"></i>
-          <input type="text" inputmode="numeric" id="withdraw-amount-display" data-amount
-            data-amount-target="withdraw-amount" placeholder="0" required autocomplete="off">
-        </div>
-        <input type="hidden" id="withdraw-amount" name="amount">
-      </div>
-      <button type="submit" class="ui-btn ui-btn-red ui-btn-block">
-        <i class="fa-solid fa-arrow-up"></i> Confirm Withdrawal
-      </button>
-    </form>
-  </div>
-</section>
+<div class="row mt-4">
+  {{ money_form("banking.deposit", "deposit", "Deposit Funds", "arrow-down", "Deposit") }}
+  {{ money_form("banking.withdraw", "withdraw", "Withdraw Funds", "arrow-up", "Withdrawal") }}
+</div>
 {% endblock %}
 
 {% block page_scripts %}

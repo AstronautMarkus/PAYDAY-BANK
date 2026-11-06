@@ -1,35 +1,35 @@
 {% extends "layouts/public.html" %}
 {% block title %}Account Created - PAYDAY BANK{% endblock %}
 
-{% block page_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register-success.css') }}">
-{% endblock %}
+{% macro id_row(label, value, id) %}
+<div class="d-flex flex-align-center flex-justify-between p-4 border-bottom bd-default">
+  <div>
+    <div class="text-small text-upper fg-gray">{{ label }}</div>
+    <div class="h3 text-bold m-0" id="{{ id }}">{{ value }}</div>
+  </div>
+  <button type="button" class="button" data-copy="{{ id }}"><span class="mif-copy"></span> Copy</button>
+</div>
+{% endmacro %}
 
 {% block page_content %}
-<div class="success-wrap">
-  <div class="success-icon"><i class="fa-solid fa-check"></i></div>
-  <h1>Your account is ready</h1>
-  <p>Save these numbers -- you'll need your customer number to sign in and manage your accounts.</p>
+<div class="container pt-10 pb-10">
+  <div class="row">
+    <div class="cell-md-8 offset-md-2 cell-lg-6 offset-lg-3 text-center">
+      <span class="mif-checkmark mif-4x fg-green"></span>
+      <h1 class="text-light mt-4">Your account is ready</h1>
+      <p class="fg-gray mt-2">Save these numbers -- you'll need your customer number to sign in and manage your accounts.</p>
 
-  <div class="id-card">
-    <div>
-      <div class="id-label">Customer Number</div>
-      <div class="id-value" id="value-customer">{{ customer_id }}</div>
+      <div class="card text-left mt-6">
+        {{ id_row("Customer Number", customer_id, "value-customer") }}
+        {{ id_row("Checking Account Number", account, "value-account") }}
+        <div class="p-4">
+          <a href="{{ url_for('auth.login') }}" class="button button-crimson w-100">
+            Continue to Sign In <span class="mif-arrow-right"></span>
+          </a>
+        </div>
+      </div>
     </div>
-    <button type="button" data-copy="value-customer"><i class="fa-regular fa-copy"></i> Copy</button>
   </div>
-
-  <div class="id-card">
-    <div>
-      <div class="id-label">Checking Account Number</div>
-      <div class="id-value" id="value-account">{{ account }}</div>
-    </div>
-    <button type="button" data-copy="value-account"><i class="fa-regular fa-copy"></i> Copy</button>
-  </div>
-
-  <a href="{{ url_for('auth.login') }}" class="ui-btn ui-btn-red ui-btn-block mt-md">
-    Continue to Sign In <i class="fa-solid fa-arrow-right"></i>
-  </a>
 </div>
 {% endblock %}
 

@@ -1,0 +1,11 @@
+/* PAYDAY BANK brand on top of Metro UI. Only overrides Metro's own CSS
+   variables (no selectors for our markup): everything else is Metro. */
+:root {
+  --appbar-background: var(--color-crimson);
+  --appbar-color: #ffffff;
+  --appbar-item-color: #ffffff;
+  --appbar-item-color-hover: #ffffff;
+  --appbar-item-background-hover: rgba(255, 255, 255, 0.15);
+  --navview-item-marker-color: var(--color-crimson);
+  --stepper-step-background-current: var(--color-crimson);
+}

@@ -22,7 +22,7 @@
   if (!form) return;
 
   var steps = Array.prototype.slice.call(form.querySelectorAll(".wizard-step"));
-  var stepperItems = Array.prototype.slice.call(document.querySelectorAll("#wizard-stepper .stepper-item"));
+  var stepperItems = Array.prototype.slice.call(document.querySelectorAll("#wizard-stepper .step"));
   var btnPrev = document.getElementById("btn-prev");
   var btnNext = document.getElementById("btn-next");
   var btnSubmit = document.getElementById("btn-submit");
@@ -36,7 +36,6 @@
   function validateField(input) {
     var name = input.dataset.validate;
     var rule = RULES[name];
-    var wrapper = input.closest(".ui-input-wrapper");
     var msg = form.querySelector('[data-msg-for="' + name + '"]');
     var value = input.value.trim();
     var ok = true;
@@ -57,15 +56,20 @@
       text = rule.message;
     }
 
-    if (wrapper) {
-      wrapper.classList.toggle("has-error", !ok);
-      wrapper.classList.toggle("has-ok", ok);
-    }
-    if (msg) {
-      msg.textContent = text;
-      msg.className = "field-msg" + (ok ? "" : " error");
-    }
+    box(input).classList.toggle("invalid", !ok);
+    if (msg) msg.textContent = text;
     return ok;
+  }
+
+  // Metro's data-role="input" wraps the field in div.input and moves the
+  // input's classes (a server-side "invalid") onto it; fall back to the
+  // bare input if Metro failed to load.
+  function box(input) {
+    return input.closest(".input") || input;
+  }
+
+  function isInvalid(input) {
+    return box(input).classList.contains("invalid");
   }
 
   function validateStep(index) {
@@ -88,30 +92,28 @@
       .map(function (row) {
         var el = document.getElementById(row[1]);
         var value = el && el.value.trim() ? el.value.trim() : "—";
-        return '<div class="review-row"><span>' + row[0] + "</span><span>" +
-          value.replace(/</g, "&lt;") + "</span></div>";
+        return '<tr><td class="fg-gray">' + row[0] + "</td><td>" +
+          value.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</td></tr>";
       })
       .join("");
   }
 
   function showStep(index) {
-    steps.forEach(function (step, i) { step.classList.toggle("active", i === index); });
+    steps.forEach(function (step, i) { step.classList.toggle("d-none", i !== index); });
     stepperItems.forEach(function (item, i) {
-      item.classList.toggle("active", i === index);
-      item.classList.toggle("done", i < index);
+      item.classList.toggle("current", i === index);
+      item.classList.toggle("complete", i < index);
     });
-    btnPrev.classList.toggle("ui-btn--invisible", index === 0);
-    btnNext.classList.toggle("ui-btn--hidden", index === steps.length - 1);
-    btnSubmit.classList.toggle("ui-btn--hidden", index !== steps.length - 1);
+    btnPrev.classList.toggle("no-visible", index === 0);
+    btnNext.classList.toggle("d-none", index === steps.length - 1);
+    btnSubmit.classList.toggle("d-none", index !== steps.length - 1);
     if (index === steps.length - 1) updateReviewSummary();
     current = index;
   }
 
   btnNext.addEventListener("click", function () {
     if (!validateStep(current)) {
-      var firstInvalid = fieldsIn(steps[current]).find(function (input) {
-        return input.closest(".ui-input-wrapper").classList.contains("has-error");
-      });
+      var firstInvalid = fieldsIn(steps[current]).find(isInvalid);
       if (firstInvalid) firstInvalid.focus();
       return;
     }
@@ -126,7 +128,7 @@
     fieldsIn(step).forEach(function (input) {
       input.addEventListener("blur", function () { validateField(input); });
       input.addEventListener("input", function () {
-        if (input.closest(".ui-input-wrapper").classList.contains("has-error")) validateField(input);
+        if (isInvalid(input)) validateField(input);
         if (input.id === "reg-password") {
           updateStrength(input.value);
           var confirmation = document.getElementById("reg-password-confirmation");
@@ -141,27 +143,16 @@
     if (!allValid) {
       event.preventDefault();
       var firstBadStep = steps.findIndex(function (step) {
-        return fieldsIn(step).some(function (input) {
-          return input.closest(".ui-input-wrapper").classList.contains("has-error");
-        });
+        return fieldsIn(step).some(isInvalid);
       });
       if (firstBadStep >= 0) showStep(firstBadStep);
     }
   });
 
-  document.querySelectorAll(".toggle-visibility").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var input = document.getElementById(btn.dataset.toggleFor);
-      var showing = input.type === "text";
-      input.type = showing ? "password" : "text";
-      btn.querySelector("i").className = showing ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
-    });
-  });
-
   function updateStrength(value) {
-    var fill = document.getElementById("strength-fill");
+    var meter = Metro.getPlugin("#strength-meter", "progress");
     var label = document.getElementById("strength-label");
-    if (!fill || !label) return;
+    if (!meter || !label) return;
 
     var score = 0;
     if (value.length >= 8) score++;
@@ -178,8 +169,8 @@
       { pct: 100, color: "#27ae60", text: "Strong" },
     ];
     var level = levels[Math.min(score, 4)];
-    fill.style.width = level.pct + "%";
-    fill.style.backgroundColor = level.color;
+    meter.val(level.pct);
+    meter.element.find(".bar").css("background-color", level.color);
     label.textContent = value ? level.text : " ";
   }
 

@@ -1,64 +1,61 @@
 {% extends "layouts/dashboard.html" %}
 {% block page_title %}Transfer Money{% endblock %}
 
+{% macro account_select(name, label) %}
+<div class="form-group">
+  <label for="{{ name }}">{{ label }}</label>
+  <select id="{{ name }}" name="{{ name }}" data-role="select" data-prepend="<span class='mif-wallet'></span>" required>
+    {% for acct in accounts %}
+    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
+    {% endfor %}
+  </select>
+</div>
+{% endmacro %}
+
 {% block page_content %}
-<section class="ui-card ui-card--narrow">
-  <div class="ui-card-header">
-    <span class="ui-card-title ui-card-title--dark">Customer {{ current_user.customer_id }}</span>
-    <i class="fa-solid fa-paper-plane text-accent"></i>
+<div class="row">
+  <div class="cell-md-8 cell-lg-6">
+    <div class="card">
+      <div class="card-header d-flex flex-justify-between">
+        <span class="text-bold">Customer {{ current_user.customer_id }}</span>
+        <span class="mif-paper-plane fg-crimson"></span>
+      </div>
+      <div class="card-content d-block p-4">
+        {% if accounts | length < 2 %}
+        <div class="remark warning m-0">
+          <div>
+            You need at least two accounts to transfer funds.
+            <a href="{{ url_for('banking.open_account') }}">Open an additional account</a>.
+          </div>
+        </div>
+        {% else %}
+        <p class="fg-gray mb-4">
+          Move money between your own accounts. Transfers to other customers are not
+          supported yet.
+        </p>
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {{ account_select("from_account", "From Account") }}
+          {{ account_select("to_account", "To Account") }}
+          <div class="form-group">
+            <label for="transfer-amount-display">Amount ($)</label>
+            <input type="text" inputmode="numeric" id="transfer-amount-display" data-amount
+              data-amount-target="transfer-amount" placeholder="0" required autocomplete="off"
+              data-role="input" data-prepend="<span class='mif-dollars'></span>">
+            <input type="hidden" id="transfer-amount" name="amount">
+          </div>
+          <button type="submit" class="button button-crimson w-100">
+            <span class="mif-paper-plane"></span> Confirm Transfer
+          </button>
+        </form>
+        {% endif %}
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('banking.dashboard') }}"><span class="mif-arrow-left"></span> Back to Dashboard</a>
+      </div>
+    </div>
   </div>
-  {% if accounts | length < 2 %}
-  <p class="text-muted">
-    You need at least two accounts to transfer funds.
-    <a href="{{ url_for('banking.open_account') }}">Open an additional account</a>.
-  </p>
-  {% else %}
-  <p class="text-muted mb-md">
-    Move money between your own accounts. Transfers to other customers are not
-    supported yet.
-  </p>
-  <form method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="ui-form-group">
-      <label for="from_account">From Account</label>
-      <div class="ui-input-wrapper">
-        <i class="fa-solid fa-wallet"></i>
-        <select id="from_account" name="from_account" required>
-          {% for acct in accounts %}
-          <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    <div class="ui-form-group">
-      <label for="to_account">To Account</label>
-      <div class="ui-input-wrapper">
-        <i class="fa-solid fa-wallet"></i>
-        <select id="to_account" name="to_account" required>
-          {% for acct in accounts %}
-          <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    <div class="ui-form-group">
-      <label for="transfer-amount-display">Amount ($)</label>
-      <div class="ui-input-wrapper">
-        <i class="fa-solid fa-dollar-sign"></i>
-        <input type="text" inputmode="numeric" id="transfer-amount-display" data-amount
-          data-amount-target="transfer-amount" placeholder="0" required autocomplete="off">
-      </div>
-      <input type="hidden" id="transfer-amount" name="amount">
-    </div>
-    <button type="submit" class="ui-btn ui-btn-red ui-btn-block">
-      <i class="fa-solid fa-paper-plane"></i> Confirm Transfer
-    </button>
-  </form>
-  {% endif %}
-  <p class="text-center mt-md text-sm">
-    <a href="{{ url_for('banking.dashboard') }}">Back to Dashboard</a>
-  </p>
-</section>
+</div>
 {% endblock %}
 
 {% block page_scripts %}
