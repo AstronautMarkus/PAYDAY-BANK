@@ -1,0 +1,83 @@
+{% extends "layouts/public.html" %}
+{% from "macros/banking.html" import bank_card %}
+{% block title %}Products - PAYDAY BANK{% endblock %}
+
+{% macro product(icon, title, items, button_cls, button_text, href) %}
+<div class="cell-md-6">
+  <div class="feature">
+    <span class="mif-{{ icon }}"></span>
+    <h3>{{ title }}</h3>
+    <p>{{ caller() }}</p>
+    <ul class="unstyled-list mt-2">
+      {% for item in items %}
+      <li class="mb-1"><span class="mif-checkmark fg-green"></span> {{ item }}</li>
+      {% endfor %}
+    </ul>
+    <a href="{{ href }}" class="button {{ button_cls }}">{{ button_text }} <span class="mif-arrow-right"></span></a>
+  </div>
+</div>
+{% endmacro %}
+
+{% block page_content %}
+<section class="band w-100">
+  <div class="container pt-8 pb-8">
+    <h1>Products</h1>
+    <p class="text-leader2 mt-2">Everything PAYDAY BANK offers today: accounts, transfers and cards, all with
+      no monthly fees.</p>
+  </div>
+</section>
+
+<section class="container pt-10" id="accounts">
+  <h2 class="text-light mb-4">Accounts</h2>
+  <div class="row">
+    {% call product("wallet", "Checking Account",
+                    ["Opened automatically when you register", "Deposits, withdrawals and transfers",
+                     "Link debit and credit cards", "Full statement of every movement"],
+                    "button-crimson", "Open an account", url_for('auth.register')) %}
+    Your everyday account. You get one the moment you sign up, along with your customer number.
+    {% endcall %}
+    {% call product("dollars", "Savings Account",
+                    ["Open as many as you need from your dashboard", "Move money in and out instantly",
+                     "Freeze it to stop any withdrawal", "Close it once the balance is zero"],
+                    "button-cobalt", "Already a customer? Sign in", url_for('auth.login')) %}
+    Keep money apart from day-to-day spending and move it back to Checking whenever you need it.
+    {% endcall %}
+  </div>
+</section>
+
+<section class="container pt-10" id="transfers">
+  <h2 class="text-light mb-4">Transfers</h2>
+  <div class="row">
+    {% call product("loop2", "Between Your Accounts",
+                    ["Checking to Savings and back", "Both balances shown on confirmation"],
+                    "button-green", "Get started", url_for('auth.register')) %}
+    Move money between any two of your own active accounts, instantly.
+    {% endcall %}
+    {% call product("paper-plane", "To Another Customer",
+                    ["Send to any PAYDAY account by its 6-digit number",
+                     "The recipient's balance always stays private"],
+                    "button-orange", "Get started", url_for('auth.register')) %}
+    Pay a friend, split a bill or send money home: all it takes is their account number.
+    {% endcall %}
+  </div>
+</section>
+
+<section class="container pt-10 pb-10" id="cards">
+  <h2 class="text-light mb-4">Cards</h2>
+  <div class="row flex-align-center">
+    <div class="cell-md-6 d-flex flex-column gap-4 flex-align-center">
+      {{ bank_card("4242424242424242", "DEBIT", "3012", "Your name", masked=False) }}
+      {{ bank_card("4000000000000002", "CREDIT", "3012", "Your name") }}
+    </div>
+    <div class="cell-md-6">
+      <ul class="unstyled-list text-leader2">
+        <li class="mb-3"><span class="mif-checkmark fg-green"></span> <b>{{ card_types.DEBIT }}</b> linked to any of your accounts</li>
+        <li class="mb-3"><span class="mif-checkmark fg-green"></span> <b>{{ card_types.CREDIT }}</b>: same controls today, a dedicated credit line is on the way</li>
+        <li class="mb-3"><span class="mif-checkmark fg-green"></span> You pick the per-purchase limit when the card is issued</li>
+        <li class="mb-3"><span class="mif-checkmark fg-green"></span> CVV shown only once, at issue time</li>
+        <li class="mb-3"><span class="mif-checkmark fg-green"></span> Block and unblock it yourself, any time</li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock %}

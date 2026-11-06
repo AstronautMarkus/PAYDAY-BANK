@@ -21,3 +21,10 @@ def initials(name: str) -> str:
     if len(parts) == 1:
         return parts[0][:2].upper()
     return (parts[0][0] + parts[-1][0]).upper()
+
+
+def format_datetime(stamp: str) -> str:
+    """Ledger TX-DATETIME "YYYYMMDDHHMMSS" -> "YYYY-MM-DD HH:MM"."""
+    if len(stamp) != 14 or not stamp.isdigit():
+        return stamp
+    return f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]} {stamp[8:10]}:{stamp[10:12]}"

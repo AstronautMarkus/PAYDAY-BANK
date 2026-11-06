@@ -16,3 +16,29 @@
   <small class="fg-red" data-msg-for="{{ name }}">{{ error or '' }}</small>
 </div>
 {% endmacro %}
+
+{# <select> of the customer's ACTIVE accounts (frozen/closed ones can't
+   move money, the core would reject them anyway). #}
+{% macro account_select(name, label, accounts, account_types, id=None) %}
+{% set field_id = id or name %}
+<div class="form-group">
+  <label for="{{ field_id }}">{{ label }}</label>
+  <select id="{{ field_id }}" name="{{ name }}" data-role="select" data-prepend="<span class='mif-wallet'></span>" required>
+    {% for acct in accounts if acct.status == "ACTIVE" %}
+    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }} · ${{ acct.balance | usd }}</option>
+    {% endfor %}
+  </select>
+</div>
+{% endmacro %}
+
+{# Whole-dollar amount: formatted display input + hidden digits-only
+   "amount" field (static/js/amount-input.js keeps them in sync). #}
+{% macro amount_field(prefix, label="Amount ($)") %}
+<div class="form-group">
+  <label for="{{ prefix }}-amount-display">{{ label }}</label>
+  <input type="text" inputmode="numeric" id="{{ prefix }}-amount-display" data-amount
+    data-amount-target="{{ prefix }}-amount" placeholder="0" required autocomplete="off"
+    data-role="input" data-prepend="<span class='mif-dollars'></span>">
+  <input type="hidden" id="{{ prefix }}-amount" name="amount">
+</div>
+{% endmacro %}

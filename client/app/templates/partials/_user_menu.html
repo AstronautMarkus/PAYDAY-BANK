@@ -10,8 +10,8 @@
       <div class="text-small fg-gray">{{ current_user.email }}</div>
     </li>
     <li class="divider"></li>
-    <li><a href="#"><span class="mif-person icon"></span> My Profile</a></li>
-    <li><a href="#"><span class="mif-security icon"></span> Security</a></li>
+    <li><a href="{{ url_for('auth.profile') }}"><span class="mif-person icon"></span> My Profile</a></li>
+    <li><a href="{{ url_for('banking.info', page='security') }}"><span class="mif-security icon"></span> Security</a></li>
     <li class="divider"></li>
     <li>
       <a href="#" class="fg-crimson" onclick="Metro.dialog.open('#modal-logout'); return false;">

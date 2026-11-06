@@ -1,5 +1,9 @@
-/* PAYDAY BANK brand on top of Metro UI. Only overrides Metro's own CSS
-   variables (no selectors for our markup): everything else is Metro. */
+/* PAYDAY BANK on top of Metro UI.
+   1. Brand: overrides of Metro's own CSS variables.
+   2. Hand-written pieces Metro doesn't ship (hero, gray band, feature
+      cards, statement text, plastic card), in the same flat Metro look. */
+
+/* 1. Brand ------------------------------------------------------------ */
 :root {
   --appbar-background: var(--color-crimson);
   --appbar-color: #ffffff;
@@ -8,4 +12,200 @@
   --appbar-item-background-hover: rgba(255, 255, 255, 0.15);
   --navview-item-marker-color: var(--color-crimson);
   --stepper-step-background-current: var(--color-crimson);
+
+  --pb-slate: #5a6f7e;
+  --pb-band: #d6dee4;
+  --pb-line: #dfe3e6;
+  --pb-icon: #bcc5cc;
+}
+
+/* 2. Hand-written ----------------------------------------------------- */
+
+/* Landing hero: the lobby photo under a left-to-right dark wash, so the
+   copy stays readable on the left while the dinosaurs stay visible. */
+.hero {
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(12, 12, 12, 0.9) 0%, rgba(12, 12, 12, 0.62) 42%, rgba(12, 12, 12, 0.08) 100%),
+    url("../img/bank-header.jpeg") center 40% / cover no-repeat;
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 560px;
+  max-width: 600px;
+  padding: 4rem 0;
+}
+
+.hero-kicker {
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.hero h1 {
+  margin: 0.75rem 0 1rem;
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 1.12;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    background-position: 72% center;
+  }
+
+  .hero-inner {
+    min-height: 440px;
+  }
+
+  .hero h1 {
+    font-size: 2.1rem;
+  }
+}
+
+/* Light gray band under the app-bar: page titles on public pages, the
+   quick-links strip on the landing. */
+.band {
+  background: var(--pb-band);
+}
+
+.band h1 {
+  color: var(--pb-slate);
+  font-weight: 300;
+}
+
+/* Feature cards: big muted icon, slate title, colored action pinned to
+   the bottom so buttons line up across a row of unequal texts. */
+.feature {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 2rem;
+  background: #fff;
+  border: 1px solid var(--pb-line);
+}
+
+.feature > [class*="mif-"] {
+  font-size: 4rem;
+  color: var(--pb-icon);
+}
+
+.feature h3 {
+  margin: 1.25rem 0 1rem;
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: var(--pb-slate);
+}
+
+.feature p {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.feature .button {
+  align-self: flex-start;
+  margin-top: 1.5rem;
+}
+
+/* Big centered statement between sections. */
+.statement {
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.brand-word {
+  font-weight: 700;
+}
+
+.brand-word span {
+  color: var(--color-crimson);
+}
+
+@media (max-width: 768px) {
+  .statement {
+    font-size: 1.4rem;
+  }
+}
+
+/* Plastic-card look for the Cards page. */
+.bank-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  aspect-ratio: 1.586;
+  width: 100%;
+  max-width: 360px;
+  padding: 1.25rem 1.4rem;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-crimson), #4d0716);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+.bank-card.credit {
+  background: linear-gradient(135deg, #3a3a3a, #050505);
+}
+
+.bank-card.blocked {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+.bank-card .chip {
+  width: 44px;
+  height: 32px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #f0d98f, #b8952c);
+}
+
+.bank-card .number {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 1.3rem;
+  letter-spacing: 0.1em;
+}
+
+.bank-card .label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+/* Metro spaces .form-group blocks from each other but not from the
+   submit button that follows the last one. */
+.form-group + button[type="submit"] {
+  margin-top: 1rem;
+}
+
+/* Metro's *-md display helpers are container queries, so they never
+   match inside the app-bar (no container ancestor). These follow the
+   viewport instead, at the same 768px the app-bar collapses on. */
+@media (max-width: 767.98px) {
+  .wide-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .narrow-only {
+    display: none !important;
+  }
+}
+
+/* Keep long option labels clear of Metro's absolutely positioned caret. */
+.select .select-input {
+  padding-right: 2.5rem;
 }

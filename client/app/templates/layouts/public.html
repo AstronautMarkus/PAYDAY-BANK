@@ -1,8 +1,8 @@
 {#
-  Shared shell for every anonymous-facing page: landing, the register
-  wizard, and the register success screen. Owns the Metro app-bar and an
-  optional footer. Child templates override topbar_actions and/or footer,
-  and always fill page_content.
+  Shared shell for every anonymous-facing page: landing, products,
+  security, help, the register wizard and the register success screen.
+  Owns the Metro app-bar (nav + sign-in), the sign-in modal and the
+  footer. Child templates fill page_content and may override footer.
 #}
 {% extends "layouts/base.html" %}
 
@@ -12,12 +12,76 @@
     <span class="icon"><span class="mif-library"></span></span>
     <span class="caption text-bold">PAYDAY BANK</span>
   </a>
-  {% block topbar_actions %}{% endblock %}
+  <ul class="app-bar-menu ml-auto">
+    <li><a href="{{ url_for('banking.info', page='products') }}">Products</a></li>
+    <li><a href="{{ url_for('banking.info', page='security') }}">Security</a></li>
+    <li><a href="{{ url_for('banking.info', page='help') }}">Help</a></li>
+    {# The buttons below are hidden on small screens; these take their place in the hamburger menu. #}
+    {% if current_user %}
+    <li class="narrow-only"><a href="{{ url_for('banking.dashboard') }}">My Dashboard</a></li>
+    {% else %}
+    <li class="narrow-only"><a href="{{ url_for('auth.login') }}">Sign In</a></li>
+    <li class="narrow-only"><a href="{{ url_for('auth.register') }}">Open Account</a></li>
+    {% endif %}
+  </ul>
+  <div class="app-bar-item-static wide-only d-flex gap-2">
+    {% if current_user %}
+    <a href="{{ url_for('banking.dashboard') }}" class="button light"><span class="mif-dashboard"></span> My Dashboard</a>
+    {% else %}
+    <button type="button" class="button light" onclick="Metro.dialog.open('#modal-login')">
+      <span class="mif-lock"></span> Sign In
+    </button>
+    <a href="{{ url_for('auth.register') }}" class="button dark">Open Account</a>
+    {% endif %}
+  </div>
 </header>
 
 {% block page_content %}{% endblock %}
 
-{% block footer %}{% endblock %}
+{% block footer %}
+<footer class="w-100 bg-dark fg-light">
+  <div class="container pt-8 pb-6">
+    <div class="row">
+      <div class="cell-md-4">
+        <div class="text-bold text-leader2"><span class="mif-library"></span> PAYDAY BANK</div>
+        <p class="fg-gray mt-2">Personal banking backed by a COBOL core: every balance, transfer and card
+          payment is decided by the mainframe.</p>
+      </div>
+      <div class="cell-6 cell-md-2">
+        <div class="text-bold mb-2">Banking</div>
+        <ul class="unstyled-list">
+          <li><a class="fg-gray fg-white-hover" href="{{ url_for('banking.info', page='products') }}">Accounts &amp; cards</a></li>
+          <li><a class="fg-gray fg-white-hover" href="{{ url_for('auth.register') }}">Open an account</a></li>
+          <li><a class="fg-gray fg-white-hover" href="{{ url_for('auth.login') }}">Online banking</a></li>
+        </ul>
+      </div>
+      <div class="cell-6 cell-md-2">
+        <div class="text-bold mb-2">Support</div>
+        <ul class="unstyled-list">
+          <li><a class="fg-gray fg-white-hover" href="{{ url_for('banking.info', page='help') }}">Help center</a></li>
+          <li><a class="fg-gray fg-white-hover" href="{{ url_for('banking.info', page='security') }}">Security</a></li>
+        </ul>
+      </div>
+      <div class="cell-md-4">
+        <div class="text-bold mb-2">Contact</div>
+        <div class="fg-gray"><span class="mif-phone"></span> +1 (555) 010-2026</div>
+        <div class="fg-gray"><span class="mif-mail"></span> support@paydaybank.example</div>
+        <div class="fg-gray"><span class="mif-location"></span> 1 Cretaceous Plaza, Springfield</div>
+      </div>
+    </div>
+  </div>
+  <div class="border-top bd-dark">
+    <div class="container d-flex flex-justify-between flex-wrap gap-2 pt-4 pb-4 text-small fg-gray">
+      <span>Member FDIC. Equal Housing Lender. &copy; 2026 PAYDAY BANK.</span>
+      <span>Unauthorized access to online banking systems is prohibited and monitored.</span>
+    </div>
+  </div>
+</footer>
+{% endblock %}
+
+{% if not current_user %}
+{% include "partials/_login_modal.html" %}
+{% endif %}
 {% endblock %}
 
 {% block extra_scripts %}

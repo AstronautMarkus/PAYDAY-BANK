@@ -1,0 +1,40 @@
+{% extends "layouts/dashboard.html" %}
+{% block page_title %}My Profile{% endblock %}
+
+{% macro detail(icon, label, value) %}
+<tr>
+  <td class="fg-gray" style="width: 40%"><span class="mif-{{ icon }}"></span> {{ label }}</td>
+  <td class="text-bold">{{ value }}</td>
+</tr>
+{% endmacro %}
+
+{% block page_content %}
+<div class="row">
+  <div class="cell-md-8 cell-lg-6">
+    <div class="card">
+      <div class="card-header d-flex flex-align-center gap-4">
+        <span class="badge bg-crimson fg-white text-leader2 p-3">{{ current_user.name | initials }}</span>
+        <div>
+          <div class="text-bold text-leader2">{{ current_user.name }}</div>
+          <div class="text-small fg-gray">Customer {{ current_user.customer_id }}</div>
+        </div>
+      </div>
+      <div class="card-content d-block">
+        <table class="table m-0">
+          <tbody>
+            {{ detail("person-card", "ID Number", current_user.document) }}
+            {{ detail("mail", "Email", current_user.email) }}
+            {{ detail("phone", "Phone", current_user.phone) }}
+            {{ detail("location", "Address", current_user.address) }}
+            {{ detail("suitcase", "Occupation", current_user.occupation) }}
+            {{ detail("organization", "Employer", current_user.employer) }}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer text-small fg-gray">
+        To change your details, contact <a href="{{ url_for('banking.info', page='help') }}">support</a>.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

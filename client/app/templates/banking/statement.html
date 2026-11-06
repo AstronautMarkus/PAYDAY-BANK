@@ -1,0 +1,55 @@
+{% extends "layouts/dashboard.html" %}
+{% from "macros/banking.html" import status_badge %}
+{% block page_title %}Statement{% endblock %}
+
+{% block page_content %}
+<div class="d-flex flex-wrap gap-2 mb-4">
+  {% for item in accounts %}
+  <a href="{{ url_for('banking.statement', account=item.account) }}"
+    class="button small {{ 'button-crimson' if item.account == account.account }}">
+    {{ account_types.get(item.type, item.type) }} · {{ item.account }}
+  </a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-header d-flex flex-justify-between flex-align-center flex-wrap gap-2">
+    <span class="text-bold">{{ account_types.get(account.type, account.type) }} · {{ account.account }}
+      {{ status_badge(account.status) }}</span>
+    <span>Current balance: <b>${{ account.balance | usd }}</b></span>
+  </div>
+  <div class="card-content d-block">
+    <table class="table striped row-hover m-0">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th class="text-right">Amount</th>
+          <th class="text-right">Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        {% set label, sign = tx_types.get(row.type, (row.type, 0)) %}
+        <tr>
+          <td class="text-small fg-gray">{{ row.datetime | datetime }}</td>
+          <td>
+            {{ label }}
+            {%- if row.counterparty.strip("0") %} <b>{{ row.counterparty }}</b>{% endif %}
+            {%- if row.description %} · {{ row.description }}{% endif %}
+          </td>
+          <td class="text-right text-bold {{ 'fg-green' if sign > 0 else 'fg-crimson' if sign < 0 }}">
+            {{ '+' if sign > 0 else '-' if sign < 0 }}${{ row.amount | usd }}
+          </td>
+          <td class="text-right">${{ row.balance | usd }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4">No movements yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

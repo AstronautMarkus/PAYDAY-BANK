@@ -1,0 +1,83 @@
+{% extends "layouts/dashboard.html" %}
+{% from "macros/forms.html" import account_select %}
+{% from "macros/banking.html" import bank_card, status_badge %}
+{% block page_title %}Cards{% endblock %}
+
+{% block page_content %}
+{% if new_card %}
+<div class="remark success mt-0 mb-4">
+  <div>
+    <div class="text-bold mb-1"><span class="mif-checkmark"></span> Your new card is ready</div>
+    Card number <b>{{ new_card.number }}</b> · CVV <b>{{ new_card.cvv }}</b><br>
+    <span class="text-small">Write the CVV down now: for your security it will never be shown again.</span>
+  </div>
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="cell-lg-8">
+    <div class="d-flex flex-justify-between flex-align-center mb-4">
+      <h4 class="m-0 text-light">My Cards</h4>
+      <a href="{{ url_for('banking.card_payment') }}" class="button button-crimson">
+        <span class="mif-shopping-cart"></span> Pay with card
+      </a>
+    </div>
+    <div class="row">
+      {% for card in cards %}
+      <div class="cell-md-6 mb-6">
+        {{ bank_card(card.number, card.type, card.expiry, current_user.name, card.status,
+                     masked=not (new_card and new_card.number == card.number)) }}
+        <div class="d-flex flex-justify-between flex-align-center mt-3" style="max-width: 360px">
+          <span class="text-small">
+            {{ card_types.get(card.type, card.type) }} · Account {{ card.account }} {{ status_badge(card.status) }}
+          </span>
+          {% set action = "unblock" if card.status == "BLOCKED" else "block" %}
+          <form method="post" action="{{ url_for('banking.card_action', card=card.number, action=action) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="button small {{ 'success' if action == 'unblock' else 'alert' }}">
+              <span class="mif-{{ 'unlock' if action == 'unblock' else 'lock' }}"></span> {{ action | capitalize }}
+            </button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <div class="cell-12">
+        <div class="remark info m-0"><div>You don't have any cards yet. Issue your first one with the form.</div></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="cell-lg-4">
+    <div class="card">
+      <div class="card-header d-flex flex-justify-between">
+        <span class="text-bold">Issue a New Card</span>
+        <span class="mif-credit-card fg-crimson"></span>
+      </div>
+      <div class="card-content d-block p-4">
+        <form method="post" action="{{ url_for('banking.issue_card') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {{ account_select("account", "Linked Account", accounts, account_types, id="card-account") }}
+          <div class="form-group">
+            <label for="card-type">Card Type</label>
+            <select id="card-type" name="card_type" data-role="select" data-prepend="<span class='mif-credit-card'></span>">
+              {% for value, label in card_types.items() %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="card-limit">Limit per Purchase</label>
+            <select id="card-limit" name="limit" data-role="select" data-prepend="<span class='mif-dollars'></span>">
+              {% for limit in card_limits %}
+              <option value="{{ limit }}" {{ 'selected' if loop.index == 2 }}>${{ limit | usd }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="button button-crimson w-100">Issue Card</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

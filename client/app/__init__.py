@@ -10,7 +10,7 @@ from flask import Flask
 from flask_wtf import CSRFProtect
 
 from .config import Config
-from .formatting import format_usd, initials
+from .formatting import format_datetime, format_usd, initials
 
 
 def create_app() -> Flask:
@@ -18,6 +18,7 @@ def create_app() -> Flask:
     app.config.from_object(Config)
     app.jinja_env.filters["usd"] = format_usd
     app.jinja_env.filters["initials"] = initials
+    app.jinja_env.filters["datetime"] = format_datetime
 
     CSRFProtect(app)
 

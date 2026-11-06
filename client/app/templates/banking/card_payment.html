@@ -1,0 +1,61 @@
+{% extends "layouts/dashboard.html" %}
+{% from "macros/forms.html" import amount_field %}
+{% block page_title %}Pay with Card{% endblock %}
+
+{% block page_content %}
+{% set active_cards = cards | selectattr("status", "equalto", "ACTIVE") | list %}
+<div class="row">
+  <div class="cell-md-8 cell-lg-6">
+    <div class="card">
+      <div class="card-header d-flex flex-justify-between">
+        <span class="text-bold">Checkout</span>
+        <span class="mif-shopping-cart fg-crimson"></span>
+      </div>
+      <div class="card-content d-block p-4">
+        {% if not active_cards %}
+        <div class="remark warning m-0">
+          <div>You need an active card to pay. <a href="{{ url_for('banking.cards') }}">Issue or unblock a card</a>.</div>
+        </div>
+        {% else %}
+        <p class="fg-gray mb-4">Simulates paying at a store or online shop: the payment is authorized with
+          your card number and CVV, and charged to the card's linked account.</p>
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="form-group">
+            <label for="pay-card">Card</label>
+            <select id="pay-card" name="card" data-role="select" data-prepend="<span class='mif-credit-card'></span>" required>
+              {% for card in active_cards %}
+              <option value="{{ card.number }}">{{ card_types.get(card.type, card.type) }} · &bull;&bull;&bull;&bull; {{ card.number[-4:] }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pay-cvv">CVV</label>
+            <input type="password" id="pay-cvv" name="cvv" inputmode="numeric" pattern="\d{3}" maxlength="3"
+              placeholder="3 digits" autocomplete="off" required
+              data-role="input" data-prepend="<span class='mif-lock'></span>">
+          </div>
+          <div class="form-group">
+            <label for="pay-merchant">Merchant</label>
+            <input type="text" id="pay-merchant" name="merchant" maxlength="40" placeholder="e.g. Coffee Shop"
+              value="{{ request.form.get('merchant', '') }}" required
+              data-role="input" data-prepend="<span class='mif-shop'></span>">
+          </div>
+          {{ amount_field("pay") }}
+          <button type="submit" class="button button-crimson w-100">
+            <span class="mif-shopping-cart"></span> Pay Now
+          </button>
+        </form>
+        {% endif %}
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('banking.cards') }}"><span class="mif-arrow-left"></span> Back to Cards</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{{ url_for('static', filename='js/amount-input.js') }}" defer></script>
+{% endblock %}

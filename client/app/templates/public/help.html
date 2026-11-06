@@ -1,0 +1,62 @@
+{% extends "layouts/public.html" %}
+{% block title %}Help Center - PAYDAY BANK{% endblock %}
+
+{% set faqs = [
+  ("How do I open an account?",
+   "Click Open Account, fill in the four-step form and you'll get a customer number and your first Checking account right away. Add Savings accounts later from Accounts in your dashboard."),
+  ("How do I sign in?",
+   "Use the email and password you registered with. Your customer number is shown after registration and on your dashboard."),
+  ("Can I send money to someone else?",
+   "Yes. Go to Transfers, choose To another customer and enter their 6-digit account number. The destination account must exist and be active."),
+  ("What does freezing an account do?",
+   "A frozen account rejects deposits, withdrawals, transfers and card payments until you unfreeze it. Your balance stays untouched."),
+  ("How do I close an account?",
+   "Move its balance out first (withdraw or transfer). Once it's exactly $0, choose Close in Accounts. Closing is permanent."),
+  ("I lost my card. What now?",
+   "Open Cards and press Block. Payments with that card are refused immediately, and you can unblock it if you find it."),
+  ("Where do I find my CVV?",
+   "It's shown once, right after the card is issued. For your security we can't show it again; if you lost it, block the card and issue a new one."),
+  ("Why are amounts whole dollars?",
+   "The PAYDAY core keeps balances as whole dollars, so every amount you enter is a whole number with no cents."),
+] %}
+
+{% block page_content %}
+<section class="band w-100">
+  <div class="container pt-8 pb-8">
+    <h1>Help Center</h1>
+    <p class="text-leader2 mt-2">Answers to the most common questions about your accounts, transfers and cards.</p>
+  </div>
+</section>
+
+<section class="container pt-10 pb-10">
+  <div class="row">
+    <div class="cell-lg-8">
+      <h2 class="text-light mb-4">Frequently Asked Questions</h2>
+      <div data-role="accordion" data-one-frame="false" data-show-active="true">
+        {% for question, answer in faqs %}
+        <div class="frame {{ 'active' if loop.first }}">
+          <div class="heading">{{ question }}</div>
+          <div class="content">
+            <div class="p-4">{{ answer }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="cell-lg-4">
+      <div class="feature">
+        <span class="mif-phone"></span>
+        <h3>Still need help?</h3>
+        <p>Our support team answers every day from 8:00 to 20:00.</p>
+        <ul class="unstyled-list mt-2">
+          <li class="mb-2"><span class="mif-phone"></span> +1 (555) 010-2026</li>
+          <li class="mb-2"><span class="mif-mail"></span> support@paydaybank.example</li>
+        </ul>
+        <a href="{{ url_for('banking.info', page='security') }}" class="button button-orange">
+          Security tips <span class="mif-arrow-right"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

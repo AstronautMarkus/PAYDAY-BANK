@@ -1,0 +1,59 @@
+{% extends "layouts/public.html" %}
+{% block title %}Security - PAYDAY BANK{% endblock %}
+
+{% macro measure(icon, title) %}
+<div class="cell-md-6 cell-lg-4">
+  <div class="feature">
+    <span class="mif-{{ icon }}"></span>
+    <h3>{{ title }}</h3>
+    <p>{{ caller() }}</p>
+  </div>
+</div>
+{% endmacro %}
+
+{% block page_content %}
+<section class="band w-100">
+  <div class="container pt-8 pb-8">
+    <h1>Security</h1>
+    <p class="text-leader2 mt-2">How PAYDAY BANK protects your money and your data, and what you can do to
+      stay safe.</p>
+  </div>
+</section>
+
+<section class="container pt-10 pb-6">
+  <div class="row">
+    {% call measure("key", "Hashed Passwords") %}
+    Your password is hashed before it ever reaches the core. Nobody at the bank, us included, can read it.
+    {% endcall %}
+    {% call measure("security", "Ownership Checks") %}
+    Every deposit, withdrawal, transfer and card action is verified by the mainframe against your
+    customer number before a single dollar moves.
+    {% endcall %}
+    {% call measure("lock", "Protected Forms") %}
+    Every form carries a CSRF token, so other websites can't submit requests on your behalf, and
+    your session cookie is never readable by scripts.
+    {% endcall %}
+    {% call measure("block", "Freeze in One Click") %}
+    Suspect something? Freeze any account from your dashboard and nothing can enter or leave it
+    until you unfreeze it.
+    {% endcall %}
+    {% call measure("credit-card", "Card Controls") %}
+    Each card has its own per-purchase limit and CVV. Block a card instantly; blocked or expired
+    cards are refused at checkout.
+    {% endcall %}
+    {% call measure("eye", "Private Transfers") %}
+    When you send money to another customer, neither of you ever sees the other's balance.
+    {% endcall %}
+  </div>
+</section>
+
+<section class="container pb-10">
+  <div class="remark warning">
+    <div>
+      <b>PAYDAY BANK will never ask for your password, your CVV or your card number</b> by phone,
+      email or message. If someone does, it isn't us: freeze your accounts and contact
+      <a href="{{ url_for('banking.info', page='help') }}">support</a>.
+    </div>
+  </div>
+</section>
+{% endblock %}

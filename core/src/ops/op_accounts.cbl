@@ -1,6 +1,7 @@
 *> ACCOUNTS <customer-id>
-*> Streams one ROW|account|type|balance line per account owned by the
-*> given customer, followed by END. This is what the Flask dashboard
+*> Streams one ROW|account|type|balance|status line per account owned
+*> by the given customer (status: ACTIVE/FROZEN/CLOSED), followed by
+*> END. This is what the Flask dashboard
 *> uses to list "my accounts" -- unlike LIST, it never touches
 *> CUSTOMER-REPOSITORY (the caller already has its own profile data).
 *>
@@ -62,7 +63,8 @@ MAIN-OP-ACCOUNTS.
                     MOVE WS-BALANCE TO WS-BALANCE-DISPLAY
                     DISPLAY "ROW|" WS-ACCOUNT-NUMBER "|"
                         FUNCTION TRIM(WS-ACCOUNT-TYPE) "|"
-                        FUNCTION TRIM(WS-BALANCE-DISPLAY)
+                        FUNCTION TRIM(WS-BALANCE-DISPLAY) "|"
+                        FUNCTION TRIM(WS-ACCOUNT-STATUS)
                 END-IF
             END-IF
         END-PERFORM

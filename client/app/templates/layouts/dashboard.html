@@ -6,9 +6,10 @@
 {% extends "layouts/base.html" %}
 {% block title %}{% block page_title %}Dashboard{% endblock %} | PAYDAY BANK{% endblock %}
 
-{% macro nav_item(endpoint, icon, caption) %}
-<li class="{{ 'active' if endpoint and request.endpoint == endpoint }}">
-  <a href="{{ url_for(endpoint) if endpoint else '#' }}">
+{# `section`: the endpoints that light this item up (a page and its sub-pages). #}
+{% macro nav_item(endpoint, icon, caption, section=()) %}
+<li class="{{ 'active' if request.endpoint == endpoint or request.endpoint in section }}">
+  <a href="{{ url_for(endpoint) }}">
     <span class="icon"><span class="mif-{{ icon }}"></span></span>
     <span class="caption">{{ caption }}</span>
   </a>
@@ -24,11 +25,17 @@
     </div>
     <ul class="navview-menu">
       {{ nav_item('banking.dashboard', 'dashboard', 'Dashboard') }}
-      {{ nav_item('banking.open_account', 'wallet', 'Accounts') }}
+      {{ nav_item('banking.accounts', 'wallet', 'Accounts', ('banking.statement',)) }}
       {{ nav_item('banking.transfer', 'paper-plane', 'Transfers') }}
-      {{ nav_item(None, 'credit-card', 'Cards') }}
-      {{ nav_item(None, 'cog', 'Settings') }}
-      <li class="item-header">Session</li>
+      {{ nav_item('banking.cards', 'credit-card', 'Cards', ('banking.card_payment',)) }}
+      <li class="item-header">Me</li>
+      {{ nav_item('auth.profile', 'person', 'Profile') }}
+      <li>
+        <a href="{{ url_for('banking.info', page='help') }}">
+          <span class="icon"><span class="mif-help-outline"></span></span>
+          <span class="caption">Help Center</span>
+        </a>
+      </li>
       <li>
         <a href="#" onclick="Metro.dialog.open('#modal-logout'); return false;">
           <span class="icon"><span class="mif-exit"></span></span>

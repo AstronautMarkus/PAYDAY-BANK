@@ -1,4 +1,6 @@
 {% extends "layouts/dashboard.html" %}
+{% from "macros/forms.html" import account_select, amount_field %}
+{% from "macros/banking.html" import status_badge %}
 {% block page_title %}Dashboard{% endblock %}
 
 {% macro stat(title, value, caption, icon) %}
@@ -24,28 +26,23 @@
     <div class="card-content d-block p-4">
       <form method="post" action="{{ url_for(action) }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="form-group">
-          <label for="{{ prefix }}-account">Account</label>
-          <select id="{{ prefix }}-account" name="account" data-role="select"
-            data-prepend="<span class='mif-wallet'></span>" required>
-            {% for acct in accounts %}
-            <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="{{ prefix }}-amount-display">Amount ($)</label>
-          <input type="text" inputmode="numeric" id="{{ prefix }}-amount-display" data-amount
-            data-amount-target="{{ prefix }}-amount" placeholder="0" required autocomplete="off"
-            data-role="input" data-prepend="<span class='mif-dollars'></span>">
-          <input type="hidden" id="{{ prefix }}-amount" name="amount">
-        </div>
+        {{ account_select("account", "Account", accounts, account_types, id=prefix ~ "-account") }}
+        {{ amount_field(prefix) }}
         <button type="submit" class="button button-crimson w-100">
           <span class="mif-{{ icon }}"></span> Confirm {{ verb }}
         </button>
       </form>
     </div>
   </div>
+</div>
+{% endmacro %}
+
+{% macro shortcut(endpoint, icon, caption) %}
+<div class="cell-6 cell-md-3">
+  <a href="{{ url_for(endpoint) }}" class="feature no-decor fg-dark fg-crimson-hover text-center p-4">
+    <span class="mif-{{ icon }}"></span>
+    <span class="mt-2">{{ caption }}</span>
+  </a>
 </div>
 {% endmacro %}
 
@@ -57,10 +54,17 @@
   {{ stat("Customer ID", current_user.customer_id, current_user.name, "person-card") }}
 </div>
 
+<div class="row mt-4">
+  {{ shortcut("banking.transfer", "paper-plane", "Send money") }}
+  {{ shortcut("banking.cards", "credit-card", "My cards") }}
+  {{ shortcut("banking.card_payment", "shopping-cart", "Pay with card") }}
+  {{ shortcut("banking.accounts", "plus", "Open account") }}
+</div>
+
 <div class="card mt-4">
   <div class="card-header d-flex flex-justify-between">
     <span class="text-bold">My Accounts</span>
-    <span class="mif-list fg-gray"></span>
+    <a href="{{ url_for('banking.accounts') }}" class="text-small">Manage <span class="mif-arrow-right"></span></a>
   </div>
   <div class="card-content d-block">
     <table class="table striped row-hover m-0">
@@ -68,7 +72,9 @@
         <tr>
           <th>Account Type</th>
           <th>Account Number</th>
+          <th>Status</th>
           <th class="text-right">Balance</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -76,11 +82,15 @@
         <tr>
           <td>{{ account_types.get(acct.type, acct.type) }}</td>
           <td>{{ acct.account }}</td>
+          <td>{{ status_badge(acct.status) }}</td>
           <td class="text-right">${{ acct.balance | usd }}</td>
+          <td class="text-right">
+            <a href="{{ url_for('banking.statement', account=acct.account) }}" class="text-small">Statement</a>
+          </td>
         </tr>
         {% else %}
         <tr>
-          <td colspan="3">No accounts yet.</td>
+          <td colspan="5">No accounts yet.</td>
         </tr>
         {% endfor %}
       </tbody>

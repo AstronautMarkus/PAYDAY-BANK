@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.mainframe import call_cobol, flash_result, generate_account, generate_customer_id
 
-from . import bp
+from . import bp, login_required
 
 # Kept in sync by hand with static/js/register-validate.js, which mirrors
 # these same rules on the client for instant feedback. This module stays
@@ -114,3 +114,10 @@ def register_success():
     if not NUMERIC_ID_RE.match(customer_id) or not NUMERIC_ID_RE.match(account):
         return redirect(url_for("auth.register"))
     return render_template("auth/register_success.html", customer_id=customer_id, account=account)
+
+
+@bp.route("/profile")
+@login_required
+def profile():
+    # g.user is the PROFILE row already loaded by load_logged_in_user().
+    return render_template("auth/profile.html")

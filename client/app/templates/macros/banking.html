@@ -1,0 +1,25 @@
+{# Shared banking widgets for the logged-in pages and the products page. #}
+
+{# Account (ACTIVE/FROZEN/CLOSED) or card (ACTIVE/BLOCKED) status. #}
+{% macro status_badge(status) %}
+{% set colors = {"ACTIVE": "bg-green", "FROZEN": "bg-cyan", "BLOCKED": "bg-red"} %}
+<span class="badge {{ colors.get(status, 'bg-gray') }} fg-white">{{ status | capitalize }}</span>
+{% endmacro %}
+
+{# Plastic-card picture (.bank-card in static/css/theme.css). Shows only
+   the last 4 digits unless `masked` is false (right after issuing). #}
+{% macro bank_card(number, type, expiry, holder, status="ACTIVE", masked=True) %}
+<div class="bank-card {{ 'credit' if type == 'CREDIT' }} {{ 'blocked' if status != 'ACTIVE' }}">
+  <div class="d-flex flex-justify-between flex-align-center">
+    <span class="chip"></span><span class="text-bold">{{ type }}</span>
+  </div>
+  <div class="number">
+    {%- if masked %}&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; {{ number[-4:] }}
+    {%- else %}{% for group in number | batch(4) %}{{ group | join }} {% endfor %}{% endif -%}
+  </div>
+  <div class="d-flex flex-justify-between">
+    <div><div class="label">Card holder</div>{{ holder | upper }}</div>
+    <div><div class="label">Expires</div>{{ expiry[2:] }}/{{ expiry[:2] }}</div>
+  </div>
+</div>
+{% endmacro %}

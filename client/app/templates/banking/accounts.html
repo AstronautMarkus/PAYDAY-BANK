@@ -1,0 +1,79 @@
+{% extends "layouts/dashboard.html" %}
+{% from "macros/banking.html" import status_badge %}
+{% block page_title %}Accounts{% endblock %}
+
+{# One POST button per lifecycle action; the core decides whether it's allowed. #}
+{% macro action(acct, name, label, icon, cls="", confirm=None) %}
+<form method="post" action="{{ url_for('banking.account_action', account=acct.account, action=name) }}" class="d-inline"
+  {% if confirm %}onsubmit="return confirm({{ confirm | tojson | forceescape }})"{% endif %}>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="button small {{ cls }}"><span class="mif-{{ icon }}"></span> {{ label }}</button>
+</form>
+{% endmacro %}
+
+{% block page_content %}
+<div class="row">
+  <div class="cell-lg-8">
+    {% for acct in accounts %}
+    <div class="card mb-4">
+      <div class="card-header d-flex flex-justify-between flex-align-center">
+        <span class="text-bold">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</span>
+        {{ status_badge(acct.status) }}
+      </div>
+      <div class="card-content d-block p-4">
+        <div class="d-flex flex-justify-between flex-align-center flex-wrap gap-4">
+          <div>
+            <div class="text-small text-upper fg-gray">Balance</div>
+            <div class="h3 text-bold m-0">${{ acct.balance | usd }}</div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('banking.statement', account=acct.account) }}" class="button small">
+              <span class="mif-history"></span> Statement
+            </a>
+            {% if acct.status == "ACTIVE" %}
+            {{ action(acct, "freeze", "Freeze", "lock") }}
+            {% elif acct.status == "FROZEN" %}
+            {{ action(acct, "unfreeze", "Unfreeze", "unlock", "success") }}
+            {% endif %}
+            {% if acct.status != "CLOSED" %}
+            {{ action(acct, "close", "Close", "cross", "alert",
+                      confirm="Close account " ~ acct.account ~ "? This is permanent and its balance must be $0.") }}
+            {% endif %}
+          </div>
+        </div>
+        {% if acct.status == "FROZEN" %}
+        <p class="text-small fg-gray mt-2 mb-0">Frozen: deposits, withdrawals, transfers and card payments are refused until you unfreeze it.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="remark info"><div>You don't have any accounts yet.</div></div>
+    {% endfor %}
+  </div>
+
+  <div class="cell-lg-4">
+    <div class="card">
+      <div class="card-header d-flex flex-justify-between">
+        <span class="text-bold">Open a New Account</span>
+        <span class="mif-plus fg-crimson"></span>
+      </div>
+      <div class="card-content d-block p-4">
+        <p class="fg-gray mb-4">The account number is generated automatically, just like your first Checking account.</p>
+        <form method="post" action="{{ url_for('banking.open_account') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="form-group">
+            <label for="account_type">Account Type</label>
+            <select id="account_type" name="account_type" data-role="select"
+              data-prepend="<span class='mif-wallet'></span>" required>
+              {% for value, label in account_types.items() %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="button button-crimson w-100">Create Account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -6,11 +6,12 @@ and parse its line-oriented stdout contract:
 
     OK|...      successful operation
     ERR|message failed operation
-    ROW|...     one row per item (ACCOUNTS only, in this client)
+    ROW|...     one row per item (ACCOUNTS, STATEMENT, CARDS)
     END          marks the end of a ROW listing
 """
 import secrets
 import subprocess
+from datetime import date
 
 from flask import current_app, flash
 
@@ -87,15 +88,44 @@ def flash_result(lines: list[str], prefix: str = "", formatter=None) -> None:
         flash(rest or "Unknown error.", "error")
 
 
+def list_rows(fields: tuple[str, ...], *args: str) -> list[dict[str, str]]:
+    """Run a ROW-listing operation and map each ROW line onto `fields`.
+    Lines of the wrong width (and ERR/END) are skipped.
+    """
+    rows = []
+    for line in call_cobol(*args):
+        parts = line.split("|")
+        if parts[0] == "ROW" and len(parts) == len(fields) + 1:
+            rows.append(dict(zip(fields, parts[1:])))
+    return rows
+
+
 def list_customer_accounts(customer_id: str) -> list[dict[str, str]]:
-    """List every account owned by one customer (dashboard "my accounts").
+    """List every account owned by one customer (dashboard "my accounts"),
+    with its lifecycle status (ACTIVE/FROZEN/CLOSED).
 
     Profile fields (name, document, etc.) aren't part of this response --
     the caller already has them from the logged-in User row.
     """
-    accounts = []
-    for line in call_cobol("ACCOUNTS", customer_id):
-        parts = line.split("|")
-        if parts[0] == "ROW" and len(parts) == 4:
-            accounts.append({"account": parts[1], "type": parts[2], "balance": parts[3]})
-    return accounts
+    return list_rows(("account", "type", "balance", "status"), "ACCOUNTS", customer_id)
+
+
+def list_statement(customer_id: str, account: str) -> list[dict[str, str]]:
+    """Ledger rows of one account, oldest first (see op_statement.cbl)."""
+    fields = ("id", "type", "amount", "balance", "counterparty", "description", "datetime")
+    return list_rows(fields, "STATEMENT", customer_id, account)
+
+
+def list_customer_cards(customer_id: str) -> list[dict[str, str]]:
+    """Cards owned by one customer; CARDS never returns CVV or limit."""
+    return list_rows(("number", "account", "type", "status", "expiry"), "CARDS", customer_id)
+
+
+def generate_card() -> tuple[str, str, str]:
+    """New (card number, CVV, expiry YYMM) for ISSUECARD. The core enforces
+    card-number uniqueness; a 1-in-10^14 collision just fails the issue.
+    """
+    body = "4" + "".join(str(secrets.randbelow(10)) for _ in range(14))
+    today = date.today()
+    expiry = f"{(today.year + 4) % 100:02d}{today.month:02d}"
+    return body + account_digit(body), f"{secrets.randbelow(1000):03d}", expiry

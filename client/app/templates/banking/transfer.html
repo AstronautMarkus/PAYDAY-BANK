@@ -1,57 +1,67 @@
 {% extends "layouts/dashboard.html" %}
+{% from "macros/forms.html" import account_select, amount_field %}
 {% block page_title %}Transfer Money{% endblock %}
 
-{% macro account_select(name, label) %}
-<div class="form-group">
-  <label for="{{ name }}">{{ label }}</label>
-  <select id="{{ name }}" name="{{ name }}" data-role="select" data-prepend="<span class='mif-wallet'></span>" required>
-    {% for acct in accounts %}
-    <option value="{{ acct.account }}">{{ account_types.get(acct.type, acct.type) }} · {{ acct.account }}</option>
-    {% endfor %}
-  </select>
-</div>
-{% endmacro %}
-
 {% block page_content %}
+{% set active = accounts | selectattr("status", "equalto", "ACTIVE") | list %}
 <div class="row">
-  <div class="cell-md-8 cell-lg-6">
+  <div class="cell-md-6">
     <div class="card">
       <div class="card-header d-flex flex-justify-between">
-        <span class="text-bold">Customer {{ current_user.customer_id }}</span>
-        <span class="mif-paper-plane fg-crimson"></span>
+        <span class="text-bold">Between My Accounts</span>
+        <span class="mif-loop2 fg-crimson"></span>
       </div>
       <div class="card-content d-block p-4">
-        {% if accounts | length < 2 %}
+        {% if active | length < 2 %}
         <div class="remark warning m-0">
           <div>
-            You need at least two accounts to transfer funds.
-            <a href="{{ url_for('banking.open_account') }}">Open an additional account</a>.
+            You need at least two active accounts to transfer between them.
+            <a href="{{ url_for('banking.accounts') }}">Open an additional account</a>.
           </div>
         </div>
         {% else %}
-        <p class="fg-gray mb-4">
-          Move money between your own accounts. Transfers to other customers are not
-          supported yet.
-        </p>
-        <form method="post">
+        <p class="fg-gray mb-4">Move money between your own accounts, instantly.</p>
+        <form method="post" action="{{ url_for('banking.transfer') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          {{ account_select("from_account", "From Account") }}
-          {{ account_select("to_account", "To Account") }}
-          <div class="form-group">
-            <label for="transfer-amount-display">Amount ($)</label>
-            <input type="text" inputmode="numeric" id="transfer-amount-display" data-amount
-              data-amount-target="transfer-amount" placeholder="0" required autocomplete="off"
-              data-role="input" data-prepend="<span class='mif-dollars'></span>">
-            <input type="hidden" id="transfer-amount" name="amount">
-          </div>
+          {{ account_select("from_account", "From Account", accounts, account_types) }}
+          {{ account_select("to_account", "To Account", accounts, account_types) }}
+          {{ amount_field("transfer") }}
           <button type="submit" class="button button-crimson w-100">
-            <span class="mif-paper-plane"></span> Confirm Transfer
+            <span class="mif-loop2"></span> Confirm Transfer
           </button>
         </form>
         {% endif %}
       </div>
-      <div class="card-footer">
-        <a href="{{ url_for('banking.dashboard') }}"><span class="mif-arrow-left"></span> Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div class="cell-md-6">
+    <div class="card">
+      <div class="card-header d-flex flex-justify-between">
+        <span class="text-bold">To Another Customer</span>
+        <span class="mif-paper-plane fg-crimson"></span>
+      </div>
+      <div class="card-content d-block p-4">
+        {% if not active %}
+        <div class="remark warning m-0"><div>You need an active account to send money.</div></div>
+        {% else %}
+        <p class="fg-gray mb-4">Send money to any PAYDAY BANK account. You won't see the recipient's balance,
+          and they won't see yours.</p>
+        <form method="post" action="{{ url_for('banking.transfer_p2p') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {{ account_select("from_account", "From Account", accounts, account_types, id="p2p-from") }}
+          <div class="form-group">
+            <label for="p2p-to">Recipient Account Number</label>
+            <input type="text" id="p2p-to" name="to_account" inputmode="numeric" pattern="\d{6}" maxlength="6"
+              placeholder="6 digits, e.g. 420021" autocomplete="off" required
+              data-role="input" data-prepend="<span class='mif-person'></span>">
+          </div>
+          {{ amount_field("p2p") }}
+          <button type="submit" class="button button-crimson w-100">
+            <span class="mif-paper-plane"></span> Send Money
+          </button>
+        </form>
+        {% endif %}
       </div>
     </div>
   </div>

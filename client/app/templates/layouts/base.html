@@ -6,8 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}PAYDAY BANK{% endblock %}</title>
   {# Metro UI v5 (https://v5.metroui.org.ua): every page is styled with its
-     classes and data-role components; theme.css only sets Metro variables.
-     Pinned so a new "current" release can't restyle the app unannounced. #}
+     classes and data-role components; theme.css holds brand variables plus
+     a few hand-written pieces. Pinned so a new "current" release can't
+     restyle the app unannounced. #}
   <link rel="stylesheet" href="https://cdn.metroui.org.ua/5.1.20/metro.css">
   <link rel="stylesheet" href="https://cdn.metroui.org.ua/5.1.20/icons.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
