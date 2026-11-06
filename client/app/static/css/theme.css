@@ -118,6 +118,46 @@
   margin-top: 1.5rem;
 }
 
+/* Landing stats strip: big crimson figure over a slate caption. */
+.stat {
+  padding: 1rem 0;
+  color: var(--pb-slate);
+}
+
+.stat strong {
+  display: block;
+  font-size: 2.6rem;
+  font-weight: 300;
+  color: var(--color-crimson);
+}
+
+/* Testimonial cards: same box as .feature, quote grows so the author
+   rows line up across cards with quotes of different length. */
+.testimonial {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 2rem;
+  background: #fff;
+  border: 1px solid var(--pb-line);
+}
+
+.testimonial p {
+  flex: 1;
+  margin: 1rem 0 1.5rem;
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.testimonial img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--pb-band);
+}
+
 /* Big centered statement between sections. */
 .statement {
   font-size: 2rem;

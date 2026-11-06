@@ -12,6 +12,22 @@
 </div>
 {% endmacro %}
 
+{% macro testimonial(photo, name, role) %}
+<div class="cell-md-4">
+  <div class="testimonial">
+    <div class="fg-orange">{% for _ in range(5) %}<span class="mif-star-full"></span>{% endfor %}</div>
+    <p>&ldquo;{{ caller() }}&rdquo;</p>
+    <div class="d-flex flex-align-center gap-4">
+      <img src="{{ url_for('static', filename='img/' ~ photo) }}" alt="{{ name }}">
+      <div>
+        <div class="text-bold">{{ name }}</div>
+        <div class="fg-gray text-small">{{ role }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
 {% block page_content %}
 <marquee class="notice-bar d-block" scrollamount="30" onmouseover="this.stop()" onmouseout="this.start()">
   <span class="mif-warning"></span> PAYDAY BANK is prohibited from operating in
@@ -69,7 +85,18 @@
   </div>
 </section>
 
-<section class="container pt-6 pb-10">
+<section class="band w-100">
+  <div class="container pt-8 pb-8">
+    <div class="row text-center">
+      <div class="cell-6 cell-md-3 stat"><strong>150M+</strong>Years of trusted service</div>
+      <div class="cell-6 cell-md-3 stat"><strong>$0</strong>Monthly fees</div>
+      <div class="cell-6 cell-md-3 stat"><strong>24/7</strong>Online banking</div>
+      <div class="cell-6 cell-md-3 stat"><strong>{{ countries|length }}</strong>Countries where we can't operate</div>
+    </div>
+  </div>
+</section>
+
+<section class="container pt-10 pb-6">
   <p class="statement">
     The <span class="brand-word">PAYDAY<span>BANK</span></span> core runs every balance, transfer and card
     payment on a COBOL mainframe, the same kind of system big banks have trusted for decades. Ready to try
@@ -94,6 +121,35 @@
         </ul>
         <a href="{{ url_for('auth.register') }}" class="button button-crimson">Create an Account</a>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="container pt-10 pb-10">
+  <h2 class="text-light text-center mb-8">What Our Customers Say</h2>
+  <div class="row">
+    {% call testimonial("testimonial-1.jpeg", "Margaret Ellison", "Retired schoolteacher") %}
+    I moved my savings here after my old bank went extinct. No monthly fees nibbling at my nest egg,
+    and my balance updates the second I confirm a transfer.
+    {% endcall %}
+    {% call testimonial("testimonial-2.jpeg", "Daniel Okafor", "Bakery owner") %}
+    I pay my suppliers with a PAYDAY debit card and set a limit on every purchase. When a card went
+    missing, I blocked it in one click before my coffee got cold.
+    {% endcall %}
+    {% call testimonial("testimonial-3.jpeg", "Dr. Priya Raman", "Paleontologist") %}
+    I study things that last for millions of years. A COBOL core that has been counting dollars for
+    decades? That's the kind of fossil I trust with my paycheck.
+    {% endcall %}
+  </div>
+</section>
+
+<section class="w-100 bg-crimson fg-white">
+  <div class="container pt-10 pb-10 text-center">
+    <h2 class="text-light">Ready to Bank Like It's the Cretaceous?</h2>
+    <p class="text-leader2 mt-2 mb-6">Four short steps and you get a customer number and your first Checking account.</p>
+    <div class="d-flex flex-center gap-2 flex-wrap">
+      <a href="{{ url_for('auth.register') }}" class="button large light">Open Account <span class="mif-arrow-right"></span></a>
+      <a href="{{ url_for('banking.info', page='help') }}" class="button large dark"><span class="mif-help-outline"></span> Help Center</a>
     </div>
   </div>
 </section>
